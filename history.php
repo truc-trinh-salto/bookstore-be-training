@@ -25,10 +25,11 @@
 
     $page_first = ($page - 1) * $limit;
 
-    $stmt = $db->prepare('SELECT t.createdAt, t.address, t.receiver, t.order_id, t.total, o.user_id 
+    $stmt = $db->prepare('SELECT t.createdAt, t.address, t.receiver, t.order_id, t.total, o.user_id, tr.status 
                             FROM transactions as t 
                             LEFT JOIN order_item as o ON t.order_id = o.id 
-                            WHERE o.user_id = ? ORDER BY t.createdAt DESC LIMIT ?,?');
+                            LEFT JOIN transport as tr ON t.transport_id = tr.id 
+                            WHERE o.user_id = ? ORDER BY tr.status, t.createdAt DESC LIMIT ?,?');
     $stmt->bind_param("iii", $_SESSION['user_id'],$page_first,$limit);
     $stmt->execute();
     
@@ -116,6 +117,7 @@
                             <th scope="col">Thời gian check out</th>
                             <th scope="col">Người nhận</th>
                             <th scope="col">Tổng đơn hàng</th>
+                            <th scope="col">Trạng thái</th>
                             <th scope="col">Xem chi tiết</th>
                             </tr>
                         </thead>
@@ -126,6 +128,10 @@
                                 <td><?= $transaction['createdAt'] ?></td>
                                 <td><?= $transaction['receiver']?></td>
                                 <td><?= $transaction['total']?></td>
+                                <td><?php echo $transaction['status'] != 1 
+                                                                ? '<span class="text-warning font-weight-bold">Đang giao</span>' 
+                                                                : '<span class="text-success font-weight-bold">Giao thành công</span>' ?>
+                                </td>
                                 <td><a href="detail_transaction.php?order_id=<?php echo $transaction['order_id']?>">Chi tiết</a></td>
                                 <?php $index ++?>
                             </tr>

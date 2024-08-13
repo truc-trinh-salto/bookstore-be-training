@@ -159,9 +159,10 @@
 				<?php
 				unset($_SESSION['message']);
 			}
- 
 			?>
-                <?php foreach($categories as $category): ?>
+
+            <div class="books-show" style="height: 1400px;">
+            <?php foreach($categories as $category): ?>
                 <?php 
                     $stmt = $db->prepare('SELECT count(*) as total FROM books WHERE category_id =?');
                     $stmt->bind_param('i', $category['category_id']);
@@ -222,6 +223,8 @@
                 <div class="load-more" lastID="<?php echo $category_last ?>" style="display: none;">
                         <span>Loading...</span>
                 </div>
+            </div>
+                
             </div>
         </div>
     </div>

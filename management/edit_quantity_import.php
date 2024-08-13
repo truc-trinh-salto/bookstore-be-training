@@ -4,6 +4,9 @@
     $db = DBConfig::getDB();
     if(isset($_POST['quantity']) && isset($_POST['book_id']) && isset($_POST['import_id'])){
         $quantity = $_POST['quantity'];
+        if($quantity < 0){
+            $quantity = 0;
+        }
         $book_id = $_POST['book_id'];
         $import_id = $_POST['import_id'];
 
@@ -32,6 +35,14 @@
 
             $stmt = $db->prepare('UPDATE books SET stock = ? WHERE book_id =?');
             $stmt->bind_param('ii', $update_stock_book, $book_id);
+            $stmt->execute();
+
+            if($quantity < $book['quantity']){
+                $stmt = $db->prepare('UPDATE import SET quantity = quantity - ? WHERE id =?');
+            } else {
+                $stmt = $db->prepare('UPDATE import SET quantity = quantity +? WHERE id =?');
+            }
+
             $stmt->execute();
 
             echo json_encode(['status' => true,'quantity' => $new_quantity, 'new_after_stock' => $new_after_stock]);

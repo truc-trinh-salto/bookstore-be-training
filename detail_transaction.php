@@ -29,6 +29,14 @@
 
         $codesale = $stmt->get_result()->fetch_assoc();
     }
+
+    $stmt = $db->prepare('SELECT * FROM route where transport_id = ?');
+    $stmt->bind_param('i',$transaction['transport_id']);
+    $stmt->execute();
+
+    $routes = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+
     $index = 1;
     $total = 0;
 ?>
@@ -43,7 +51,22 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
-  </head>
+    
+    <script
+      src="https://kit.fontawesome.com/0f876a0d49.js"
+      crossorigin="anonymous"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+    />
+    <link rel="stylesheet" type="text/css" href="main.css" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Poppins"
+      rel="stylesheet"
+      type="text/css"
+    />
+</head>
 <body>
     <div class="app">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -128,7 +151,20 @@
                                     <td colspan="1" class="font-weight-bold text-success"><?php echo number_format($transaction['total'],2)?></td>
                                 </tr>
                         </tbody>
-                        </table>
+                    </table>
+                    <div class="card border-0 col-md-12">
+                        <div class="card-body">
+                        <!-- Rounded Square Marker Starts -->
+                        <ul
+                            class="progressbar rb-rounded-square d-flex justify-content-center"
+                        >
+                            <li class="box <?php if($routes[0]['status'] == 1) echo 'active' ?>">Đóng gói hàng</li>
+                            <li class="truck-fast <?php if($routes[1]['status'] == 1) echo 'active' ?>">Đang giao hàng</li>
+                            <li class="success <?php if($routes[2]['status'] == 1) echo 'active' ?>">Thành công</li>
+                        </ul>
+                        <!-- Rounded Square Marker Ends -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

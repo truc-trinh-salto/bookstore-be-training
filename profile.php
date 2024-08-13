@@ -10,6 +10,11 @@
     $stmt->execute();
 
     $user = $stmt->get_result()->fetch_assoc();
+
+    $stmt = $db->prepare('SELECT * FROM categories');
+    $stmt->execute();
+
+    $categories = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 ?>
 
 
@@ -129,6 +134,7 @@
           </div>
           
         </div><!--/col-3-->
+        
     	<div class="col-sm-9">
             <ul class="nav nav-tabs">
                 <li class="active"><a data-toggle="tab" href="#home">Thông tin cá nhân</a></li>
@@ -258,6 +264,7 @@
           </div><!--/tab-content-->
 
         </div><!--/col-9-->
+   
     </div><!--/row-->
   </div> <!--/.container-->
 </body>

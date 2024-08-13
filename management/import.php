@@ -112,7 +112,7 @@
                         <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Tìm kiếm</button>
                     </form>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-6 justify-content-right">
                     <form class="form-inline nav-item" method="GET" action="make_import.php">
                         <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Thực hiện nhập hàng</button>
                     </form>
@@ -152,7 +152,13 @@
                                 <th scope="col">Thao tác</th>
                             </tr>
                         </thead>
-                        <form action="save_import.php" method="POST">
+                        <div class="col-md-12 d-flex justify-content-center">
+                            <form action="import_excel.php" method="POST" enctype="multipart/form-data">
+                                <input type="file" class="text-center center-block file-upload" name="fileimport">
+                                <button class="btn btn-success" type="submit" name="submit-import">Lưu lại</button>
+                            </form>
+                        </div>
+                        <form class="col-md-6" action="save_import.php" method="POST">
                         <div class="justify-content-center">
                                 <button type="submit" name="save" class="btn btn-success">Lưu lại cho mỗi trang</button>
                         </div>
@@ -219,3 +225,4 @@
     
 </body>
 </html>
+

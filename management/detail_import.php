@@ -184,7 +184,7 @@
 
                                     <td class="text-danger font-weight-bold edit">
                                         <span id="quantity-<?php echo $book['book_id'] ?>" style="display:block;"><?php echo number_format($book['quantity'],0)?></span>
-                                        <input type="text" class="text-danger font-weight-bold"  style="width: 100px; display:none;" name="edit-quantity-<?php echo $book['book_id']?>" value="<?php echo number_format($book['quantity'],0)?>">
+                                        <input type="number" class="text-danger font-weight-bold"  style="width: 100px; display:none;" name="edit-quantity-<?php echo $book['book_id']?>" min="0" value="<?php echo number_format($book['quantity'],0)?>">
                                     </td>
 
                                     <td class="text-primary font-weight-bold"><?php echo number_format($book['before_import'],0)?></td>
@@ -269,8 +269,13 @@
 
                 const quantitySpan = document.querySelector(`span[id="quantity-${bookId}"]`);
                 const quantityInput = document.querySelector(`input[name="edit-quantity-${bookId}"]`);
-
-                const quantity = quantityInput.value;
+                var quantity;
+                if(quantityInput.value < 0 ){
+                    quantity = 0;
+                } else {
+                    quantity = quantityInput.value;
+                }
+                // const quantity = quantityInput.value;
                 const buttonEdit = document.querySelector(`a[name="button-edit-${bookId}"]`);
                 const quantityAfterStock = document.querySelector(`span[id="after-stock-${bookId}"]`);
 

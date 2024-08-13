@@ -33,10 +33,21 @@
         ORDER BY t.createdAt ASC');
         $stmt->bind_param('ss', $lower, $upper);
     } else {
+        $timestamp = strtotime(date('Y-m-d'));
+        $dateFrom = date('Y-m-01 00:00:00', $timestamp);
+        $dateTo  = date('Y-m-t 23:59:59', $timestamp);
+
+        $lower= date('Y-m-d H:i:s', strtotime($dateFrom));
+        $upper = date('Y-m-d H:i:s', strtotime($dateTo));
+        
+
         $stmt = $db->prepare('SELECT t.createdAt, t.address, t.receiver, t.order_id, t.total, o.user_id 
         FROM transactions as t 
         LEFT JOIN order_item as o ON t.order_id = o.id 
+        WHERE t.createdAt BETWEEN? AND ?
         ORDER BY t.createdAt ASC');
+
+        $stmt->bind_param('ss', $lower, $upper);
     }
 
     $stmt->execute();
@@ -65,8 +76,9 @@
         $stmt = $db->prepare('SELECT t.createdAt, t.address, t.receiver, t.order_id, t.total, o.user_id 
         FROM transactions as t 
         LEFT JOIN order_item as o ON t.order_id = o.id 
+        WHERE t.createdAt BETWEEN? AND ?
         ORDER BY t.createdAt ASC LIMIT?,?');
-        $stmt->bind_param('ii', $page_first, $limit);
+        $stmt->bind_param('ssii',$lower,$upper, $page_first, $limit);
     }
 
     $stmt->execute();
