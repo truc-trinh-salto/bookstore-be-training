@@ -7,6 +7,8 @@
     $category_last;
     $limit = 1;
 
+    $index = 1;
+
     $stmt = $db->prepare('SELECT * FROM categories WHERE category_id > ? ORDER BY category_id ASC');
     $stmt->bind_param('i', $lastID);
     $stmt->execute();
@@ -24,6 +26,7 @@
 
 ?>
     <?php if($number > 0):?>
+        <div class="books-show" style="height: 900px;">
         <?php foreach($categories as $category): ?>
                 <?php 
                     $stmt = $db->prepare('SELECT count(*) as total FROM books WHERE category_id =?');
@@ -38,7 +41,7 @@
 
                 <div class="row mt-4">
                     <?php 
-                        $stmt = $db->prepare('SELECT * FROM books WHERE category_id =?');
+                        $stmt = $db->prepare('SELECT * FROM books WHERE category_id =? LIMIT 8');
                         $stmt->bind_param('i', $category['category_id']);
                         $stmt->execute();
 
@@ -82,6 +85,7 @@
                     <?php endforeach;?>
                 </div>
                 <?php endforeach; ?>
+        </div>
         <?php if($number_rows > $limit): ?>
             <div class="load-more" lastID="<?php echo $category_last; ?>" style="display: none;">
                             <span>Loading...</span>

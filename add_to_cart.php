@@ -29,7 +29,7 @@
             array_push($_SESSION['qty_array'], $quantity);
             $message = 'Product added to cart!';
         }
-        $content = '<a class="nav-link dropdown-toggle display-count-cart" href="view_cart.php" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        $content = '<a class="nav-link dropdown-toggle display-count-cart" href="view_cart.php" id="navbarDropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="badge">'. count($_SESSION['cart']).'</span> Cart <span class="glyphicon glyphicon-shopping-cart"></span> 
                         </a>';
         $content .= '<div class="dropdown-menu display-cart" aria-labelledby="navbarDropdown">';

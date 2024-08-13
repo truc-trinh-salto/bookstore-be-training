@@ -64,9 +64,22 @@
                 $stmt->bind_param('ii', $_SESSION['user_id'], $code_id);
                 $stmt->execute();
             }
-            $stmt2 = $conn->prepare("INSERT INTO transactions (createdAt,shippedAt,address,receiver,order_id,total,codesale) values (NOW(),DATE_ADD(CURDATE(), INTERVAL 7 DAY),?,?,?,?,?)");
-            $stmt2->bind_param('ssidi', $address, $fullname, $order_id, $total,$codesale['id']);
+
+            $stmt = $conn->prepare("INSERT INTO transport (plannedAt,status) VALUES (DATE_ADD(CURDATE(), INTERVAL 7 DAY),0)");
+            $stmt->execute();
+
+            $insert_transport = $stmt->insert_id;
+
+            $stmt2 = $conn->prepare("INSERT INTO transactions (createdAt,shippedAt,address,receiver,order_id,total,codesale,transport_id) values (NOW(),DATE_ADD(CURDATE(), INTERVAL 7 DAY),?,?,?,?,?,?)");
+            $stmt2->bind_param('ssidii', $address, $fullname, $order_id, $total,$codesale['id'],$insert_transport);
             $stmt2->execute();
+
+            for($i = 0;$i <=2;$i++){
+                $stmt = $conn->prepare("INSERT INTO route (transport_id,point,status,estimateDate) VALUES (?,?,0,DATE_ADD(CURDATE(), INTERVAL 7 DAY))");
+                $stmt->bind_param('ii', $insert_transport, $i);
+                $stmt->execute();
+            }
+
 
             unset($_SESSION['cart']);
             unset($_SESSION['qty_array']);

@@ -161,7 +161,7 @@
 			}
 			?>
 
-            <div class="books-show" style="height: 1400px;">
+            <div class="books-show" style="height: 900px;">
             <?php foreach($categories as $category): ?>
                 <?php 
                     $stmt = $db->prepare('SELECT count(*) as total FROM books WHERE category_id =?');
@@ -176,7 +176,7 @@
 
                 <div class="row mt-4">
                     <?php 
-                        $stmt = $db->prepare('SELECT * FROM books WHERE category_id =?');
+                        $stmt = $db->prepare('SELECT * FROM books WHERE category_id =? LIMIT 8');
                         $stmt->bind_param('i', $category['category_id']);
                         $stmt->execute();
 
@@ -297,7 +297,32 @@
     //     });
     // });
 
+    if($(window).height() >= $(document).height()){
+        const lastID = $('.load-more').attr('lastID');
+        $.ajax({
+                url: 'getData.php',
+                type: 'POST',
+                data: {id: lastID},
+                beforeSend: function() {
+                    $('.load-more').show();
+                },
+                success: function(html) {
+                    $('.load-more').remove();
+                    $('#categoryList').append(html);
+                    isLoading = false;
+                },
+                error: function(error) {
+                    console.error(error);
+                    $('.load-more').hide();
+                    isLoading = false;
+                }
+            });
+    }
+
+
     document.addEventListener('DOMContentLoaded', function () {
+
+
     document.body.addEventListener('click', function(event) {
         if (event.target.classList.contains('btn-add-to-cart')) {
             event.preventDefault();
@@ -326,10 +351,12 @@
 
     let isLoading = false;
     $(window).scroll(function() {
+        
         if (isLoading) return;
         const lastID = $('.load-more').attr('lastID');
         const distance = $(document).height() - $(window).height();
         if (((distance - $(window).scrollTop()) < 1) && lastID != 0) {
+            // alert($('.books-show').scrollTop());
             isLoading = true;
             $.ajax({
                 url: 'getData.php',
@@ -351,6 +378,11 @@
             });
         }
     });
+
+    
+
+
+
 });
 </script>
 <?php
