@@ -124,7 +124,7 @@
                                 <th scope="col">Thể loại</th>
                                 <th scope="col">Giá Tiền</th>
                                 <th scope="col">Hiển thị trang thủ</th>
-                                <th scope="col">Thao tác</th>
+                                <th scope="col" class="text-center">Thao tác</th>
                             </tr>
                         </thead>
                             <?php foreach($books as $book):?> 
@@ -164,8 +164,16 @@
                                         ?>
                                     </td>
                                     <td>
-                                        <a href="edit_product.php?book_id=<?php echo $book['book_id']?>" class="btn btn-primary btn-sm">Chỉnh sửa</a>
+                                        <div class="row">
+                                            <a href="edit_product.php?book_id=<?php echo $book['book_id']?>" class="btn btn-primary btn-sm col-md-6">Chỉnh sửa</a>
+                                            <a href="delete_product.php?book_id=<?php echo $book['book_id']?>" class="btn btn-danger btn-sm col-md-6">Xoá</a>
+                                            <a href="gallery_image.php?book_id=<?php echo $book['book_id']?>" class="btn btn-info btn-sm col-md-12 mt-2">Mục hình ảnh</a>
+
+
+                                        </div>
+                                        <!-- <a href="edit_product.php?book_id=<?php echo $book['book_id']?>" class="btn btn-primary btn-sm col-xs-12">Chỉnh sửa</a>
                                         <a href="delete_product.php?book_id=<?php echo $book['book_id']?>" class="btn btn-danger btn-sm">Xoá</a>
+                                        <a href="delete_product.php?book_id=<?php echo $book['book_id']?>" class="btn btn-info btn-sm">Mục hình ảnh</a> -->
                                     </td>
                                     
                                 <?php $index ++?>

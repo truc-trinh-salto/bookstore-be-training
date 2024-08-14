@@ -50,8 +50,15 @@
                     <?php foreach($books as $book):?> 
                     <div class="col-sm-6 col-lg-3">
                         <div class="card card-course-item">
+                                    <?php 
+                                        $stmt = $db->prepare('SELECT * FROM gallery_image WHERE book_id =? and isShow = 1');
+                                        $stmt->bind_param('i', $book['book_id']);
+                                        $stmt->execute();
+
+                                        $image = $stmt->get_result()->fetch_assoc();
+                                    ?>
                                 <a href="">
-                                    <img class="card-img-top" width="150" height="200" src="<?php echo $book['image']?:'https://tse4.mm.bing.net/th?id=OIP.ZiwfBrifIO4lV_Q-gIC7VQHaKx&pid=Api&P=0&h=180' ?>" alt="">
+                                    <img class="card-img-top" width="150" height="200" src="<?php echo $image['image']?:'https://tse4.mm.bing.net/th?id=OIP.ZiwfBrifIO4lV_Q-gIC7VQHaKx&pid=Api&P=0&h=180' ?>" alt="">
                                 </a>
                                 
                                 <div class="card-body">

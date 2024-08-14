@@ -121,7 +121,14 @@
                             <?php foreach($book_cart as $cart):?>
                                 <div class="row mt-4">
                                     <div class="col-6">
-                                        <img width="70" height="70" src="<?php echo $cart['image'];?>">
+                                    <?php 
+                                        $stmt = $db->prepare('SELECT * FROM gallery_image WHERE book_id =? and isShow = 1');
+                                        $stmt->bind_param('i', $cart['book_id']);
+                                        $stmt->execute();
+
+                                        $image_cart = $stmt->get_result()->fetch_assoc();
+                                    ?>
+                                        <img width="70" height="70" src="<?php echo $image_cart['address'];?>">
                                     </div>
                                     <div class="col-6">
                                         <a href=""><?php echo $cart['title'] ?></a>
@@ -186,7 +193,14 @@
                     <div class="col-sm-6 col-lg-3">
                         <div class="card card-course-item">
                                 <a href="">
-                                    <img class="card-img-top" width="150" height="200" src="<?php echo $book['image']?:'https://tse4.mm.bing.net/th?id=OIP.ZiwfBrifIO4lV_Q-gIC7VQHaKx&pid=Api&P=0&h=180' ?>" alt="">
+                                    <?php 
+                                        $stmt = $db->prepare('SELECT * FROM gallery_image WHERE book_id =? and isShow = 1');
+                                        $stmt->bind_param('i', $book['book_id']);
+                                        $stmt->execute();
+
+                                        $image = $stmt->get_result()->fetch_assoc();
+                                    ?>
+                                    <img class="card-img-top" width="150" height="200" src="<?php echo $image['address']?:'https://tse4.mm.bing.net/th?id=OIP.ZiwfBrifIO4lV_Q-gIC7VQHaKx&pid=Api&P=0&h=180' ?>" alt="">
                                 </a>
                                 
                                 <div class="card-body">

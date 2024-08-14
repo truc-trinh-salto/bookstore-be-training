@@ -2,25 +2,19 @@
     session_start();
     require_once('../database.php');
     $db = DBConfig::getDB();
-    $imports;
+    $images;
+
+    $book_id = $_GET['book_id'];
 
     $limit = 6;
-    
-    if(isset($_GET['search_keyword']) && $_GET['search_keyword'] != null){
-        $search_keyword = $_GET['search_keyword'];
-        $search = "%$search_keyword%";
-        $stmt = $db->prepare('SELECT * from import WHERE title LIKE ? ORDER BY id ASC');
-        $stmt->bind_param("s",$search);
-    } else {
-        $stmt = $db->prepare("SELECT * FROM import ORDER BY id ASC");
-    }
 
+    $stmt = $db->prepare('SELECT * FROM gallery_image where book_id = ?');
+    $stmt->bind_param('i', $book_id);
     $stmt->execute();
 
-    $number_result  = $stmt->get_result()->num_rows;
+    $number_result = $stmt->get_result()->num_rows;
+    $number_page = ceil($number_result / $limit);
 
-    $number_page = ceil($number_result/ $limit);
-    
     if(!isset($_GET['page'])){
         $page = 1;
     } else {
@@ -30,34 +24,13 @@
     $page_first = ($page - 1) * $limit;
 
 
-    if(isset($_GET['search_keyword'])) {
-        $search_keyword = $_GET['search_keyword'];
-        $search = "%$search_keyword%";
-        $stmt = $db->prepare('SELECT * from import WHERE title LIKE ? ORDER BY id ASC LIMIT?,?');
-        $stmt->bind_param("sii",$search,$page_first,$limit);
-        
-    } else {
-        $stmt = $db->prepare("SELECT * FROM import ORDER BY id ASC LIMIT?,?");
-        $stmt->bind_param('ii',$page_first,$limit);
-    }
+
+
+    $stmt = $db->prepare('SELECT * FROM gallery_image where book_id = ? LIMIT ?,?');
+    $stmt->bind_param("iii",$book_id, $page_first, $limit);
     $stmt->execute();
-    $imports = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
-
-    $index = $page * $limit - $limit + 1;
-    $total = 0;
-
-    if(isset($_SESSION['import_item'])){
-        unset($_SESSION['import_item']);
-        unset($_SESSION['qty_array_import']);
-    }
-
-    $_SESSION['import_item'] = array();
-    $_SESSION['qty_array_import'] = array();
-
-    
-
-
+    $images = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $index = 1;
 ?>
 
 <DOCTYPE html>
@@ -81,24 +54,27 @@
                         ?>
                         <div class="alert alert-info text-center">
                             <?php echo $_SESSION['message']; ?>
-                        </div>  
+                        </div>
                         <?php
                         unset($_SESSION['message']);
                     }
 			?>
-            <div class="row">
-                <div class="col-md-6">
-                    <form class="form-inline nav-item" method="GET" action="">
-                        <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search_keyword">
-                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Tìm kiếm</button>
+                    <form action="add_gallery.php" method="POST" enctype="multipart/form-data">
+                        <div class="text-center">
+                                <img src="http://ssl.gstatic.com/accounts/ui/avatar_2x.png" class="avatar img-circle img-thumbnail" alt="avatar" height="300" width="300">
+                                <h6>Add more photo for book...</h6>
+                                <input type="file" class="text-center center-block file-upload" name="profile_image">
+                        </div>
+                        <input type="hidden" name="book_id" value="<?php echo $book_id ?>">
+                        <div class="form-group">
+                            <div class="col-xs-12 d-flex justify-content-center">
+                                <br>
+                                <button class="btn btn-lg btn-success pull-right" type="submit" name="submit"><i class="glyphicon glyphicon-ok-sign"></i> Save</button>
+                            </div>
+                        </div>
                     </form>
-                </div>
-                <div class="col-md-6 ">
-                    <a class="btn btn-info"href="import.php">Nhập hàng</a>
-                </div>
-            </div>
-            
-            <div class="d-flex justify-content-center">
+
+                    <div class="d-flex justify-content-center">
                         <nav aria-label="Page navigation example">
                                 <ul class="pagination">
                                     <?php if($page - 1 == 0):?>
@@ -120,34 +96,28 @@
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">Tiêu đề</th>
-                                <th scope="col">Ngày nhập hàng</th>
-                                <th scope="col">Tổng số lượng</th>
-                                <th scope="col">Trạng thái</th>
-                                <th scope="col">Chi tiết</th>
+                                <th scope="col">Hình ảnh</th>
+                                <th scope="col">Mặc định</th>
+                                <th scope="col">Thao tác</th>
                             </tr>
                         </thead>
-                            <?php foreach($imports as $import):?>
+                            <?php foreach($images as $image):?> 
                                 <tr>
                                     <th scope="row"><?= $index ?></th>
-                                    <td><?= $import['title'] ?></td>
-                                    <td><?= $import['import']?></td>
-                                    <td><?php echo number_format($import['quantity'],0)?></td>
                                     <td>
-                                        <?php 
-                                            if($import['status'] == 0){
-                                                echo "<span class='text-danger font-weight-bold'>Chưa xác nhận</span>";
-                                            } else {
-                                                echo "<span class='text-success font-weight-bold'>Đã xác nhận</span>";
-                                            } 
-                                        ?>
+                                        <img src="../<?php echo $image['address']  ?>" alt="<?php $image['image_id'] ?>" width="100" height="100">
                                     </td>
                                     <td>
-                                        <a href="detail_import.php?import_id=<?php echo $import['id']?>" class="btn btn-info btn-sm">Chi tiết</a>
-                                        <?php if($import['status'] == 0): ?>
-                                            <a href="delete_import.php?import_id=<?php echo $import['id']?>" class="btn btn-danger btn-sm">Xoá</a>
+                                        <?php if($image['isShow'] == 0): ?>
+                                            <a href="default_gallery.php?image_id=<?= $image['image_id']?>&book_id=<?= $book_id?>" class="btn btn-success">Chọn</a>
+                                        <?php else: ?>
+                                            <a href="default_gallery.php?image_id=<?= $image['image_id']?>&book_id=<?= $book_id?>" class="btn btn-danger">Huỷ</a>
                                         <?php endif; ?>
+                                    <td>
+                                        <a href="delete_gallery.php?image_id=<?php echo $image['image_id']?>" class="btn btn-danger">Xoá</a>
                                     </td>
+                    
+
                                 <?php $index ++?>
                                 </tr>   
                             <?php endforeach;?>
@@ -160,3 +130,32 @@
     
 </body>
 </html>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function() {
+
+    
+    var readURL = function(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('.avatar').attr('src', e.target.result);
+            }
+            
+            reader.readAsDataURL(input.files[0]);
+            
+        }
+    }
+
+
+    $(".file-upload").on('change', function(){
+        readURL(this);
+    });
+    });
+
+    if ( window.history.replaceState ) {
+        window.history.replaceState( null, null, window.location.href );
+    }
+</script>

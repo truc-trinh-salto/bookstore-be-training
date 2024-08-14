@@ -7,7 +7,7 @@
     $comments;
 
     $book_id = $_GET['book_id'];
-    $stmt = $db->prepare('SELECT b.title, b.image, b.book_id, b.description, b.category_id, b.price, 
+    $stmt = $db->prepare('SELECT b.title, b.book_id, b.description, b.category_id, b.price, 
                                     b.created_at, b.updated_at, b.sale, b.hotItem, b.stock, b.authors, c.name_category
                                     FROM books as b 
                                     LEFT JOIN categories as c 
@@ -19,13 +19,15 @@
 
     $book = $stmt->get_result()->fetch_assoc();
 
-    $stmt = $db->prepare('SELECT * FROM books WHERE category_id = ? and book_id != ? LIMIT 5');
+    $stmt = $db->prepare('SELECT * FROM books
+                                    WHERE category_id = ? and book_id != ? LIMIT 5');
     $stmt->bind_param('ii', $book['category_id'],$book_id);
     $stmt->execute();
 
     $books_same_type = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
-    $stmt = $db->prepare('SELECT * FROM books WHERE hotItem = 1 and book_id != ? LIMIT 5');
+    $stmt = $db->prepare('SELECT * FROM books
+                                    WHERE hotItem = 1 and book_id != ? LIMIT 5');
     $stmt->bind_param('i', $book_id);
     $stmt->execute();
 
@@ -168,7 +170,14 @@
                             <?php foreach($book_cart as $cart):?>
                                 <div class="row mt-4">
                                     <div class="col-6">
-                                        <img width="70" height="70" src="<?php echo $cart['image'];?>">
+                                        <?php 
+                                            $stmt = $db->prepare('SELECT * FROM gallery_image WHERE book_id =? and isShow = 1');
+                                            $stmt->bind_param('i', $cart['book_id']);
+                                            $stmt->execute();
+
+                                            $image_cart = $stmt->get_result()->fetch_assoc();
+                                        ?>
+                                        <img width="70" height="70" src="<?php echo $image_cart['address'];?>">
                                     </div>
                                     <div class="col-6">
                                         <a href=""><?php echo $cart['title'] ?></a>
@@ -217,10 +226,17 @@
                             <?php foreach($books_hot as $book_hoot):?>
                                 <?php if($book_hoot['hotItem'] == 1) {?>
                                     <li class="col-xs-12 item">
+                                        <?php 
+                                            $stmt = $db->prepare('SELECT * FROM gallery_image WHERE book_id =? and isShow = 1');
+                                            $stmt->bind_param('i', $book_hoot['book_id']);
+                                            $stmt->execute();
+
+                                            $image_hot = $stmt->get_result()->fetch_assoc();
+                                        ?>
                                         <a href="detail_product.php?book_id=<?php echo $book_hot['book_id'] ?>">
                                             <img width="70" height="70" src="<?php 
-                                            if($book_hoot['image']){
-                                                echo $book_hoot['image'];
+                                            if($image_hot['address']){
+                                                echo $image_hot['address'];
                                             }else {
                                                 echo 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3cD47c9xUZyKlO3j3z9vdBHV0P2BIwfkeWg&s';
                                             }?>
@@ -244,11 +260,37 @@
                         </div>
                     </div>
                     <div class="column_right col-md-9 col-xs-12 row">
-                        <a href="" class="col-md-7">
-                            <img class="card-img-top" width="500" height="500" src="<?php echo $book['image']?:'https://tse4.mm.bing.net/th?id=OIP.ZiwfBrifIO4lV_Q-gIC7VQHaKx&pid=Api&P=0&h=180'?>" alt="">
-                        </a>
+                        <div class="row col-md-7">
+                            <ul class="side_prd_list d-flex flex-wrap justify-content-center col-md-12" style="list-style: none;">
+                                <?php 
+                                    $stmt = $db->prepare("SELECT * FROM gallery_image WHERE book_id=?");
+                                    $stmt->bind_param("i", $book_id);
+                                    $stmt->execute();
+                                    $images = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+                                ?>
+                                <?php foreach($images as $image):?>
+                                    <li class="col-md-3 col-6">
+                                        <a href="" class="select-image">
+                                            <img width="50" height="50" src="<?php echo $image['address']?>" alt="<?php echo $image['image_id']?>">
+                                        </a>
+                                    </li>
+                                <?php endforeach;?>
+                            </ul>
+                            <a href="" class="col-md-12">
+                                        <?php 
+                                            $stmt = $db->prepare('SELECT * FROM gallery_image WHERE book_id =? and isShow = 1');
+                                            $stmt->bind_param('i', $book['book_id']);
+                                            $stmt->execute();
+
+                                            $image_current = $stmt->get_result()->fetch_assoc();
+                                        ?>
+                                <img class="card-img-top" id="display-image" width="500" height="500" src="<?php echo $image_current['address']?:'https://tse4.mm.bing.net/th?id=OIP.ZiwfBrifIO4lV_Q-gIC7VQHaKx&pid=Api&P=0&h=180'?>" alt="">
+                            </a>
+                        </div>
+
                         <div class="card-course-item col-md-5" >
                                 <div class="card-body">
+
                                     <a href="">
                                         <h5 class="card-title text-center"><?= $book['title']?> - <?php echo $book['authors'] ?></h5>
                                     </a>
@@ -468,8 +510,15 @@
 
                                                     <div class="col-md-2 col-lg-2">
                                                         <div class="card card-course-item">
+                                                                    <?php 
+                                                                        $stmt = $db->prepare('SELECT * FROM gallery_image WHERE book_id =? and isShow = 1');
+                                                                        $stmt->bind_param('i', $book_same_type['book_id']);
+                                                                        $stmt->execute();
+
+                                                                        $image_same = $stmt->get_result()->fetch_assoc();
+                                                                    ?>
                                                                 <a href="">
-                                                                    <img class="card-img-top" width="50" height="100" src="<?php echo $book_same_type['image']?:'https://tse4.mm.bing.net/th?id=OIP.ZiwfBrifIO4lV_Q-gIC7VQHaKx&pid=Api&P=0&h=180' ?>" alt="">
+                                                                    <img class="card-img-top" width="50" height="100" src="<?php echo $image_same['address']?:'https://tse4.mm.bing.net/th?id=OIP.ZiwfBrifIO4lV_Q-gIC7VQHaKx&pid=Api&P=0&h=180' ?>" alt="">
                                                                 </a>
                                                                 
                                                                 <div class="card-body">
@@ -504,35 +553,35 @@
 
 
                                         <div class="tab-pane" id="tabs-4" role="tabpanel">
-                                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th scope="col">#</th>
-                                    <th scope="col">Tên chi nhánh</th>
-                                    <th scope="col">Địa chỉ</th>
-                                    <th scope="col">Số điện thoại</th>
-                                    <th scope="col">Chi tiết</th>
-                                </tr>
-                            </thead>
-                                <?php foreach($branchs as $branch):?> 
-                                    <tr>
-                                        <th scope="row"><?= $index ?></th>
-                                        <td><?= $branch['title'] ?></td>
-                                        <td><?= $branch['address'] ?></td>
-                                        <td><?= $branch['hotline'] ?></td>
-                                        <td>
-                                            <?php if($branch['status'] == 1): ?>
-                                                <p class="btn btn-success btn-sm">Còn hàng</p>
-                                            <?php else: ?>
-                                                <p class="btn btn-danger btn-sm">Hết hàng</p>
-                                            <?php endif; ?>
-                                        </td>
-                                        
-                                    <?php $index ++?>
-                                    </tr>   
-                                <?php endforeach;?>
-                            </tbody>
-                </table>
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">#</th>
+                                                        <th scope="col">Tên chi nhánh</th>
+                                                        <th scope="col">Địa chỉ</th>
+                                                        <th scope="col">Số điện thoại</th>
+                                                        <th scope="col">Chi tiết</th>
+                                                    </tr>
+                                                </thead>
+                                                    <?php foreach($branchs as $branch):?> 
+                                                        <tr>
+                                                            <th scope="row"><?= $index ?></th>
+                                                            <td><?= $branch['title'] ?></td>
+                                                            <td><?= $branch['address'] ?></td>
+                                                            <td><?= $branch['hotline'] ?></td>
+                                                            <td>
+                                                                <?php if($branch['status'] == 1): ?>
+                                                                    <p class="btn btn-success btn-sm">Còn hàng</p>
+                                                                <?php else: ?>
+                                                                    <p class="btn btn-danger btn-sm">Hết hàng</p>
+                                                                <?php endif; ?>
+                                                            </td>
+                                                            
+                                                            <?php $index ++?>
+                                                        </tr>   
+                                                    <?php endforeach;?>
+                                                </tbody>
+                                            </table>
                                         </div>
 
 
@@ -577,8 +626,24 @@
                 });
             });
         });
+
         
     });
+
+
+    const changeImage = document.querySelectorAll('.select-image');
+    changeImage.forEach(image => {
+                image.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    const imageAddress = this.querySelector('img').src;
+                    var image = new Image();
+                    image.onload = function () {
+                        document.getElementById('display-image').setAttribute('src', image.src);
+                    };
+                    image.src = imageAddress;
+                      
+                });
+        });
 
 
     

@@ -100,7 +100,12 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
-  </head>
+    <style>
+        .dropdown:hover>.dropdown-menu {
+            display: block;
+            }
+    </style>
+</head>
 <body>
     <div class="app">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -170,8 +175,45 @@
                         </a>
                         </div>
                     </li>
-                    <li class="nav-item">
-                        <a class ="nav-link"href="view_cart.php"><span class="badge"><?php echo count($_SESSION['cart']); ?></span> Cart <span class="glyphicon glyphicon-shopping-cart"></span></a>
+                    <li class="nav-item dropdown" id="show_cart">
+                        <a class="nav-link dropdown-toggle display-count-cart" href="view_cart.php" id="navbarDropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="badge"><?php echo count($_SESSION['cart']); ?></span> Cart <span class="glyphicon glyphicon-shopping-cart"></span> 
+                        </a>
+                        <?php if(count($_SESSION['cart']) >0 ): ?>
+                        <div class="dropdown-menu display-cart"aria-labelledby="navbarDropdown">
+                            <?php
+                                $stmt = $db->prepare("SELECT * FROM books WHERE book_id IN (".implode(',',$_SESSION['cart']).")");
+                                $stmt->execute();
+                                $book_cart = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+                            ?>
+                            <?php foreach($book_cart as $cart):?>
+                                <div class="row mt-4">
+                                    <div class="col-6">
+                                        <?php 
+                                            $stmt = $db->prepare('SELECT * FROM gallery_image WHERE book_id =? and isShow = 1');
+                                            $stmt->bind_param('i', $cart['book_id']);
+                                            $stmt->execute();
+
+                                            $image_cart = $stmt->get_result()->fetch_assoc();
+                                        ?>
+                                        <img width="70" height="70" src="<?php echo $image_cart['address'];?>">
+                                    </div>
+                                    <div class="col-6">
+                                        <a href=""><?php echo $cart['title'] ?></a>
+                                        <?php 
+                                            $index = array_search($cart['book_id'], $_SESSION['cart']);
+                                            $price = $cart['price'];
+                                            if($cart['sale'] != null && $cart['sale'] > 0) {
+                                                $price = $price - ($price * $cart['sale'] / 100);
+                                            }
+                                        ?>
+                                        <p><?php echo $_SESSION['qty_array'][$index] ?></p>
+                                        <p class="font-weight-bold text-info" style="font-size:10px;"><?php echo number_format($price * $_SESSION['qty_array'][$index],2)?></p>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                        <?php endif;?>
                     </li>
                     
                 </ul>
@@ -205,8 +247,15 @@
                     <?php foreach($books as $book):?> 
                         <div class="col-sm-6 col-lg-3">
                         <div class="card card-course-item">
+                                    <?php 
+                                        $stmt = $db->prepare('SELECT * FROM gallery_image WHERE book_id =? and isShow = 1');
+                                        $stmt->bind_param('i', $book['book_id']);
+                                        $stmt->execute();
+
+                                        $image = $stmt->get_result()->fetch_assoc();
+                                    ?>
                                 <a href="detail_product.php?book_id<?php echo $book['book_id']?>">
-                                    <img class="card-img-top" width="150" height="200" src="<?php echo $book['image']?: 'https://tse4.mm.bing.net/th?id=OIP.ZiwfBrifIO4lV_Q-gIC7VQHaKx&pid=Api&P=0&h=180'?>" alt="">
+                                    <img class="card-img-top" width="150" height="200" src="<?php echo $image['address']?: 'https://tse4.mm.bing.net/th?id=OIP.ZiwfBrifIO4lV_Q-gIC7VQHaKx&pid=Api&P=0&h=180'?>" alt="">
                                 </a>
                                 
                                 <div class="card-body">
@@ -245,13 +294,20 @@
             button.addEventListener('click', function (event) {
                 event.preventDefault();
                 const productId = this.dataset.bookId;
+                const quantity = 1;
+                
                 $.ajax({
                     url: 'add_to_cart.php',
                     method: 'POST',
-                    data: {book_id: productId,},
+                    data: {book_id: productId, quantity: quantity},
                     success: function (response) {
-                        const cartCount = JSON.parse(response).count;
-                        document.querySelector('.badge').textContent = cartCount;
+                        // const cartCount = JSON.parse(response).count;
+                        // document.querySelector('.badge').textContent = cartCount;
+                        // alert(JSON.parse(response).message);
+                        $('.display-cart').remove();
+                        $('.display-count-cart').remove();
+                        alert(response);
+                        $('#show_cart').append(response);
                     },
                     error: function (error) {
                         console.error(error);
@@ -260,8 +316,6 @@
             });
         });
 
-        // Hàm để thêm sản phẩm vào giỏ hàng
-        
     });
 </script>
 <?php

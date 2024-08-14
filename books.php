@@ -36,4 +36,3 @@ Class Book{
         $this->hotItem = $hotItem;
     }
 }
-?>

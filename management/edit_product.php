@@ -33,6 +33,20 @@
     $stmt->execute();
     $branchs = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
+    $stmt = $db->prepare('SELECT * FROM gallery_image where book_id =?');
+    $stmt->bind_param('i', $book_id);
+    $stmt->execute();
+
+    $images = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+    $selected_image;
+
+    foreach($images as $item) {
+        if($item['isShow'] == 1){
+            $selected_image = $item;
+        }
+    }
+
 
     $index = 1;
     $total = 0;
@@ -72,10 +86,25 @@
                     <form action="" method="POST" class="forms-sample">
                         <div class="form-group">
                         <div class="text-center">
-                                <img src="<?php echo $book['image']?>" class="rounded" width="100" height="100" alt="">
+                                <img src="../<?php echo $selected_image['address']?>" class="rounded" id="book_image" width="200" height="200" alt="">
                             </div>
-                            <label for="exampleInputImageUrl">Hình ảnh</label>
-                            <input type="text" class="form-control" id="exampleInputImageUrl" placeholder="Image URL" name="image" value="<?php echo $book['image']?>">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="exampleInputCategory">Mục hình ảnh</label>
+                            <select class="form-control select-image" id="exampleInputCategory" name="image_id" onchange="handleSelectChange(event)">
+                                <?php $index = 0; ?>
+                                <?php foreach($images as $image):?>
+                                    <option value="<?php echo $image['image_id']?>" data-image="<?php echo '../'.$image['address'] ?>"
+                                    <?php 
+                                        if($image['isShow'] == 1){
+                                            echo ' selected="selected" ';
+                                        }
+                                    ?>
+                                    >Hình <?= $index + 1?></option>
+                                    <?php $index++;?>
+                                <?php endforeach;?>
+                            </select>
                         </div>
                         <div class="form-group">
                             <label for="exampleInputName1">Tên sản phẩm</label>
@@ -195,11 +224,25 @@
     
 </body>
 </html>
+<script>
+    function handleSelectChange(event) {
+        var selectElement = event.target;
+        var value = selectElement.value;
+        var imageSrc = selectElement[event.target.selectedIndex].dataset.image;
+        // alert(image);
+
+        var image = new Image();
+        image.onload = function () {
+            document.getElementById('book_image').setAttribute('src', this.src);
+        };
+        image.src = imageSrc;
+    }
+</script>
 
 <?php
     if(isset($_POST['submit']) && $_SERVER['REQUEST_METHOD'] == 'POST')
     {
-        $image = $_POST['image'];
+        $image = $_POST['image_id'];
         $name = $_POST['name'];
         $quantity = $_POST['quantity'];
         $price = $_POST['price'];
@@ -208,12 +251,21 @@
         $authors = $_POST['authors'];
         $description = $_POST['description'];
 
+        echo $image;
+
         $stmt = $db->prepare('UPDATE books SET image = ?, title=?, stock =? , price =?, hotItem=?, category_id=?, authors=?, description=?, updated_at=NOW() WHERE book_id=?');
-        $stmt->bind_param('ssidiissi', $image, $name, $quantity, $price, $hotItem, $categoryId, $authors, $description,$book_id);
+        $stmt->bind_param('isidiissi', $image, $name, $quantity, $price, $hotItem, $categoryId, $authors, $description,$book_id);
         $stmt->execute();
 
         if($stmt->affected_rows > 0)
         {
+            $stmt = $db->prepare('UPDATE gallery_image SET isShow = 0 WHERE book_id=?');
+            $stmt->bind_param('i', $book_id);
+            $stmt->execute();
+
+            $stmt = $db->prepare('UPDATE gallery_image SET isShow = 1 WHERE image_id=?');
+            $stmt->bind_param('i', $image);
+            $stmt->execute();
             $_SESSION['message'] = 'Cập nhật sản phẩm thành công';
             header("refresh: 0");
         }

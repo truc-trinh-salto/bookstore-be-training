@@ -39,11 +39,13 @@
                         unset($_SESSION['message']);
                     }
 			?>
-				<form action="" method="POST" class="forms-sample">
-					<div class="form-group">
-						<label for="exampleInputImageUrl">Hình ảnh</label>
-						<input type="text" class="form-control" id="exampleInputImageUrl" placeholder="Image URL" name="image">
-					</div>
+				<form action="" method="POST" class="forms-sample" enctype="multipart/form-data">
+                    <div class="text-center">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3cD47c9xUZyKlO3j3z9vdBHV0P2BIwfkeWg&s" class="avatar img-circle img-thumbnail" alt="avatar" height="300" width="300">
+                        <h6>Upload a different photo...</h6>
+                        <input type="file" class="text-center center-block file-upload" name="book-image">
+                    </div>
+
 					<div class="form-group">
 						<label for="exampleInputName1">Tên sản phẩm</label>
 						<input type="text" class="form-control" id="exampleInputName1" placeholder="Product Name" name="name">
@@ -92,6 +94,35 @@
 </body>
 </html>
 
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function() {
+
+    
+    var readURL = function(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('.avatar').attr('src', e.target.result);
+            }
+            
+            reader.readAsDataURL(input.files[0]);
+            
+        }
+    }
+
+
+    $(".file-upload").on('change', function(){
+        readURL(this);
+    });
+    });
+
+    if ( window.history.replaceState ) {
+        window.history.replaceState( null, null, window.location.href );
+    }
+</script>
+
 <?php
     if(isset($_POST['submit']) && $_SERVER['REQUEST_METHOD'] == 'POST')
     {
@@ -103,27 +134,71 @@
         $categoryId = $_POST['category'];
         $authors = $_POST['authors'];
         $description = $_POST['description'];
-        // echo $image;
-        // echo $name;
-        // echo $quantity;
-        // echo $price;
-        // echo $hotItem;
-        // echo $categoryId;
-        // echo $authors;
-        // echo $description;
-        
 
+        
         $stmt = $db->prepare('INSERT INTO books (image, title, stock, price, hotItem, category_id, authors, description, created_at) values (?,?,?,?,?,?,?,?,NOW())');
         $stmt->bind_param('ssidiiss', $image, $name, $quantity, $price, $hotItem, $categoryId, $authors, $description);
         $stmt->execute();
 
-        if($stmt->affected_rows > 0)
-        {
-            $_SESSION['message'] = 'Thêm mới sản phẩm thành công';
+        $book_id = $stmt->insert_id;
+        // echo $_FILES['book-image'];
+        // echo basename($_FILES["book-image"]["name"]);
+        $target_dir = "public/assets/img/";
+        $target_file = $target_dir . basename($_FILES["book-image"]["name"]);
+
+        echo $target_file;
+        $uploadOk = 1;
+        $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+
+        // Kiểm tra file có phải là hình ảnh thật hay không
+        $check = getimagesize($_FILES["book-image"]["tmp_name"]);
+        if($check !== false) {
+            $uploadOk = 1;
+        } else {
+            echo "File is not an image.";
+            $uploadOk = 0;
         }
-        else
-        {
-            $_SESSION['message'] = 'Thêm mới sản phẩm thất bại';
+
+        // Kiểm tra nếu file đã tồn tại
+        if (file_exists($target_file)) {
+            // echo "Sorry, file already exists.";
+            // $uploadOk = 0;
+        } else {
+            move_uploaded_file($_FILES["book-image"]["tmp_name"], $target_dir);
+        }
+
+        // Giới hạn kích thước file
+        if ($_FILES["image"]["size"] > 500000) {
+            echo "Sorry, your file is too large.";
+            $uploadOk = 0;
+        }
+
+        // Giới hạn loại file
+        if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif" ) {
+            echo "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+            $uploadOk = 0;
+        }
+
+        // Kiểm tra nếu $uploadOk là 0 do có lỗi
+        if ($uploadOk == 0) {
+            echo "Sorry, your file was not uploaded.";
+        // Nếu mọi thứ đều ổn, thử upload file
+        } else {
+                echo "The file ". basename( $_FILES["book-image"]["name"]). " has been uploaded.";
+
+                // Lưu đường dẫn hình ảnh vào cơ sở dữ liệu
+                $stmt = $db->prepare("INSERT INTO gallery_image(address,book_id,isShow) values(?,?,1)");
+                $stmt->bind_param("si", $target_file, $book_id);
+                $stmt->execute();
+                if($stmt->affected_rows > 0)
+                {
+                    $_SESSION['message'] = 'Thêm mới sản phẩm thành công';
+                }
+                else
+                {
+                    $_SESSION['message'] = 'Thêm mới sản phẩm thất bại';
+                }
+                
         }
     }
 
