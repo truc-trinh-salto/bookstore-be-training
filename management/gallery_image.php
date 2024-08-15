@@ -63,7 +63,7 @@
                         <div class="text-center">
                                 <img src="http://ssl.gstatic.com/accounts/ui/avatar_2x.png" class="avatar img-circle img-thumbnail" alt="avatar" height="300" width="300">
                                 <h6>Add more photo for book...</h6>
-                                <input type="file" class="text-center center-block file-upload" name="profile_image">
+                                <input type="file" class="text-center center-block file-upload" name="profile_image[]" multiple="multiple">
                         </div>
                         <input type="hidden" name="book_id" value="<?php echo $book_id ?>">
                         <div class="form-group">

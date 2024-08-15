@@ -25,19 +25,7 @@
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="category.php">Thể loại</a>
-                    </li>
-
-                    <li class="nav-item">
                         <a class="nav-link" href="codesale.php">Mã khuyến mãi</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="hot_item.php">Bán chạy</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="inventory.php">Nhập hàng</a>
                     </li>
 
                     
@@ -49,8 +37,6 @@
                             ?>
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="../management/add_product.php">Thêm sản phẩm mới</a>
-                        <a class="dropdown-item" href="../management/add_category.php">Thêm sản thể loại</a>
                         <a class="dropdown-item" href="../management/add_store.php">Thêm chi nhánh mới loại</a>
                         <a class="dropdown-item" href="../management/add_codesale.php">Thêm mã khuyến mãi</a>
                         <a class="dropdown-item" href="../logout.php">Đăng xuất

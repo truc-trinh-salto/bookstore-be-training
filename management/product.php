@@ -45,7 +45,7 @@
                                     LEFT JOIN categories as c 
                                     ON b.category_id = c.category_id
                                     WHERE b.title LIKE ? OR b.authors LIKE ? OR b.description LIKE ? OR c.name_category LIKE ?
-                                    ORDER BY b.book_id ASC LIMIT ?,?');
+                                    ORDER BY b.book_id DESC LIMIT ?,?');
         $stmt->bind_param("ssssii",$search, $search, $search, $search,$page_first,$limit);
         
     } else {
@@ -54,7 +54,7 @@
                                     FROM books as b 
                                     LEFT JOIN categories as c 
                                     ON b.category_id = c.category_id
-                                    ORDER BY b.book_id ASC LIMIT ?,?');
+                                    ORDER BY b.book_id DESC LIMIT ?,?');
         $stmt->bind_param('ii',$page_first,$limit);
     }
     $stmt->execute();
@@ -91,10 +91,20 @@
                         unset($_SESSION['message']);
                     }
 			?>
-            <form class="form-inline nav-item" method="GET" action="">
-                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search_keyword">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Tìm kiếm</button>
-            </form>
+            <div class="row mt-2">
+                <div class="col-md-3 d-flex justify-content-start">
+                    <a href="hot_item.php" class="btn btn-info">Bán chạy</a>
+                </div>
+                <div class="col-md-3 d-flex justify-content-start">
+                    <a href="inventory.php" class="btn btn-info">Nhập hàng</a>
+                </div>
+                <div class="col-md-3 d-flex justify-content-end">
+                    <a href="add_product.php" class="btn btn-info">Thêm sản phẩm mới</a>
+                </div>
+                <div class="col-md-3 d-flex justify-content-end">
+                    <a href="category.php" class="btn btn-info">Thể loại</a>
+                </div>
+            </div>
             <div class="d-flex justify-content-center">
                         <nav aria-label="Page navigation example">
                                 <ul class="pagination">
@@ -112,7 +122,21 @@
                                 </ul>
                             </nav>
                     </div>
-                <div class="row">
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <form class="form-inline d-flex justify-content-start" method="GET" action="">
+                                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search_keyword">
+                                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Tìm kiếm</button>
+                            </form>
+                        </div>
+                        <div class="col-md-6 d-flex justify-content-end">
+                                <form action="add_update_multi_product.php" method="POST" enctype="multipart/form-data">
+                                    <input type="file" class="text-center center-block file-upload" name="fileimport">
+                                    <button class="btn btn-outline-success" type="submit" name="submit-import">Thực hiện nhập file</button>
+                                </form>
+                        </div>
+
                     <table class="table">
                         <thead>
                             <tr>
@@ -131,10 +155,17 @@
                                 <tr>
                                     <th scope="row"><?= $index ?></th>
                                     <td>
+                                        <?php 
+                                            $stmt = $db->prepare('SELECT * FROM gallery_image WHERE book_id =? and isShow = 1');
+                                            $stmt->bind_param('i', $book['book_id']);
+                                            $stmt->execute();
+
+                                            $image = $stmt->get_result()->fetch_assoc();
+                                        ?>
                                         <img width="100" height="100" src="
                                         <?php 
-                                        if($book['image']){
-                                            echo $book['image'];
+                                        if($image['address']){
+                                            echo '../'.$image['address'];
                                         }else {
                                             echo 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3cD47c9xUZyKlO3j3z9vdBHV0P2BIwfkeWg&s';
                                         }?>
@@ -181,7 +212,7 @@
                             <?php endforeach;?>
                         </tbody>
                         </table>
-                </div>
+                </>
             </div>
         </div>
     </div>

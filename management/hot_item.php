@@ -134,17 +134,18 @@
                             unset($_SESSION['message']);
                         }
                 ?>
-                <div class="row justify-content-center">
-                    <form class="form-inline nav-item col-md-6" method="GET" action="">
-                            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search_keyword" value="<?php echo $search_keyword?>">
-                            <input class="form-control mr-sm-2" type="month" placeholder="Search" aria-label="Search" name="date_select" value="<?php echo $date?>">
-                            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Tìm kiếm</button>
-                    </form>
-                    <form class="form-inline nav-item col-md-6 justify-content-center" method="GET" action="export.php">
-                            <input class="form-control mr-sm-2" type="hidden" name="date_select" value="<?php echo $date?>">
-                            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Xuất file</button>
-                    </form>
+
+            <div class="row">
+                <div class="col-md-6 d-flex justify-content-start">
+                            <a href="product.php" class="btn btn-success">Quay lại</a>
                 </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                        <form class="form-inline nav-item col-md-6 justify-content-center" method="GET" action="export.php">
+                            <input class="form-control mr-sm-2" type="hidden" name="date_select" value="<?php echo $date?>">
+                            <button class="btn btn-info my-2 my-sm-0" type="submit">Xuất file</button>
+                        </form>
+                </div>
+            </div>
                 <div class="d-flex justify-content-center">
                             <nav aria-label="Page navigation example">
                                     <ul class="pagination">
@@ -163,6 +164,14 @@
                                 </nav>
                         </div>
                     <div class="row">
+                        <div class="col-md-12 d-flex justify-content-center">
+                            <form class="form-inline nav-item col-md-6" method="GET" action="">
+                                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search_keyword" value="<?php echo $search_keyword?>">
+                                    <input class="form-control mr-sm-2" type="month" placeholder="Search" aria-label="Search" name="date_select" value="<?php echo $date?>">
+                                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Tìm kiếm</button>
+                            </form>
+                        </div>
+                        
                         <table class="table">
                             <thead>
                                 <tr>

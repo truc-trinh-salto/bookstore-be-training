@@ -2,6 +2,17 @@
     require_once('database.php');
     $db = DBConfig::getDB();
     session_start();
+    if(isset($_GET['lang']) && !empty($_GET['lang'])){
+        $_SESSION['lang'] = $_GET['lang'];
+        if(isset($_SESSION['lang']) && $_SESSION['lang'] != $_GET['lang']){
+         echo "<script type='text/javascript'> location.reload(); </script>";
+        }
+       }
+       if(isset($_SESSION['lang'])){
+            include "public/language/".$_SESSION['lang'].".php";
+       }else{
+            include "en.php";
+       }
     
     $stmt = $db->prepare('SELECT * FROM branch');
     $stmt->execute();
@@ -25,52 +36,7 @@
   </head>
 <body>
     <div class="app">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="home.php">Book Store</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Thể loại</a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <?php foreach($categories as $category):?>
-                                <a class="dropdown-item" href="category.php?category_id=<?php echo $category['category_id'];?>&name=<?php echo $category['name_category'];?>"><?php echo $category['name_category'];?></a>
-                            <?php endforeach;?>    
-                        </div>
-                    </li>
-                    <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <?php 
-                                if($_SESSION['user_id']) {
-                                    echo $_SESSION['fullname'];
-                                } else {
-                                    echo 'Tài khoản';
-                                }
-                            ?>
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <?php if($_SESSION['user_id']): ?>
-                            <a class="dropdown-item" href="history.php">Lịch sử mua hàng</a>
-                            <a class="dropdown-item" href="profile.php">Thông tin cá nhân</a>
-                            <?php else:?>
-                            <a class="dropdown-item" href="index.php">Đăng nhập</a>
-                            <?php endif; ?>
-                            <a class="dropdown-item" href="logout.php">Đăng xuất
-                        </a>
-                        </div>
-                    </li>
-                    <li class="nav-item">
-                        <a class ="nav-link"href="view_cart.php"><span class="badge"><?php echo count($_SESSION['cart']); ?></span> Cart <span class="glyphicon glyphicon-shopping-cart"></span></a>
-                    </li>
-                    
-                </ul>
-            </div>
-        </div>
-    </nav>
+        <?php include('partials/sub_header.php')?>
         <div class="container">
             <div class="mt-4">
             <?php 
@@ -96,14 +62,14 @@
                                     <a href="">
                                         <h5 class="card-title"><?= $branch['title']?></h5>
                                     </a>
-                                    <p class="card-text" >Địa chỉ: <?= $branch['address']?></p>
-                                    <p class="card-text" >Số điện thoại: <?= $branch['hotline']?></p>
+                                    <p class="card-text" ><?=_ADDRESS?>: <?= $branch['address']?></p>
+                                    <p class="card-text" ><?=_HOTLINE?>: <?= $branch['hotline']?></p>
                                     <!-- <form action="" method="POST"> -->
                                     <form action="" method="POST">
                                         <input type="hidden" name="address" value="<?= $branch['address']?>">
                                         <input type="hidden" name="lon" value="<?= $branch['address']?>">
                                         <button type="submit" name="submit" class ="btn btn-primary shadow-0 me-1 btn-add-to-cart" data-book-id="<?php echo $book['book_id']; ?>">
-                                            Xem địa chỉ
+                                        <?=_VIEWLOCATION?>
                                         </button>
                                     </form>
                                     

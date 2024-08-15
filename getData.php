@@ -26,7 +26,7 @@
 
 ?>
     <?php if($number > 0):?>
-        <div class="books-show" style="height: 900px;">
+        <div class="books-show">
         <?php foreach($categories as $category): ?>
                 <?php 
                     $stmt = $db->prepare('SELECT count(*) as total FROM books WHERE category_id =?');

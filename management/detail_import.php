@@ -109,11 +109,22 @@
                         unset($_SESSION['message']);
                     }
 			?>
-            <form class="form-inline nav-item" method="GET" action="">
-                    <input type="hidden" name="import_id" value="<?php echo $import_id?>">
-                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search_keyword">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Tìm kiếm</button>
-            </form>
+            <div class="row">
+                <div class="col-md-6">
+                    <form class="form-inline nav-item" method="GET" action="">
+                        <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search_keyword">
+                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Tìm kiếm</button>
+                    </form>
+                </div>
+                <div class="col-md-6 justify-content-right">
+                    <form class="form-inline nav-item" method="POST" action="<?php echo $import['status'] == 0? 'make_import.php':'' ?>">
+                        <input type="hidden" name="import_id" value="<?php echo $import_id?>">
+                        <button class="btn btn-success my-2 my-sm-0 font-weight-bold" type="submit" <?php echo $import['status'] == 0? '':'disabled=disabled' ?>><?php echo $import['status'] == 0? 'Xác thực nhập hàng':'Đã xác nhận'?></button>
+                    </form>
+                </div>
+            </div>
+
+
             <div class="row">
                     <div class="col-md-12 text-info d-flex justify-content-center">
                         <h3>Tiêu đề: <?php echo $import['title'] ?></h3>
@@ -137,6 +148,13 @@
                             </nav>
                     </div>
                 <div class="row">
+                    <div class="col-md-12 d-flex justify-content-end">
+                            <form action="import_excel.php" method="POST" enctype="multipart/form-data">
+                                <input type="hidden" name="import_id" value="<?php echo $import_id?>">
+                                <input type="file" class="text-center center-block file-upload" name="fileimport">
+                                <button class="btn btn-outline-success" type="submit" name="submit-import">Thực hiện nhập file</button>
+                            </form>
+                    </div>
                     <table class="table">
                         <thead>
                             <tr>
@@ -144,7 +162,6 @@
                                 <th scope="col">Hình ảnh</th>
                                 <th scope="col">Tên sách</th>
                                 <th scope="col">Tác giả</th>
-                                <!-- <th scope="col">Số lượng</th> -->
                                 <th scope="col">Thể loại</th>
                                 <th scope="col">Giá Tiền</th>
                                 <th scope="col">Số lượng nhập</th>

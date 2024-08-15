@@ -3,6 +3,18 @@
     $db = DBConfig::getDB();
     session_start();
 
+    if(isset($_GET['lang']) && !empty($_GET['lang'])){
+        $_SESSION['lang'] = $_GET['lang'];
+        if(isset($_SESSION['lang']) && $_SESSION['lang'] != $_GET['lang']){
+         echo "<script type='text/javascript'> location.reload(); </script>";
+        }
+       }
+       if(isset($_SESSION['lang'])){
+            include "public/language/".$_SESSION['lang'].".php";
+       }else{
+            include "en.php";
+       }
+
     $category_last;
 
 
@@ -47,11 +59,11 @@
             </button>
             <form class="form-inline nav-item" method="GET" action="filter.php">
                     <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search_keyword">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Tìm kiếm</button>
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><?= _SEARCH ?></button>
             </form>
             <form action="filter.php" class="form-inline nav-item" method="GET">
                     <div class="form-group mr-sm-2">
-                        <label for="minprice" class="navbar-brand">Từ</label>
+                        <label for="minprice" class="navbar-brand"><?= _FROM ?></label>
                         <select class="form-control" id="minprice" name="minprice">
                             <option value="">---N/A---</option>
                             <option value="0">0</option>
@@ -62,7 +74,7 @@
                     </div>
 
                     <div class="form-group mr-sm-2">
-                        <label for="maxprice" class="navbar-brand">Đến</label>
+                        <label for="maxprice" class="navbar-brand"><?= _TO ?></label>
                         <select class="form-control" id="maxprice" name="maxprice">
                             <option value="">---N/A---</option>
                             <option value="500000">50.000</option>
@@ -71,13 +83,13 @@
                             <option value="500000">1.000.000</option>  
                         </select>
                     </div>
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Filter</button>
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><?= _FILTER?></button>
             </form>
 
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Thể loại</a>
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?= _CATEGORY ?></a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <?php foreach($categories_nav as $category):?>
                                 <a class="dropdown-item" href="category.php?category_id=<?php echo $category['category_id'];?>&name=<?php echo $category['name_category'];?>"><?php echo $category['name_category'];?></a>
@@ -90,20 +102,20 @@
                                 if($_SESSION['user_id']) {
                                     echo $_SESSION['fullname'];
                                 } else {
-                                    echo 'Tài khoản';
+                                    echo _USERNAME;
                                 }
                             ?>
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <?php if($_SESSION['user_id']): ?>
-                            <a class="dropdown-item" href="history.php">Lịch sử mua hàng</a>
-                            <a class="dropdown-item" href="profile.php">Thông tin cá nhân</a>
-                            <a class="dropdown-item" href="codesale.php">Mã khuyến mãi</a>
-                            <a class="dropdown-item" href="store_system.php">Hệ thống</a>
+                            <a class="dropdown-item" href="history.php"><?= _HISTORY?></a>
+                            <a class="dropdown-item" href="profile.php"><?= _PROFILE?></a>
+                            <a class="dropdown-item" href="codesale.php"><?= _CODESALE?></a>
+                            <a class="dropdown-item" href="store_system.php"><?= _SYSTEM?></a>
                             <?php else:?>
-                            <a class="dropdown-item" href="index.php">Đăng nhập</a>
+                            <a class="dropdown-item" href="index.php"><?=_LOGIN ?></a>
                             <?php endif; ?>
-                            <a class="dropdown-item" href="logout.php">Đăng xuất</a>
+                            <a class="dropdown-item" href="logout.php"><?=_LOGOUT ?></a>
                         </div>
                     </li>
 
@@ -156,6 +168,19 @@
         </div>
     </nav>
         <div class="container">
+            <script>
+                function changeLang(){
+                document.getElementById('form_lang').submit();
+                }
+            </script>
+            <div class="d-flex justify-content-end">
+                <form method='get' action='' id='form_lang' >
+                    <?=_SELECTLANGUAGES?>: <select name='lang' onchange='changeLang();' >
+                    <option value='en' <?php if(isset($_SESSION['lang']) && $_SESSION['lang'] == 'en'){ echo "selected"; } ?> >English</option>
+                    <option value='vi' <?php if(isset($_SESSION['lang']) && $_SESSION['lang'] == 'vi'){ echo "selected"; } ?> >Vietnamese</option>
+                    </select>
+                </form>
+            </div>
             <div class="mt-4" id="categoryList">
             <?php 
 			if(isset($_SESSION['message'])){

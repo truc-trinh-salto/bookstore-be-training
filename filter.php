@@ -4,6 +4,17 @@
     $db = DBConfig::getDB();
 
     session_start();
+    if(isset($_GET['lang']) && !empty($_GET['lang'])){
+        $_SESSION['lang'] = $_GET['lang'];
+        if(isset($_SESSION['lang']) && $_SESSION['lang'] != $_GET['lang']){
+         echo "<script type='text/javascript'> location.reload(); </script>";
+        }
+       }
+       if(isset($_SESSION['lang'])){
+            include "public/language/".$_SESSION['lang'].".php";
+       }else{
+            include "en.php";
+       }
     $books;
 
     $keyword = $_GET['search_keyword'];
@@ -116,12 +127,12 @@
             </button>
             <form class="form-inline nav-item" method="GET" action="filter.php">
                     <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search_keyword">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Tìm kiếm</button>
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><?= _SEARCH ?></button>
             </form>
             <form action="" class="form-inline nav-item" method="GET" action="">
                     <input type="hidden" name="search_keyword" value="<?= $keyword?>">
                     <div class="form-group mr-sm-2">
-                        <label for="minprice" class="navbar-brand">Từ</label>
+                        <label for="minprice" class="navbar-brand"><?= _FROM?></label>
                         <select class="form-control" id="minprice" name="minprice">
                             <option value="">---N/A---</option>
                             <option value="0">0</option>
@@ -132,7 +143,7 @@
                     </div>
 
                     <div class="form-group mr-sm-2">
-                        <label for="maxprice" class="navbar-brand">Đến</label>
+                        <label for="maxprice" class="navbar-brand"><?= _TO?></label>
                         <select class="form-control" id="maxprice" name="maxprice">
                             <option value="">---N/A---</option>
                             <option value="500000">50.000</option>
@@ -141,13 +152,13 @@
                             <option value="500000">1.000.000</option>  
                         </select>
                     </div>
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Filter</button>
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><?= _FILTER?></button>
             </form>
 
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Thể loại</a>
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?= _CATEGORY?></a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <?php foreach($categories as $category):?>
                                 <a class="dropdown-item" href="category.php?category_id=<?php echo $category['category_id'];?>"><?php echo $category['name_category'];?></a>
@@ -160,19 +171,20 @@
                                 if($_SESSION['user_id']) {
                                     echo $_SESSION['fullname'];
                                 } else {
-                                    echo 'Tài khoản';
+                                    echo _USERNAME;
                                 }
                             ?>
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <?php if($_SESSION['user_id']): ?>
-                            <a class="dropdown-item" href="history.php">Lịch sử mua hàng</a>
-                            <a class="dropdown-item" href="profile.php">Thông tin cá nhân</a>
-                            <?php else:?>
-                            <a class="dropdown-item" href="index.php">Đăng nhập</a>
-                            <?php endif; ?>
-                            <a class="dropdown-item" href="logout.php">Đăng xuất
-                        </a>
+                                <a class="dropdown-item" href="history.php"><?= _HISTORY?></a>
+                                <a class="dropdown-item" href="profile.php"><?= _PROFILE?></a>
+                                <a class="dropdown-item" href="codesale.php"><?= _CODESALE?></a>
+                                <a class="dropdown-item" href="store_system.php"><?= _SYSTEM?></a>
+                                <?php else:?>
+                                <a class="dropdown-item" href="index.php"><?=_LOGIN ?></a>
+                                <?php endif; ?>
+                                <a class="dropdown-item" href="logout.php"><?=_LOGOUT ?></a>
                         </div>
                     </li>
                     <li class="nav-item dropdown" id="show_cart">
@@ -221,21 +233,37 @@
         </div>
     </nav>
         <div class="container">
-            <h3 class="text-center">Tìm kiếm với từ khoá: <?php echo $_GET['search_keyword'] ?></h3>
+            <script>
+                function changeLang(){
+                document.getElementById('form_lang').submit();
+                }
+            </script>
+            <div class="d-flex justify-content-end">
+                <form method='get' action='' id='form_lang' >
+                    <input type="hidden" name="minprice" value="<?= $minprice ?>">
+                    <input type="hidden" name="maxprice" value="<?= $maxprice ?>">
+                    <input type="hidden" name="search_keyword" value="<?= $keyword?>">
+                    <?=_SELECTLANGUAGES?>: <select name='lang' onchange='changeLang();' >
+                    <option value='en' <?php if(isset($_SESSION['lang']) && $_SESSION['lang'] == 'en'){ echo "selected"; } ?> >English</option>
+                    <option value='vi' <?php if(isset($_SESSION['lang']) && $_SESSION['lang'] == 'vi'){ echo "selected"; } ?> >Vietnamese</option>
+                    </select>
+                </form>
+            </div>
+            <h3 class="text-center"><?=_SEARCHWORD?>: <?php echo $_GET['search_keyword'] ?></h3>
             <div class="mt-4">
             <div class="d-flex justify-content-center">
             <nav aria-label="Page navigation example">
                     <ul class="pagination">
                         <?php if($page - 1 == 0):?>
-                            <li class="page-item disabled"><a class="page-link" href="filter.php?search_keyword=<?php echo $keyword?>&minprice=<?php echo $minprice?>&maxprice=<?php echo $maxprice?>&page=<?php echo $page -1?>">Previous</a></li>
+                            <li class="page-item disabled"><a class="page-link" href="filter.php?search_keyword=<?php echo $keyword?>&minprice=<?php echo $minprice?>&maxprice=<?php echo $maxprice?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                         <?php else:?>
-                            <li class="page-item"><a class="page-link" href="filter.php?search_keyword=<?php echo $keyword?>&minprice=<?php echo $minprice?>&maxprice=<?php echo $maxprice?>&page=<?php echo $page -1?>">Previous</a></li>
+                            <li class="page-item"><a class="page-link" href="filter.php?search_keyword=<?php echo $keyword?>&minprice=<?php echo $minprice?>&maxprice=<?php echo $maxprice?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                         <?php endif;?>
                         <li class="page-item active"><a class="page-link" href="filter.php?search_keyword=<?php echo $keyword?>&minprice=<?php echo $minprice?>&maxprice=<?php echo $maxprice?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
                         <?php if($page +1 > $number_page):?>
-                            <li class="page-item disabled"><a class="page-link" href="filter.php?search_keyword=<?php echo $keyword?>&minprice=<?php echo $minprice?>&maxprice=<?php echo $maxprice?>&page=<?php echo $page +1?>">Next</a></li>
+                            <li class="page-item disabled"><a class="page-link" href="filter.php?search_keyword=<?php echo $keyword?>&minprice=<?php echo $minprice?>&maxprice=<?php echo $maxprice?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                         <?php else:?>
-                            <li class="page-item"><a class="page-link" href="filter.php?search_keyword=<?php echo $keyword?>&minprice=<?php echo $minprice?>&maxprice=<?php echo $maxprice?>&page=<?php echo $page +1?>">Next</a></li>
+                            <li class="page-item"><a class="page-link" href="filter.php?search_keyword=<?php echo $keyword?>&minprice=<?php echo $minprice?>&maxprice=<?php echo $maxprice?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                         <?php endif;?>
                     </ul>
                 </nav>
@@ -262,7 +290,7 @@
                                     <a href="detail_product.php?book_id<?php echo $book['book_id']?>">
                                         <h5 class="card-title"><?= $book['title']?></h5>
                                     </a>
-                                    <p class="card-text" >Tác giả: <?= $book['authors']?></p>
+                                    <p class="card-text" ><?=_AUTHORS?>: <?= $book['authors']?></p>
                                         <?php if($book['sale'] && $book['sale'] != 0 && $book['sale'] != null): ?>
                                             <p class="text-success font-weight-bold"><del class="text-danger"><?php echo number_format($book['price'],2) ?></del> <?php echo number_format($book['price'] - $book['sale']*$book['price'] / 100,2)?></p>
                                         <?php else:?>
@@ -272,7 +300,7 @@
                                     <input type="hidden" name="book_id" value="<?= $book['book_id']?>">
                                     <input type="hidden" name="price" value="<?= $book['price']?>">
                                     <button type="submit" class ="btn btn-primary shadow-0 me-1 btn-add-to-cart" data-book-id="<?php echo $book['book_id']; ?>" name="add-to-cart" >
-                                        Thêm vào giỏ hàng
+                                        <?= _ADDTOCART?>
                                     </button>
                                 </div>
                         </div>

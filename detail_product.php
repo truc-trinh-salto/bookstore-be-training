@@ -3,6 +3,18 @@
     $db = DBConfig::getDB();
     session_start();
 
+    if(isset($_GET['lang']) && !empty($_GET['lang'])){
+        $_SESSION['lang'] = $_GET['lang'];
+        if(isset($_SESSION['lang']) && $_SESSION['lang'] != $_GET['lang']){
+         echo "<script type='text/javascript'> location.reload(); </script>";
+        }
+       }
+       if(isset($_SESSION['lang'])){
+            include "public/language/".$_SESSION['lang'].".php";
+       }else{
+            include "en.php";
+       }
+
     $books_hot;
     $comments;
 
@@ -127,7 +139,7 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Thể loại</a>
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?=_CATEGORY?></a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <?php foreach($categories as $category):?>
                                 <a class="dropdown-item" href="category.php?category_id=<?php echo $category['category_id'];?>&name=<?php echo $category['name_category'];?>"><?php echo $category['name_category'];?></a>
@@ -140,19 +152,20 @@
                                 if($_SESSION['user_id']) {
                                     echo $_SESSION['fullname'];
                                 } else {
-                                    echo 'Tài khoản';
+                                    echo _USERNAME;
                                 }
                             ?>
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <?php if($_SESSION['user_id']): ?>
-                            <a class="dropdown-item" href="history.php">Lịch sử mua hàng</a>
-                            <a class="dropdown-item" href="profile.php">Thông tin cá nhân</a>
-                            <?php else:?>
-                            <a class="dropdown-item" href="index.php">Đăng nhập</a>
-                            <?php endif; ?>
-                            <a class="dropdown-item" href="logout.php">Đăng xuất
-                        </a>
+                                <a class="dropdown-item" href="history.php"><?= _HISTORY?></a>
+                                <a class="dropdown-item" href="profile.php"><?= _PROFILE?></a>
+                                <a class="dropdown-item" href="codesale.php"><?= _CODESALE?></a>
+                                <a class="dropdown-item" href="store_system.php"><?= _SYSTEM?></a>
+                                <?php else:?>
+                                <a class="dropdown-item" href="index.php"><?=_LOGIN ?></a>
+                                <?php endif; ?>
+                                <a class="dropdown-item" href="logout.php"><?=_LOGOUT ?></a>
                         </div>
                     </li>
 
@@ -196,6 +209,20 @@
                         </div>
                         <?php endif;?>
                     </li>
+                    <li class="nav-item nav-link">
+					<script>
+						function changeLang(){
+						document.getElementById('form_lang').submit();
+						}
+					</script>
+						<form method='get' action='' id='form_lang'>
+                            <input type='hidden' name='book_id' value=<?=$book_id?>>
+							<?=_SELECTLANGUAGES?>: <select name='lang' onchange='changeLang();' >
+							<option value='en' <?php if(isset($_SESSION['lang']) && $_SESSION['lang'] == 'en'){ echo "selected"; } ?> >English</option>
+							<option value='vi' <?php if(isset($_SESSION['lang']) && $_SESSION['lang'] == 'vi'){ echo "selected"; } ?> >Vietnamese</option>
+							</select>
+						</form>
+					</li>
                     
                     <!-- <li class="nav-item">
                         <a class ="nav-link"href="view_cart.php"><span class="badge"><?php echo count($_SESSION['cart']); ?></span> Cart <span class="glyphicon glyphicon-shopping-cart"></span></a>
@@ -221,7 +248,7 @@
                 <div class="row">
                     <div class="column_left col-md-3 col-xs-12">
                         <div class="sidewit">
-                        <h3><span class="text-left">Sản phẩm bán chạy</span></h3>
+                        <h3><span class="text-left"><?=_HOTITEM?></span></h3>
                         <ul class="side_prd_list list-group" style="list-style: none;">
                             <?php foreach($books_hot as $book_hoot):?>
                                 <?php if($book_hoot['hotItem'] == 1) {?>
@@ -294,8 +321,8 @@
                                     <a href="">
                                         <h5 class="card-title text-center"><?= $book['title']?> - <?php echo $book['authors'] ?></h5>
                                     </a>
-                                    <p>Thể loại: <?php echo $book['name_category']?></p>
-                                    <p>Mô tả: <?php echo $book['description'] ?></p>
+                                    <p><?=_CATEGORY ?>: <?php echo $book['name_category']?></p>
+                                    <p><?=_DESCRIPTION ?>: <?php echo $book['description'] ?></p>
                                     <input type="hidden" name="book_id" value="<?= $book['book_id']?>">
                                     <input type="hidden" name="price" value="<?= $book['price']?>">
                                     <?php if($book['sale'] && $book['sale'] != 0 && $book['sale'] != null): ?>
@@ -305,11 +332,11 @@
                                     <?php endif;?>
 
                                     <div data-mdb-input-init class="form-outline">
-                                        <label class="form-label" for="typeNumber">Số lượng</label>
+                                        <label class="form-label" for="typeNumber"><?=_QUANTITY ?> :</label>
                                         <input type="number" id="typeNumber" class="form-control" min="1" value="1" name="quantity"/>
                                     </div>
                                     <button type="submit" class ="btn btn-primary shadow-0 me-1 btn-add-to-cart" data-book-id="<?php echo $book['book_id']; ?>" name="add-to-cart" >
-                                        Thêm vào giỏ hàng
+                                        <?=_ADDTOCART ?>
                                     </button>
                                 </div>
                         </div>
@@ -317,16 +344,16 @@
                                 <div class="column" >
                                     <ul class="nav nav-tabs" role="tablist">
                                         <li class="nav-item">
-                                            <a class="nav-link active" data-toggle="tab" href="#tabs-1" role="tab">Bình luận</a>
+                                            <a class="nav-link active" data-toggle="tab" href="#tabs-1" role="tab"><?=_COMMENT ?></a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" data-toggle="tab" href="#tabs-2" role="tab">Đánh giá</a>
+                                            <a class="nav-link" data-toggle="tab" href="#tabs-2" role="tab"><?=_RATING?></a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" data-toggle="tab" href="#tabs-3" role="tab">Sản phẩm liên quan</a>
+                                            <a class="nav-link" data-toggle="tab" href="#tabs-3" role="tab"><?=_SAMEITEM ?></a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" data-toggle="tab" href="#tabs-4" role="tab">Tình trạng</a>
+                                            <a class="nav-link" data-toggle="tab" href="#tabs-4" role="tab"><?=_STATUS ?></a>
                                         </li>
                                     </ul><!-- Tab panes -->
                                     <div class="tab-content">
@@ -337,11 +364,11 @@
                                                         <img class="rounded-circle shadow-1-strong me-3" src="<?php echo $_SESSION['image'] ?: 'http://ssl.gstatic.com/accounts/ui/avatar_2x.png'; ?>" alt="avatar" width="40" height="40">
                                                         <div data-mdb-input-init="" class="form-outline w-100" data-mdb-input-initialized="true">
                                                         <textarea class="form-control" id="textAreaExample" rows="4" name="text_comment"></textarea>
-                                                        <label class="form-label" for="textAreaExample" style="margin-left: 0px;">Message</label>
+                                                        
                                                         <div class="form-notch"><div class="form-notch-leading" style="width: 9px;"></div><div class="form-notch-middle" style="width: 60px;"></div><div class="form-notch-trailing"></div></div></div>
                                                     </div>
                                                     <div class="float-end mt-2 pt-1">
-                                                        <button type="comment" data-mdb-button-init="" data-mdb-ripple-init="" class="btn btn-primary btn-sm" data-mdb-button-initialized="true" name="comment">Post comment</button>
+                                                        <button type="comment" data-mdb-button-init="" data-mdb-ripple-init="" class="btn btn-primary btn-sm" data-mdb-button-initialized="true" name="comment"><?=_SAVE ?></button>
                                                     </div>
                                                 </div>
                                             </form>
@@ -375,7 +402,7 @@
                                                                 <?php echo $comment['fullname'] ?> <span class="small">- <?php echo $comment['createdAt'] ?></span>
                                                                 </h6>
                                                                 <div class="comment-footer"> 
-                                                                    <button type="button" data-reply-id="<?php echo $comment['comment_id'] ?>" class="btn btn-cyan btn-info btn-sm btn-reply">Trả lời</button> 
+                                                                    <button type="button" data-reply-id="<?php echo $comment['comment_id'] ?>" class="btn btn-cyan btn-info btn-sm btn-reply"><?=_REPLY ?></button> 
                                                                     <!-- <button type="button" class="btn btn-success btn-sm">Publish</button> 
                                                                     <button type="button" class="btn btn-danger btn-sm">Delete</button> -->
                                                                 </div>
@@ -400,12 +427,11 @@
                                                                                     <input type="hidden" name="book_id" value="<?= $book_id?>">
                                                                                     <div data-mdb-input-init="" class="form-outline w-100" data-mdb-input-initialized="true">
                                                                                     <textarea class="form-control" id="textAreaExample" rows="4" name="text_comment"></textarea>
-                                                                                    <label class="form-label" for="textAreaExample" style="margin-left: 0px;">Message</label>
                                                                                     <div class="form-notch"><div class="form-notch-leading" style="width: 9px;"></div><div class="form-notch-middle" style="width: 60px;"></div><div class="form-notch-trailing"></div></div></div>
                                                                                 </div>
                                                                                 <div class="float-end mt-2 pt-1">
-                                                                                    <button type="comment" data-mdb-button-init="" data-mdb-ripple-init="" class="btn btn-primary btn-sm" data-mdb-button-initialized="true" name="comment">Post comment</button>
-                                                                                    <button type="comment" data-mdb-button-init="" data-mdb-ripple-init="" class="btn btn-primary btn-sm" data-mdb-button-initialized="true" name="comment">Cancel</button>
+                                                                                    <button type="comment" data-mdb-button-init="" data-mdb-ripple-init="" class="btn btn-primary btn-sm" data-mdb-button-initialized="true" name="comment"><?=_SAVE ?></button>
+                                                                                    <button type="comment" data-mdb-button-init="" data-mdb-ripple-init="" class="btn btn-primary btn-sm btn-cancel" data-mdb-button-initialized="true" name="comment"><?=_CANCEL ?></button>
                                                                                 </div>
                                                                             </div>
                                                                         </form>
@@ -472,9 +498,9 @@
                                                                     <?php endfor; ?>
                                                                 </div>
                                                                 <div class="rating-text">
-                                                                    <span><?php echo $count_rate ?> ratings & <?php echo $count_cmt ?> reviews</span>
+                                                                    <span><?php echo $count_rate ?> <?=_RATING ?> & <?php echo $count_cmt ?> <?=_COMMENT ?></span>
                                                                 </div>
-                                                                <button stlye="margin-top: 10px;" class="btn btn-lg btn-success" type="submit" name="submit"><i class="glyphicon glyphicon-ok-sign"></i> Save</button>
+                                                                <button stlye="margin-top: 10px;" class="btn btn-lg btn-success" type="submit" name="submit"><i class="glyphicon glyphicon-ok-sign"></i><?=_SAVE ?></button>
                                                             </form>
                                             
                                                         </div>
@@ -525,7 +551,7 @@
                                                                     <a href="detail_product.php?book_id=<?php echo $book_same_type['book_id'] ?>">
                                                                         <span class="card-title"><?= $book_same_type['title']?></span>
                                                                     </a>
-                                                                    <p class="card-text" style="font-size:10px;" >Tác giả: <?= $book_same_type['authors']?></p>
+                                                                    <p class="card-text" style="font-size:10px;" ><?=_AUTHORS ?>: <?= $book_same_type['authors']?></p>
                                                                         <?php if($book_same_type['sale'] && $book_same_type['sale'] != 0 && $book_same_type['sale'] != null): ?>
                                                                             <p class="text-success font-weight-bold"style="font-size:10px;" ><del class="text-danger"><?php echo number_format($book_same_type['price'],2) ?></del> <?php echo number_format($book_same_type['price'] - $book_same_type['sale']*$book_same_type['price'] / 100,2)?></p>
                                                                         <?php else:?>
@@ -557,10 +583,10 @@
                                                 <thead>
                                                     <tr>
                                                         <th scope="col">#</th>
-                                                        <th scope="col">Tên chi nhánh</th>
-                                                        <th scope="col">Địa chỉ</th>
-                                                        <th scope="col">Số điện thoại</th>
-                                                        <th scope="col">Chi tiết</th>
+                                                        <th scope="col"><?=_BRANCHNAME ?></th>
+                                                        <th scope="col"><?=_BRANCHADDRESS ?></th>
+                                                        <th scope="col"><?=_HOTLINE ?></th>
+                                                        <th scope="col"><?=_DETAIL ?></th>
                                                     </tr>
                                                 </thead>
                                                     <?php foreach($branchs as $branch):?> 
@@ -571,9 +597,9 @@
                                                             <td><?= $branch['hotline'] ?></td>
                                                             <td>
                                                                 <?php if($branch['status'] == 1): ?>
-                                                                    <p class="btn btn-success btn-sm">Còn hàng</p>
+                                                                    <p class="btn btn-success btn-sm"><?=_INSTOCK ?></p>
                                                                 <?php else: ?>
-                                                                    <p class="btn btn-danger btn-sm">Hết hàng</p>
+                                                                    <p class="btn btn-danger btn-sm"><?=_OUTSTOCK ?></p>
                                                                 <?php endif; ?>
                                                             </td>
                                                             
@@ -655,6 +681,17 @@
             var replyId = this.dataset.replyId;
             var editForm = document.getElementById('replyComment-' + replyId);
             editForm.style.display = "block";
+        });
+    });
+
+    const cancelReply = document.querySelectorAll('.btn-cancel');
+
+    cancelReply.forEach(comment => {
+        comment.addEventListener('click', function () {
+            event.preventDefault();
+            var replyId = this.dataset.replyId;
+            var editForm = document.getElementById('replyComment-' + replyId);
+            editForm.style.display = "none";
         });
     });
     </script>

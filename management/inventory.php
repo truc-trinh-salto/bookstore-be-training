@@ -86,15 +86,17 @@
                         unset($_SESSION['message']);
                     }
 			?>
+                <!-- <div class="row mt-2">
+                        <div class="col-md-12 d-flex justify-content-start">
+                            <a href="product.php" class="btn btn-success">Quay lại</a>
+                        </div>
+                </div> -->
             <div class="row">
-                <div class="col-md-6">
-                    <form class="form-inline nav-item" method="GET" action="">
-                        <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search_keyword">
-                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Tìm kiếm</button>
-                    </form>
+                <div class="col-md-6 d-flex justify-content-start">
+                            <a href="product.php" class="btn btn-success">Quay lại</a>
                 </div>
-                <div class="col-md-6 ">
-                    <a class="btn btn-info"href="import.php">Nhập hàng</a>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <a class="btn btn-info" href="import.php">Nhập hàng</a>
                 </div>
             </div>
             
@@ -116,6 +118,12 @@
                             </nav>
                     </div>
                 <div class="row">
+                <div class="col-md-12">
+                    <form class="form-inline nav-item" method="GET" action="">
+                        <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search_keyword">
+                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Tìm kiếm</button>
+                    </form>
+                </div>
                     <table class="table">
                         <thead>
                             <tr>

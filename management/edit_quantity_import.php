@@ -40,8 +40,9 @@
             if($quantity < $book['quantity']){
                 $stmt = $db->prepare('UPDATE import SET quantity = quantity - ? WHERE id =?');
             } else {
-                $stmt = $db->prepare('UPDATE import SET quantity = quantity +? WHERE id =?');
+                $stmt = $db->prepare('UPDATE import SET quantity = quantity + ? WHERE id =?');
             }
+            $stmt->bind_param('ii', $distance_quantity, $import_id);
 
             $stmt->execute();
 

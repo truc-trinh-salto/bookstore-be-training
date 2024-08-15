@@ -1,6 +1,22 @@
 <?php
     require_once('database.php');
 	session_start();
+	$db = DBConfig::getDB();
+	if(isset($_GET['lang']) && !empty($_GET['lang'])){
+        $_SESSION['lang'] = $_GET['lang'];
+        if(isset($_SESSION['lang']) && $_SESSION['lang'] != $_GET['lang']){
+         echo "<script type='text/javascript'> location.reload(); </script>";
+        }
+       }
+       if(isset($_SESSION['lang'])){
+            include "public/language/".$_SESSION['lang'].".php";
+       }else{
+            include "en.php";
+       }
+
+	$stmt = $db->prepare('SELECT * FROM categories');
+    $stmt->execute();
+    $categories = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
 ?>
 <!DOCTYPE html>
@@ -23,6 +39,14 @@
 
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ml-auto">
+					<li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?= _CATEGORY?></a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <?php foreach($categories as $category):?>
+                                <a class="dropdown-item" href="category.php?category_id=<?php echo $category['category_id'];?>"><?php echo $category['name_category'];?></a>
+                            <?php endforeach;?>    
+                        </div>
+                    </li>
                 <li class="nav-item dropdown">
 				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <?php 
@@ -35,23 +59,37 @@
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <?php if($_SESSION['user_id']): ?>
-                            <a class="dropdown-item" href="history.php">Lịch sử mua hàng</a>
-                            <a class="dropdown-item" href="profile.php">Thông tin cá nhân</a>
-							<a class="dropdown-item" href="logout.php">Đăng xuất</a>
-                            <?php else:?>
-                            <a class="dropdown-item" href="index.php">Đăng nhập</a>
-                            <?php endif; ?>
-                            <a class="dropdown-item" href="register.php">Đăng ký</a>
+                                <a class="dropdown-item" href="history.php"><?= _HISTORY?></a>
+                                <a class="dropdown-item" href="profile.php"><?= _PROFILE?></a>
+                                <a class="dropdown-item" href="codesale.php"><?= _CODESALE?></a>
+                                <a class="dropdown-item" href="store_system.php"><?= _SYSTEM?></a>
+                                <?php else:?>
+                                <a class="dropdown-item" href="index.php"><?=_LOGIN ?></a>
+                                <?php endif; ?>
+                                <a class="dropdown-item" href="logout.php"><?=_LOGOUT ?></a>
                         </div>
                     </li>
                     <li class="nav-item">
                         <a class ="nav-link"href="view_cart.php"><span class="badge"><?php echo count($_SESSION['cart']); ?></span> Cart <span class="glyphicon glyphicon-shopping-cart"></span></a>
                     </li>
+					<li class="nav-item nav-link">
+					<script>
+						function changeLang(){
+						document.getElementById('form_lang').submit();
+						}
+					</script>
+						<form method='get' action='' id='form_lang'>
+							<?=_SELECTLANGUAGES?>: <select name='lang' onchange='changeLang();' >
+							<option value='en' <?php if(isset($_SESSION['lang']) && $_SESSION['lang'] == 'en'){ echo "selected"; } ?> >English</option>
+							<option value='vi' <?php if(isset($_SESSION['lang']) && $_SESSION['lang'] == 'vi'){ echo "selected"; } ?> >Vietnamese</option>
+							</select>
+						</form>
+					</li>
                 </ul>
             </div>
         </div>
     </nav>
-	<h1 class="page-header text-center">Cart Details</h1>
+	<h1 class="page-header text-center"><?=_CARTDETAIL?></h1>
 
 	<div class="row mt-4 d-flex">
 		<div class="col-sm-8 col-sm-offset-2">
@@ -70,10 +108,10 @@
 			<table class="table table-bordered table-striped">
 				<thead>
 					<th></th>
-					<th>Name</th>
-					<th>Price</th>
-					<th>Quantity</th>
-					<th>Subtotal</th>
+					<th><?=_NAMEBOOK?></th>
+					<th><?=_PRICE?></th>
+					<th><?=_QUANTITY?></th>
+					<th><?=_SUBTOTAL?></th>
 				</thead>
 				<tbody>
 					<?php
@@ -131,22 +169,22 @@
 						else{
 							?>
 							<tr>
-								<td colspan="4" class="text-center">No Item in Cart</td>
+								<td colspan="4" class="text-center"><?= $EMPTYCART?></td>
                                 </tr>
 							<?php
 						}
  
 					?>
 					<tr>
-						<td colspan="4" align="right"><b>Total</b></td>
+						<td colspan="4" align="right"><b><?=_TOTAL?></b></td>
 						<td><b><?php echo number_format($total, 2); ?></b></td>
 					</tr>
 				</tbody>
 			</table>
-			<a href="home.php" class="btn btn-primary"><span class="glyphicon glyphicon-arrow-left"></span> Back</a>
-			<button type="submit" class="btn btn-success" name="save">Save Changes</button>
-			<a href="clear_cart.php" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span> Clear Cart</a>
-			<a href="<?php echo $_SESSION['user_id'] ? 'check_out.php' : 'index.php' ?>" class="btn btn-success"><span class="glyphicon glyphicon-check"></span> Checkout</a>
+			<a href="home.php" class="btn btn-primary"><span class="glyphicon glyphicon-arrow-left"></span> <?=_BACK?></a>
+			<button type="submit" class="btn btn-success" name="save"><?=_SAVE?></button>
+			<a href="clear_cart.php" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span><?=_CLEARCART?></a>
+			<a href="<?php echo $_SESSION['user_id'] ? 'check_out.php' : 'index.php' ?>" class="btn btn-success"><span class="glyphicon glyphicon-check"></span><?=_CHECKOUT?></a>
 			</form>
 		</div>
 	</div>

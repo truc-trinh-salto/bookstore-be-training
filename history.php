@@ -1,6 +1,19 @@
 <?php
     session_start();
     require_once('database.php');
+    
+
+    if(isset($_GET['lang']) && !empty($_GET['lang'])){
+        $_SESSION['lang'] = $_GET['lang'];
+        if(isset($_SESSION['lang']) && $_SESSION['lang'] != $_GET['lang']){
+         echo "<script type='text/javascript'> location.reload(); </script>";
+        }
+       }
+       if(isset($_SESSION['lang'])){
+            include "public/language/".$_SESSION['lang'].".php";
+       }else{
+            include "en.php";
+       }
 
     $db = DBConfig::getDB();
 
@@ -36,6 +49,10 @@
     $transactions= $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
     $index = 1;
+
+    $stmt = $db->prepare('SELECT * FROM categories');
+    $stmt->execute();
+    $categories = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 ?>
 
 <DOCTYPE html>
@@ -51,59 +68,22 @@
   </head>
 <body>
     <div class="app">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="home.php">Book Store</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <?php 
-                                if($_SESSION['user_id']) {
-                                    echo $_SESSION['fullname'];
-                                } else {
-                                    echo 'Tài khoản';
-                                }
-                            ?>
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <?php if($_SESSION['user_id']): ?>
-                            <a class="dropdown-item" href="history.php">Lịch sử mua hàng</a>
-                            <a class="dropdown-item" href="profile.php">Thông tin cá nhân</a>
-                            <?php else:?>
-                            <a class="dropdown-item" href="index.php">Đăng nhập</a>
-                            <?php endif; ?>
-                            <a class="dropdown-item" href="logout.php">Đăng xuất
-                        </a>
-                        </div>
-                    </li>
-                    <li class="nav-item">
-                        <a class ="nav-link"href="view_cart.php"><span class="badge"><?php echo count($_SESSION['cart']); ?></span> Cart <span class="glyphicon glyphicon-shopping-cart"></span></a>
-                    </li>
-                    
-                </ul>
-            </div>
-        </div>
-    </nav>
+        <?php include('partials/sub_header.php')?>
         <div class="container">
             <div class="mt-4">
                 <div class="d-flex justify-content-center">
                         <nav aria-label="Page navigation example">
                                 <ul class="pagination">
                                     <?php if($page - 1 == 0):?>
-                                        <li class="page-item disabled"><a class="page-link" href="history.php?page=<?php echo $page -1?>">Previous</a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="history.php?page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="history.php?page=<?php echo $page -1?>">Previous</a></li>
+                                        <li class="page-item"><a class="page-link" href="history.php?page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php endif;?>
                                     <li class="page-item active"><a class="page-link" href="history.php?page=<?php echo $page?>"><?php echo $page ?></a></li>
                                     <?php if($page +1 > $number_page):?>
-                                        <li class="page-item disabled"><a class="page-link" href="history.php?page=<?php echo $page +1?>">Next</a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="history.php?page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="history.php?page=<?php echo $page +1?>">Next</a></li>
+                                        <li class="page-item"><a class="page-link" href="history.php?page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php endif;?>
                                 </ul>
                             </nav>
@@ -114,11 +94,11 @@
                         <thead>
                             <tr>
                             <th scope="col">#</th>
-                            <th scope="col">Thời gian check out</th>
-                            <th scope="col">Người nhận</th>
-                            <th scope="col">Tổng đơn hàng</th>
-                            <th scope="col">Trạng thái</th>
-                            <th scope="col">Xem chi tiết</th>
+                            <th scope="col"><?=_TIMECHECKOUT?></th>
+                            <th scope="col"><?=_RECEIVER?></th>
+                            <th scope="col"><?=_TOTAL?></th>
+                            <th scope="col"><?=_STATUS?></th>
+                            <th scope="col"><?=_DETAIL?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -129,10 +109,10 @@
                                 <td><?= $transaction['receiver']?></td>
                                 <td><?= $transaction['total']?></td>
                                 <td><?php echo $transaction['status'] != 1 
-                                                                ? '<span class="text-warning font-weight-bold">Đang giao</span>' 
-                                                                : '<span class="text-success font-weight-bold">Giao thành công</span>' ?>
+                                                                ? '<span class="text-warning font-weight-bold">'._PENDING.'</span>' 
+                                                                : '<span class="text-success font-weight-bold">'._SUCCESS.'</span>' ?>
                                 </td>
-                                <td><a href="detail_transaction.php?order_id=<?php echo $transaction['order_id']?>">Chi tiết</a></td>
+                                <td><a href="detail_transaction.php?order_id=<?php echo $transaction['order_id']?>" class="btn btn-info"><?=_DETAIL?></a></td>
                                 <?php $index ++?>
                             </tr>
                             <?php endforeach;?>
