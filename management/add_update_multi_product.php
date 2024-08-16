@@ -20,10 +20,10 @@
                 foreach($worksheet_arr as $row){
                     if(checkExistence($row[0])){
                         updateBook($row[0],$row[1],$row[2],$row[3],
-                            $row[4],$row[5],$row[6],$row[7],$row[8]);
+                            $row[4],$row[5],$row[6],$row[7]);
                     } else {
                         addBook($row[0],$row[1],$row[2],$row[3],
-                                        $row[4],$row[5],$row[6],$row[7],$row[8]);
+                                        $row[4],$row[5],$row[6],$row[7]);
                     }
                 }
 
@@ -43,9 +43,9 @@
         header('Location: '.$_SERVER['HTTP_REFERER']);
     }
 
-    function checkExistence($book_id){
-        $stmt = DBConfig::getDB()->prepare('SELECT * FROM books WHERE book_id =?');
-        $stmt->bind_param('i', $book_id);
+    function checkExistence($name){
+        $stmt = DBConfig::getDB()->prepare('SELECT * FROM books WHERE name =?');
+        $stmt->bind_param('s', $name);
         $stmt->execute();
 
         $count = $stmt->get_result()->num_rows;
@@ -53,32 +53,55 @@
         return $count > 0;
     }
 
-    function addBook($book_id,$title,$description,$category,$price,$authors,$quantity,$hotItem,$sale){
-        $db = DBConfig::getDB();
-        $category_id = checkCategoryExistence($category);
-        if($hotItem == '' || $hotItem == null){
-            $hotItem = 0;
-        }
-
-        if($sale == '' || $sale == null){
-            $sale = 0;
-        }
-
-        $stmt = $db->prepare('INSERT INTO books (book_id, title, description, category_id, price, stock, authors, created_at, hotItem, sale) 
-                                VALUES (?,?,?,?,?,?,?, NOW(),?,?)');
-        $stmt->bind_param('issidisid', $book_id, $title, $description, $category_id, $price, $quantity, $authors, $hotItem, $sale);
+    function getBook($name){
+        $stmt = DBConfig::getDB()->prepare('SELECT * FROM books WHERE name =?');
+        $stmt->bind_param('s', $name);
         $stmt->execute();
 
+        $book = $stmt->get_result()->fetch_assoc();
 
+        return $book;
     }
 
-    function updateBook($book_id,$title,$description,$category,$price,$authors,$quantity,$hotItem,$sale){
-        if($hotItem == '' || $hotItem == null){
+    function addBook($title,$description,$category,$price,$authors,$quantity,$hotItem,$sale){
+        $db = DBConfig::getDB();
+        $category_id = checkCategoryExistence($category);
+        if($quantity == '' || $quantity == null || $quantity < 0 || !is_int($quantity)){
+            $quantity = 0;
+        }
+        if($price =='' || $price < 1000.0 || $price == null || !is_float($price)) {
+            $price = 1000.0;
+        }
+
+        if($hotItem == '' || $hotItem == null || $hotItem > 1 || $hotItem <0 || !is_float($hotItem)){
             $hotItem = 0;
         }
 
-        if($sale == '' || $sale == null){
-            $sale = 0;
+        if($sale == '' || $sale == null || $sale < 0.0 ||!is_float($sale) || $sale > 100.0){
+            $sale = 0.0;
+        }
+
+        $stmt = $db->prepare('INSERT INTO books (title, description, category_id, price, stock, authors, created_at, hotItem, sale) 
+                                VALUES (?,?,?,?,?,?,?, NOW(),?,?)');
+        $stmt->bind_param('ssidisid', $title, $description, $category_id, $price, $quantity, $authors, $hotItem, $sale);
+        $stmt->execute();
+    }
+
+    function updateBook($title,$description,$category,$price,$authors,$quantity,$hotItem,$sale){
+        $book = getBook($title);
+        if($quantity == '' || $quantity == null || $quantity < 0 || !is_int($quantity)){
+            $quantity = 0;
+        }
+        if($price =='' || $price < 1000.0 || $price == null || !is_float($price)) {
+            $price = 1000.0;
+        }
+
+        if($hotItem == '' || $hotItem == null || $hotItem > 1 || $hotItem <0 || !is_float($hotItem)){
+            $hotItem = 0;
+        }
+
+        if($sale == '' || $sale == null || $sale < 0.0 ||!is_float($sale) || $sale > 100.0){
+            $sale = 0.0;
         }
         $db = DBConfig::getDB();
         $category_id = checkCategoryExistence($category);
@@ -86,7 +109,7 @@
         $stmt = $db->prepare('UPDATE books set title = ?, description = ?, category_id = ? , price = ?, 
                                                 stock = ?, authors = ?, updated_at = NOW(), hotItem = ?, sale = ?
                                                 WHERE book_id = ?');
-        $stmt->bind_param('ssidisidi', $title, $description, $category_id, $price, $quantity, $authors,$hotItem,$sale, $book_id);
+        $stmt->bind_param('ssidisidi', $title, $description, $category_id, $price, $quantity, $authors,$hotItem,$sale, $book['book_id']);
         $stmt->execute();
 
         

@@ -26,6 +26,16 @@
         <div class="container">
         <section layout:fragment="content">
 	<div class="col-md-12 grid-margin stretch-card">
+                <?php 
+                        if(isset($_SESSION['message'])){
+                            ?>
+                            <div class="alert alert-info text-center">
+                                <?php echo $_SESSION['message']; ?>
+                            </div>
+                            <?php
+                            unset($_SESSION['message']);
+                        }
+                ?>
 		<div class="card">
 			<div class="card-body">
 				<h4 class="card-title"><?=_ADDPRODUCT?></h4>
@@ -47,12 +57,12 @@
                     </div>
 
 					<div class="form-group">
-						<label for="exampleInputName1"><?=_BOOKNAME?></label>
-						<input type="text" class="form-control" id="exampleInputName1" placeholder="<?=_BOOKNAME?>" name="name">
+						<label for="exampleInputName1"><?=_BOOKNAME?><span class="text-danger">(*)</span></label>
+						<input type="text" class="form-control" id="exampleInputName1" placeholder="<?=_BOOKNAME?>" name="name" required>
 					</div>
                     <div class="form-group">
-						<label for="exampleInputAuthor1"><?=_AUTHORS?></label>
-						<input type="text" class="form-control" id="exampleInputAuthor1" placeholder="<?=_AUTHORS?>" name="authors">
+						<label for="exampleInputAuthor1"><?=_AUTHORS?><span class="text-danger">(*)</span></label>
+						<input type="text" class="form-control" id="exampleInputAuthor1" placeholder="<?=_AUTHORS?>" name="authors" required>
 					</div>
                     <div class="form-group">
 						<label for="exampleInputDescription1"><?=_DESCRIPTION?></label>
@@ -60,7 +70,7 @@
 					</div>
 					<div class="form-group">
 						<label for="exampleInputQuantity"><?=_QUANTITY?></label>
-						<input type="number" class="form-control" id="exampleInputQuantity" placeholder="<?=_QUANTITY?>" name="quantity">
+						<input type="number" class="form-control" id="exampleInputQuantity" placeholder="<?=_QUANTITY?>" name="quantity" min="0" value=0>
 					</div>
 					<div class="form-group">
 						<label for="exampleInputHot"><?=_SHOWHOME?></label>
@@ -70,16 +80,16 @@
 						</select>
 					</div>
 					<div class="form-group">
-						<label for="exampleInputCategory"><?=_CATEGORY?></label>
-						<select class="form-control" id="exampleInputCategory" th:field="*{category.id}" name="category">
+						<label for="exampleInputCategory"><?=_CATEGORY?><span class="text-danger">(*)</span></label>
+						<select class="form-control" id="exampleInputCategory" th:field="*{category.id}" name="category" required>
                             <?php foreach($categories as $category):?>
                                 <option value="<?php echo $category['category_id']?>"><?= $category['name_category']?></option>
                             <?php endforeach;?>
 						</select>
 					</div>
 					<div class="form-group">
-						<label for="exampleInputPrice"><?=_PRICE?></label>
-						<input type="number" class="form-control" id="exampleInputPrice" name="price">
+						<label for="exampleInputPrice"><?=_PRICE?><span class="text-danger">(*)</span></label>
+						<input type="number" class="form-control" id="exampleInputPrice" name="price" required min="1000" value="1000">
 					</div>
 					<button type="submit" name="submit" class="btn btn-success mr-2"><?=_SAVE?></button>
 				</form>
@@ -126,6 +136,7 @@
 <?php
     if(isset($_POST['submit']) && $_SERVER['REQUEST_METHOD'] == 'POST')
     {
+        $isValid = true;
         $image = $_POST['image'];
         $name = $_POST['name'];
         $quantity = $_POST['quantity'];
@@ -135,71 +146,114 @@
         $authors = $_POST['authors'];
         $description = $_POST['description'];
 
+        if(checkExistenceBook($name, $db)){
+            $_SESSION['message'] = "PRODUCT'S NAME : ".$name." EXISTED";
+            $isValid = false;
+        } else if($quantity && $quantity < 0){
+            $_SESSION['message'] .= "</br>QUANTITY CANNOT BE NEGATIVE";
+            $isValid = false;
+        } else if($price && $price < 1000){
+            $_SESSION['message'] .= "</br>PRICE CANNOT BE NEGATIVE";
+            $isValid = false;
+        }
+
+        if($isValid){
+            if(isset($_FILES["book-image"]["name"])){
+                $target_dir = "public/assets/img/";
+                $target_file = $target_dir . basename($_FILES["book-image"]["name"]);
         
-        $stmt = $db->prepare('INSERT INTO books (image, title, stock, price, hotItem, category_id, authors, description, created_at) values (?,?,?,?,?,?,?,?,NOW())');
-        $stmt->bind_param('ssidiiss', $image, $name, $quantity, $price, $hotItem, $categoryId, $authors, $description);
-        $stmt->execute();
-
-        $book_id = $stmt->insert_id;
-        // echo $_FILES['book-image'];
-        // echo basename($_FILES["book-image"]["name"]);
-        $target_dir = "public/assets/img/";
-        $target_file = $target_dir . basename($_FILES["book-image"]["name"]);
-
-        echo $target_file;
-        $uploadOk = 1;
-        $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
-
-        // Kiểm tra file có phải là hình ảnh thật hay không
-        $check = getimagesize($_FILES["book-image"]["tmp_name"]);
-        if($check !== false) {
-            $uploadOk = 1;
-        } else {
-            echo "File is not an image.";
-            $uploadOk = 0;
-        }
-
-        // Kiểm tra nếu file đã tồn tại
-        if (file_exists($target_file)) {
-            // echo "Sorry, file already exists.";
-            // $uploadOk = 0;
-        } else {
-            move_uploaded_file($_FILES["book-image"]["tmp_name"], $target_dir);
-        }
-
-        // Giới hạn kích thước file
-        if ($_FILES["image"]["size"] > 500000) {
-            echo "Sorry, your file is too large.";
-            $uploadOk = 0;
-        }
-
-        // Giới hạn loại file
-        if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif" ) {
-            echo "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
-            $uploadOk = 0;
-        }
-
-        // Kiểm tra nếu $uploadOk là 0 do có lỗi
-        if ($uploadOk == 0) {
-            echo "Sorry, your file was not uploaded.";
-        // Nếu mọi thứ đều ổn, thử upload file
-        } else {
-                echo "The file ". basename( $_FILES["book-image"]["name"]). " has been uploaded.";
-
-                // Lưu đường dẫn hình ảnh vào cơ sở dữ liệu
-                $stmt = $db->prepare("INSERT INTO gallery_image(address,book_id,isShow) values(?,?,1)");
-                $stmt->bind_param("si", $target_file, $book_id);
-                $stmt->execute();
-                if($stmt->affected_rows > 0)
-                {
-                    $_SESSION['message'] = 'Thêm mới sản phẩm thành công';
+                echo $target_file;
+                $uploadOk = 1;
+                $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+        
+                // Kiểm tra file có phải là hình ảnh thật hay không
+                $check = getimagesize($_FILES["book-image"]["tmp_name"]);
+                if($check !== false) {
+                    $uploadOk = 1;
+                } else {
+                    $_SESSION['message'] = "File is not an image.";
+                    $uploadOk = 0;
                 }
-                else
-                {
+        
+                // Kiểm tra nếu file đã tồn tại
+                if (file_exists($target_file)) {
+                    // echo "Sorry, file already exists.";
+                    // $uploadOk = 0;
+                } else {
+                    move_uploaded_file($_FILES["book-image"]["tmp_name"], $target_dir);
+                }
+        
+                // Giới hạn kích thước file
+                if ($_FILES["image"]["size"] > 500000) {
+                    $_SESSION['message'] = "Sorry, your file is too large.";
+                    $uploadOk = 0;
+                }
+        
+                // Giới hạn loại file
+                if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif" ) {
+                    $_SESSION['message'] = "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+                    $uploadOk = 0;
+                }
+        
+                // Kiểm tra nếu $uploadOk là 0 do có lỗi
+                if ($uploadOk == 0) {
+                    $_SESSION['message'] .= "<br>Add Product failed, please try again.";
+                    header("Location: add_product.php");
+                    exit();
+                // Nếu mọi thứ đều ổn, thử upload file
+                } else {
+                        echo "The file ". basename( $_FILES["book-image"]["name"]). " has been uploaded.";
+                
+                        $book_id = addBook($image, $name, $quantity, $price, $hotItem, $categoryId, $authors, $description,$db);
+        
+                        $stmt = $db->prepare("INSERT INTO gallery_image(address,book_id,isShow) values(?,?,1)");
+                        $stmt->bind_param("si", $target_file, $book_id);
+                        $stmt->execute();
+                        if($stmt->affected_rows > 0)
+                        {
+                            $_SESSION['message'] = 'Thêm mới sản phẩm thành công';
+                        }
+                        else
+                        {
+                            $_SESSION['message'] = 'Thêm mới sản phẩm thất bại';
+                        }
+                        
+                }
+            } else {
+                $book_id = addBook($image, $name, $quantity, $price, $hotItem, $categoryId, $authors, $description,$db);
+                if($book_id){
+                    $_SESSION['message'] = 'Thêm mới sản phẩm thành công';
+                } else {
                     $_SESSION['message'] = 'Thêm mới sản phẩm thất bại';
                 }
-                
+            }
+            
+        } else {
+            header('Location: add_product.php');
+            exit();
         }
+
+
+
+
+    }
+
+
+    function checkExistenceBook($name, $db){
+        $stmt = $db->prepare("SELECT * FROM books WHERE title =?");
+        $stmt->bind_param("s", $name);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc() > 0;
+    }
+
+    function addBook($image, $name, $quantity, $price, $hotItem, $categoryId, $authors, $description,$db){
+        $stmt = $db->prepare('INSERT INTO books (image, title, stock, price, hotItem, category_id, authors, description, created_at) values (?,?,?,?,?,?,?,?,NOW())');
+                        $stmt->bind_param('ssidiiss', $image, $name, $quantity, $price, $hotItem, $categoryId, $authors, $description);
+                        $stmt->execute();
+                
+                        $book_id = $stmt->insert_id;
+        return $book_id;
     }
     
 

@@ -7,6 +7,7 @@ $book_id = $_POST['book_id'];
 
 if (isset($_POST['submit'])) {
     $target_dir = "public/assets/img/";
+    $index = 0;
     for($i = 0;$i < count($_FILES['profile_image']['name']); $i++) {
         $target_file = $target_dir . basename($_FILES["profile_image"]["name"][$i]);
 
@@ -45,7 +46,7 @@ if (isset($_POST['submit'])) {
 
         // Kiểm tra nếu $uploadOk là 0 do có lỗi
         if ($uploadOk == 0) {
-            $_SESSION['message'] = "Thêm hình ảnh thất bại";
+            $_SESSION['message'] .= ($index > 0?"<br>" : ""). "Thêm hình ảnh ".basename($_FILES["profile_image"]["name"][$i])." thất bại";
             header("Location: ". $_SERVER['HTTP_REFERER']);
         } else {
                 echo "The file ". basename( $_FILES["profile_image"]["name"][$i]). " has been uploaded.";
@@ -56,9 +57,9 @@ if (isset($_POST['submit'])) {
                 $stmt->execute();
                 // echo "Profile image has been updated in the database.";
 
-                $_SESSION['message'] = "Thêm hình ảnh thành công";
+                $_SESSION['message'] .= ($index > 0?"<br>" : ""). "Thêm hình ảnh ".basename($_FILES["profile_image"]["name"][$i])." Thành công";
                 header("Location: ". $_SERVER['HTTP_REFERER']);
         }
+        $index++;
     }
 }
-?>

@@ -76,7 +76,7 @@
 
                     <div class="col-md-12">
                         <label for="pwd" class="pb-2"><?=_CONFIRMPASSWORD?>:</label>
-                        <input type="password" class="form-control" id="pwd" placeholder="<?=_CONFIRMPASSWORD?>" name="pwdSignUp" required>
+                        <input type="password" class="form-control" id="pwd" placeholder="<?=_CONFIRMPASSWORD?>" name="pwdSignUp2" required>
                     </div>
                     
                     
@@ -122,23 +122,40 @@
         $phone = $_POST['phone'];
         $username = $_POST['username'];
         $password = $_POST['pwdSignUp'];
+        $cpassword = $_POST['pwdSignUp2'];
+
       
         // kiểm tra các giá trị đầu vào
-        if (empty($fullname) || empty($birthday) || empty($phone) || empty($password) || empty($username)) {
+        if (empty($fullname) || empty($birthday) || empty($phone) || empty($password) || empty($username) || empty($cpassword)) {
           echo "Vui lòng điền đầy đủ thông tin.";
           exit();
         } else if (check_username_existence($conn, $username)) {
           echo "Tên người dùng đã tồn tại. Vui lòng chọn tên khác.";
           exit();
+        } else if(!empty($_POST["pwdSignUp"]) && ($_POST["pwdSignUp"] == $_POST["pwdSignUp2"])) {
+            if (strlen($password) <= '8') {
+                $echo = "Your Password Must Contain At Least 8 Characters!";
+            }
+            elseif(!preg_match("#[0-9]+#",$password)) {
+                $echo = "Your Password Must Contain At Least 1 Number!";
+            }
+            elseif(!preg_match("#[A-Z]+#",$password)) {
+                $echo = "Your Password Must Contain At Least 1 Capital Letter!";
+            }
+            elseif(!preg_match("#[a-z]+#",$password)) {
+                $echo = "Your Password Must Contain At Least 1 Lowercase Letter!";
+            } else {
+                $echo = "Please Check You've Entered Or Confirmed Your Password!";
+            }
         } else {
           // thêm dữ liệu vào bảng
-        $stm = $conn->prepare("insert into users(username,password,fullname,phonenumber,birthday) values(?,?,?,?,?)");
-        $stm->bind_param('sssss',$username, $password, $fullname, $phone,$birthday);
-        $stm->execute();
-        echo "Đăng ký thành công!";
-        header("Location: index.php");
-        exit();
-        }
+          $stm = $conn->prepare("insert into users(username,password,fullname,phonenumber,birthday) values(?,?,?,?,?)");
+          $stm->bind_param('sssss',$username, $password, $fullname, $phone, $birthday);
+          $stm->execute();
+          echo "Đăng ký thành công!";
+          header("Location: index.php");
+          exit();
+          }
       } else {
         // header("Location: register.php");
         exit();

@@ -82,7 +82,7 @@
                             <?php
                             unset($_SESSION['message']);
                         }
-                ?>
+                    ?>
                     <form action="" method="POST" class="forms-sample">
                         <div class="form-group">
                         <div class="text-center">
@@ -108,11 +108,11 @@
                         </div>
                         <div class="form-group">
                             <label for="exampleInputName1"><?=_BOOKNAME?></label>
-                            <input type="text" class="form-control" id="exampleInputName1" placeholder="<?=_BOOKNAME?>" name="name" value="<?php echo $book['title']?>">
+                            <input type="text" class="form-control" id="exampleInputName1" placeholder="<?=_BOOKNAME?>" name="name" value="<?php echo $book['title']?>" required>
                         </div>
                         <div class="form-group">
                             <label for="exampleInputAuthor1"><?=_AUTHORS?></label>
-                            <input type="text" class="form-control" id="exampleInputAuthor1" placeholder="Authors" name="<?=_AUTHORS?>" value="<?php echo $book['authors']?>">
+                            <input type="text" class="form-control" id="exampleInputAuthor1" placeholder="<?=_AUTHORS?>" name="authors" value="<?php echo $book['authors']?>" required>
                         </div>
                         <div class="form-group">
                             <label for="exampleInputDescription1"><?=_DESCRIPTION?></label>
@@ -120,7 +120,7 @@
                         </div>
                         <div class="form-group">
                             <label for="exampleInputQuantity"><?=_QUANTITY?></label>
-                            <input type="number" class="form-control" id="exampleInputQuantity" placeholder="<?=_QUANTITY?>" name="quantity" value="<?php echo $book['stock']?>">
+                            <input type="number" class="form-control" id="exampleInputQuantity" placeholder="<?=_QUANTITY?>" name="quantity" min="0" value="<?php echo $book['stock']?>">
                         </div>
                         <div class="form-group">
                             <label for="exampleInputHot"><?=_SHOWHOME?></label>
@@ -145,7 +145,7 @@
                         </div>
                         <div class="form-group">
                             <label for="exampleInputPrice"><?=_PRICE?></label>
-                            <input type="number" class="form-control" id="exampleInputPrice" name="price" value="<?php echo $book['price']?>">
+                            <input type="number" class="form-control" id="exampleInputPrice" name="price" min="1000" step="any" value="<?php echo $book['price']?>" required>
                         </div>
                         <button type="submit" name="submit" class="btn btn-success mr-2"><?=_SAVE?></button>
                         <a href="product.php" class="btn btn-danger mr-2"><?=_CANCEL?></a>
@@ -241,7 +241,8 @@
 
 <?php
     if(isset($_POST['submit']) && $_SERVER['REQUEST_METHOD'] == 'POST')
-    {
+    {   
+        $isValid = true;
         $image = $_POST['image_id'];
         $name = $_POST['name'];
         $quantity = $_POST['quantity'];
@@ -251,29 +252,57 @@
         $authors = $_POST['authors'];
         $description = $_POST['description'];
 
-        echo $image;
+        if(checkExistenceBook($name, $db, $book_id)){
+            $_SESSION['message'] = "PRODUCT'S NAME : ".$name." EXISTED";
+            $isValid = false;
+        } else if($quantity && $quantity < 0){
+            $_SESSION['message'] .= "</br>QUANTITY CANNOT BE NEGATIVE";
+            $isValid = false;
+        } else if($price && $price < 1000){
+            $_SESSION['message'] .= "</br>PRICE CANNOT BE NEGATIVE";
+            $isValid = false;
+        }
 
-        $stmt = $db->prepare('UPDATE books SET image = ?, title=?, stock =? , price =?, hotItem=?, category_id=?, authors=?, description=?, updated_at=NOW() WHERE book_id=?');
-        $stmt->bind_param('isidiissi', $image, $name, $quantity, $price, $hotItem, $categoryId, $authors, $description,$book_id);
+        if($isValid){
+            $stmt = $db->prepare('UPDATE books SET title=?, stock =? , price =?, hotItem=?, category_id=?, authors=?, description=?, updated_at=NOW() WHERE book_id=?');
+            $stmt->bind_param('sidiissi', $name, $quantity, $price, $hotItem, $categoryId, $authors, $description,$book_id);
+            $stmt->execute();
+
+            if($stmt->affected_rows > 0 && $image != '' && $image != null){
+                $stmt = $db->prepare('UPDATE gallery_image SET isShow = 0 WHERE book_id=?');
+                $stmt->bind_param('i', $book_id);
+                $stmt->execute();
+
+                $stmt = $db->prepare('UPDATE gallery_image SET isShow = 1 WHERE image_id=?');
+                $stmt->bind_param('i', $image);
+                $stmt->execute();
+                $_SESSION['message'] = 'Cập nhật sản phẩm thành công';
+                header("Location: edit_product.php?book_id=".$book_id);
+                exit();
+            }
+            else if($stmt->affected_rows > 0)
+            {
+                $_SESSION['message'] = 'Cập nhật sản phẩm thành công';
+                header("Location: edit_product.php?book_id=".$book_id);
+                exit();
+            } else {
+                $_SESSION['message'] = 'Cập nhật sản thất bại';
+                header("Location: edit_product.php?book_id=".$book_id);
+                exit();
+            }
+        } else {
+            header("Location: edit_product.php?book_id=".$book_id);
+            exit();
+        }
+
+    }
+
+    function checkExistenceBook($name, $db, $book_id){
+        $stmt = $db->prepare("SELECT * FROM books WHERE title =? AND book_id !=?");
+        $stmt->bind_param("si", $name, $book_id);
         $stmt->execute();
-
-        if($stmt->affected_rows > 0)
-        {
-            $stmt = $db->prepare('UPDATE gallery_image SET isShow = 0 WHERE book_id=?');
-            $stmt->bind_param('i', $book_id);
-            $stmt->execute();
-
-            $stmt = $db->prepare('UPDATE gallery_image SET isShow = 1 WHERE image_id=?');
-            $stmt->bind_param('i', $image);
-            $stmt->execute();
-            $_SESSION['message'] = 'Cập nhật sản phẩm thành công';
-            header("refresh: 0");
-        }
-        else
-        {
-            $_SESSION['message'] = 'Cập nhật sản phẩm thất bại';
-            header("refresh: 0");
-        }
+        $result = $stmt->get_result();
+        return $result->fetch_assoc() > 0;
     }
 
 ?>
