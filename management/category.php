@@ -58,26 +58,26 @@
 			?>
                     <div class="row mt-2">
                         <div class="col-md-6 d-flex justify-content-start">
-                            <a href="product.php" class="btn btn-success">Quay lại</a>
+                            <a href="product.php" class="btn btn-success"><?=_BACK?></a>
                         </div>
 
                         <div class="col-md-6 d-flex justify-content-end">
-                            <a href="add_category.php" class="btn btn-info">Thêm thể loại mới</a>
+                            <a href="add_category.php" class="btn btn-info"><?=_ADDCATEGORY?></a>
                         </div>
                     </div>
                     <div class="d-flex justify-content-center">
                         <nav aria-label="Page navigation example">
                                 <ul class="pagination">
                                     <?php if($page - 1 == 0):?>
-                                        <li class="page-item disabled"><a class="page-link" href="category.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>">Previous</a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="category.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="category.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>">Previous</a></li>
+                                        <li class="page-item"><a class="page-link" href="category.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php endif;?>
                                     <li class="page-item active"><a class="page-link" href="category.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
                                     <?php if($page +1 > $number_page):?>
-                                        <li class="page-item disabled"><a class="page-link" href="category.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>">Next</a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="category.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="category.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>">Next</a></li>
+                                        <li class="page-item"><a class="page-link" href="category.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php endif;?>
                                 </ul>
                             </nav>
@@ -85,23 +85,23 @@
                 <div class="row">
                         <div class="col-md-6">
                             <form class="form-inline d-flex justify-content-start" method="GET" action="">
-                                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search_keyword">
-                                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Tìm kiếm</button>
+                                <input class="form-control mr-sm-2" type="search" placeholder="<?=_SEARCH?>" aria-label="Search" name="search_keyword">
+                                <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><?=_SEARCH?></button>
                             </form>
                         </div>
                         <div class="col-md-6 d-flex justify-content-end">
                                 <form action="add_update_multi_category.php" method="POST" enctype="multipart/form-data">
                                     <input type="file" class="text-center center-block file-upload" name="fileimport">
-                                    <button class="btn btn-outline-success" type="submit" name="submit-import">Thực hiện nhập file</button>
+                                    <button class="btn btn-outline-success" type="submit" name="submit-import"><?=_MAKEIMPORT?></button>
                                 </form>
                         </div>
                     <table class="table">
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">Tên thể loại</th>
-                                <th scope="col">Số lượng sách</th>
-                                <th scope="col">Thao tác</th>
+                                <th scope="col"><?=_CATEGORYNAME?></th>
+                                <th scope="col"><?=_QUANTITYBOOKS?></th>
+                                <th scope="col"><?=_ACTION?></th>
                             </tr>
                         </thead>
                             <?php foreach($categories as $category):?> 
@@ -119,9 +119,9 @@
                                             ?></td>
                                     
                                     <td>
-                                        <a href="edit_category.php?category_id=<?php echo $category['category_id']?>" class="btn btn-primary btn-sm">Chỉnh sửa</a>
-                                        <a href="delete_category.php?category_id=<?php echo $category['category_id']?>" class="btn btn-danger btn-sm">Xoá</a>
-                                        <a href="product_category.php?category_id=<?php echo $category['category_id']?>" class="btn btn-info btn-sm">Chi tiết</a>
+                                        <a href="edit_category.php?category_id=<?php echo $category['category_id']?>" class="btn btn-primary btn-sm"><?=_EDIT?></a>
+                                        <a href="delete_category.php?category_id=<?php echo $category['category_id']?>" class="btn btn-danger btn-sm"><?=_DELETE?></a>
+                                        <a href="product_category.php?category_id=<?php echo $category['category_id']?>" class="btn btn-info btn-sm"><?=_DETAIL?></a>
                                     </td>
                     
 

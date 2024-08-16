@@ -47,20 +47,20 @@
                     }
 			?>
             <form class="form-inline nav-item" method="GET" action="">
-                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search_keyword">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Tìm kiếm</button>
+                    <input class="form-control mr-sm-2" type="search" placeholder="<?=_SEARCH?>" aria-label="Search" name="search_keyword">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><?=_SEARCH?></button>
             </form>
                 <div class="row">
                     <table class="table">
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">Hình ảnh</th>
-                                <th scope="col">Tên chi nhánh</th>
-                                <th scope="col">Địa chỉ</th>
-                                <th scope="col">Số điện thoại</th>
-                                <th scope="col">Thao tác</th>
-                                <th scope="col">Chi tiết</th>
+                                <th scope="col"><?=_PHOTO?>h</th>
+                                <th scope="col"><?=_BRANCHNAME?></th>
+                                <th scope="col"><?=_ADDRESS?></th>
+                                <th scope="col"><?=_HOTLINE?></th>
+                                <th scope="col"><?=_ACTION?></th>
+                                <th scope="col"><?=_DETAIL?></th>
                             </tr>
                         </thead>
                             <?php foreach($branchs as $branch):?> 
@@ -80,11 +80,11 @@
                                     <td><?= $branch['address'] ?></td>
                                     <td><?= $branch['hotline'] ?></td>
                                     <td>
-                                        <a href="edit_store.php?branch_id=<?php echo $branch['branch_id']?>" class="btn btn-primary btn-sm">Chỉnh sửa</a>
-                                        <a href="delete_store.php?branch_id=<?php echo $branch['branch_id']?>" class="btn btn-danger btn-sm">Xoá</a>
+                                        <a href="edit_store.php?branch_id=<?php echo $branch['branch_id']?>" class="btn btn-primary btn-sm"><?=_EDIT?></a>
+                                        <a href="delete_store.php?branch_id=<?php echo $branch['branch_id']?>" class="btn btn-danger btn-sm"><?=_DELETE?></a>
                                     </td>
                                     <td>
-                                        <a href="branch_stock.php?branch_id=<?php echo $branch['branch_id']?>" class="btn btn-info btn-sm">Chi tiết</a>
+                                        <a href="branch_stock.php?branch_id=<?php echo $branch['branch_id']?>" class="btn btn-info btn-sm"><?=_DETAIL?></a>
                                     </td>
                                     
 

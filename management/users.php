@@ -4,7 +4,7 @@
     $db = DBConfig::getDB();
     $users;
     $limit = 6;
-
+    
 
     if(isset($_GET['search_keyword']) && $_GET['search_keyword']!= null) {
         $search_keyword = $_GET['search_keyword'];
@@ -74,23 +74,23 @@
                     }
 			?>
             <form class="form-inline nav-item" method="GET" action="">
-                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search_keyword">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Tìm kiếm</button>
+                    <input class="form-control mr-sm-2" type="search" placeholder="<?=_SEARCH?>" aria-label="Search" name="search_keyword">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><?=_SEARCH?></button>
             </form>
 
             <div class="d-flex justify-content-center">
                         <nav aria-label="Page navigation example">
                                 <ul class="pagination">
                                     <?php if($page - 1 == 0):?>
-                                        <li class="page-item disabled"><a class="page-link" href="users.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>">Previous</a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="users.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="users.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>">Previous</a></li>
+                                        <li class="page-item"><a class="page-link" href="users.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php endif;?>
                                     <li class="page-item active"><a class="page-link" href="users.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
                                     <?php if($page +1 > $number_page):?>
-                                        <li class="page-item disabled"><a class="page-link" href="users.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>">Next</a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="users.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="users.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>">Next</a></li>
+                                        <li class="page-item"><a class="page-link" href="users.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php endif;?>
                                 </ul>
                             </nav>
@@ -100,14 +100,14 @@
                         <thead>
                             <tr>
                                 <th scope="col" colspan="2">#</th>
-                                <th scope="col">Tên đăng nhập</th>
-                                <th scope="col">Họ tên</th>
-                                <th scope="col">Email</th>
-                                <th scope="col">Số điện thoại</th>
-                                <th scope="col">Role</th>
-                                <th scope="col">Trạng thái</th>
-                                <th scope="col">Thao tác</th>
-                                <th scope="col">Giao dịch</th>
+                                <th scope="col"><?=_USERNAME?></th>
+                                <th scope="col"><?=_NAME?></th>
+                                <th scope="col"><?=_EMAIL?></th>
+                                <th scope="col"><?=_PHONE?></th>
+                                <th scope="col"><?=_ROLE?></th>
+                                <th scope="col"><?=_STATUS?></th>
+                                <th scope="col"><?=_ACTION?></th>
+                                <th scope="col"><?=_TRANSACTION?></th>
                             </tr>
                         </thead>
                             <?php foreach($users as $user):?> 
@@ -127,20 +127,20 @@
                                     <td><?= $user['fullname']?></td>
                                     <td><?= $user['email']?></td>
                                     <td><?= $user['phonenumber']?></td>
-                                    <td><?= $user['role'] == 0 ? 'Người dùng' : 'Quản Trị' ?></td>
+                                    <td><?= $user['role'] == 0 ? _USER : _MANAGER ?></td>
                                     <td>
                                         <?php if ($user['deactivate'] == 0): ?>
-                                            <a href="activate_user.php?user_id=<?php echo $user['id']?>&action=lock" class="btn btn-success btn-sm"> Đang Hoạt động</a>
+                                            <a href="activate_user.php?user_id=<?php echo $user['id']?>&action=lock" class="btn btn-success btn-sm"><?=_ACTIVE?></a>
                                         <?php else: ?>
-                                            <a href="activate_user.php?user_id=<?php echo $user['id']?>&action=unlock" class="btn btn-danger btn-sm">Đã khoá</a>
+                                            <a href="activate_user.php?user_id=<?php echo $user['id']?>&action=unlock" class="btn btn-danger btn-sm"><?=_NOTACTIVE?></a>
                                         <?php endif; ?>
                                     </td>
                                     <td>
-                                        <a href="edit_product.php?book_id=<?php echo $book['book_id']?>" class="btn btn-primary btn-sm">Chỉnh sửa</a>
+                                        <a href="edit_product.php?book_id=<?php echo $book['book_id']?>" class="btn btn-primary btn-sm"><?=_EDIT?></a>
 
                                     </td>
                                     <td>
-                                    <a href="transaction_user.php?user_id=<?php echo $user['id']?>" class="btn btn-info btn-sm">Giao dịch</a>
+                                    <a href="transaction_user.php?user_id=<?php echo $user['id']?>" class="btn btn-info btn-sm"><?=_DETAIL?></a>
                                     </td>
                                 <?php $index ++?>
                                 </tr>   

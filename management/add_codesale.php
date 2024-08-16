@@ -28,7 +28,7 @@
 	<div class="col-md-12 grid-margin stretch-card">
 		<div class="card">
 			<div class="card-body">
-				<h4 class="card-title">Thêm mã giảm giá mới</h4>
+				<h4 class="card-title"><?=_ADDCODESALE?></h4>
                 <?php 
                     if(isset($_SESSION['message'])){
                         ?>
@@ -42,58 +42,58 @@
 				<form action="" method="POST" class="forms-sample">
 
 					<div class="form-group">
-						<label for="exampleInputName1">Mô tả</label>
-						<input type="text" class="form-control" id="exampleInputName1" placeholder="Mô tả" name="description">
+						<label for="exampleInputName1"><?=_DESCRIPTION?></label>
+						<input type="text" class="form-control" id="exampleInputName1" placeholder="<?=_DESCRIPTION?>" name="description">
 					</div>
 
                     <div class="form-group">
-						<label for="exampleInputDescription1">Mã</label>
-						<input type="text" class="form-control" id="exampleInputDescription1" placeholder="Giá trị" name="code">
+						<label for="exampleInputDescription1"><?=_CODE?></label>
+						<input type="text" class="form-control" id="exampleInputDescription1" placeholder="<?=_CODE?>" name="code">
 					</div>
 
 
                     <div class="form-group">
-						<label for="exampleInputAuthor1">Đơn giá tối thiểu</label>
-						<input type="number" class="form-control" id="exampleInputAuthor1" placeholder="Tối thiểu" name="min">
+						<label for="exampleInputAuthor1"><?=_MIN?></label>
+						<input type="number" class="form-control" id="exampleInputAuthor1" placeholder="<?=_MIN?>" name="min">
 					</div>
 
                     <div class="form-group">
-						<label for="exampleInputHot">Hình thức giảm giá</label>
+						<label for="exampleInputHot"><?=_METHOD?></label>
 						<select class="form-control" id="exampleInputHot" name="method" id="method" onchange="handleSelectChange(event)">
-							<option value="1" selected>Giá tiền</option>
-							<option value="0">Phần trăm</option>
+							<option value="1" selected><?=_PRICE?></option>
+							<option value="0"><?=_PERCENT?></option>
 						</select>
 					</div>
 
                     <div class="form-group">
-						<label for="exampleInputDescription1">Giá trị</label>
-						<input type="number" class="form-control" id="exampleInputDescription1" placeholder="Giá trị" name="value">
+						<label for="exampleInputDescription1"><?=_VALUE?></label>
+						<input type="number" class="form-control" id="exampleInputDescription1" placeholder="<?=_VALUE?>" name="value">
 					</div>
 
                     <div class="form-group" style="display: none;" id="max">
-						<label for="exampleInputDescription1">Số tiền giảm tối đa</label>
-						<input type="number" class="form-control" id="exampleInputDescription1" placeholder="Giảm tối đa" name="max">
+						<label for="exampleInputDescription1"><?=_MAX?></label>
+						<input type="number" class="form-control" id="exampleInputDescription1" placeholder="<?=_MAX?>" name="max">
 					</div>
 
                     <div class="form-group">
-						<label for="startDate">Hết hiệu lực</label>
+						<label for="startDate"><?=_STARTAT?></label>
 						<input type="datetime-local" class="form-control" id="startDate" placeholder="Quantity" name="startDate">
 					</div>
 
                     <div class="form-group">
-						<label for="endDate">Hết hiệu lực</label>
+						<label for="endDate"><?=_ENDAT?></label>
 						<input type="datetime-local" class="form-control" id="endDate" placeholder="Quantity" name="endDate">
 					</div>
 
 					<div class="form-group">
-						<label for="exampleInputHot">Kích hoạt</label>
+						<label for="exampleInputHot"><?=_ACTIVATE?></label>
 						<select class="form-control" id="exampleInputHot" name="activate">
-							<option value="1">Có</option>
-							<option value="0">Không</option>
+							<option value="1"><?=_YES?></option>
+							<option value="0"><?=_NO?></option>
 						</select>
 					</div>
 
-					<button type="submit" name="submit" class="btn btn-success mr-2">Save</button>
+					<button type="submit" name="submit" class="btn btn-success mr-2"><?=_SAVE?></button>
 				</form>
 			</div>
 		</div>

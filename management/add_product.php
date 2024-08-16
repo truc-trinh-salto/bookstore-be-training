@@ -28,7 +28,7 @@
 	<div class="col-md-12 grid-margin stretch-card">
 		<div class="card">
 			<div class="card-body">
-				<h4 class="card-title">Thêm sản phẩm mới</h4>
+				<h4 class="card-title"><?=_ADDPRODUCT?></h4>
                 <?php 
                     if(isset($_SESSION['message'])){
                         ?>
@@ -42,35 +42,35 @@
 				<form action="" method="POST" class="forms-sample" enctype="multipart/form-data">
                     <div class="text-center">
                         <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3cD47c9xUZyKlO3j3z9vdBHV0P2BIwfkeWg&s" class="avatar img-circle img-thumbnail" alt="avatar" height="300" width="300">
-                        <h6>Upload a different photo...</h6>
+                        <h6><?=_UPLOADGALLERY?></h6>
                         <input type="file" class="text-center center-block file-upload" name="book-image">
                     </div>
 
 					<div class="form-group">
-						<label for="exampleInputName1">Tên sản phẩm</label>
-						<input type="text" class="form-control" id="exampleInputName1" placeholder="Product Name" name="name">
+						<label for="exampleInputName1"><?=_BOOKNAME?></label>
+						<input type="text" class="form-control" id="exampleInputName1" placeholder="<?=_BOOKNAME?>" name="name">
 					</div>
                     <div class="form-group">
-						<label for="exampleInputAuthor1">Tác giả</label>
-						<input type="text" class="form-control" id="exampleInputAuthor1" placeholder="Authors" name="authors">
+						<label for="exampleInputAuthor1"><?=_AUTHORS?></label>
+						<input type="text" class="form-control" id="exampleInputAuthor1" placeholder="<?=_AUTHORS?>" name="authors">
 					</div>
                     <div class="form-group">
-						<label for="exampleInputDescription1">Mô tả</label>
-						<input type="text" class="form-control" id="exampleInputDescription1" placeholder="Description" name="description">
+						<label for="exampleInputDescription1"><?=_DESCRIPTION?></label>
+						<input type="text" class="form-control" id="exampleInputDescription1" placeholder="<?=_DESCRIPTION?>" name="description">
 					</div>
 					<div class="form-group">
-						<label for="exampleInputQuantity">Số lượng</label>
-						<input type="number" class="form-control" id="exampleInputQuantity" placeholder="Quantity" name="quantity">
+						<label for="exampleInputQuantity"><?=_QUANTITY?></label>
+						<input type="number" class="form-control" id="exampleInputQuantity" placeholder="<?=_QUANTITY?>" name="quantity">
 					</div>
 					<div class="form-group">
-						<label for="exampleInputHot">Hiển thị trang chủ</label>
+						<label for="exampleInputHot"><?=_SHOWHOME?></label>
 						<select class="form-control" id="exampleInputHot" name="hotItem">
-							<option value="1">Có</option>
-							<option value="0">Không</option>
+							<option value="1"><?=_YES?></option>
+							<option value="0"><?=_NO?></option>
 						</select>
 					</div>
 					<div class="form-group">
-						<label for="exampleInputCategory">Thể loại</label>
+						<label for="exampleInputCategory"><?=_CATEGORY?></label>
 						<select class="form-control" id="exampleInputCategory" th:field="*{category.id}" name="category">
                             <?php foreach($categories as $category):?>
                                 <option value="<?php echo $category['category_id']?>"><?= $category['name_category']?></option>
@@ -78,10 +78,10 @@
 						</select>
 					</div>
 					<div class="form-group">
-						<label for="exampleInputPrice">Giá tiền</label>
+						<label for="exampleInputPrice"><?=_PRICE?></label>
 						<input type="number" class="form-control" id="exampleInputPrice" name="price">
 					</div>
-					<button type="submit" name="submit" class="btn btn-success mr-2">Save</button>
+					<button type="submit" name="submit" class="btn btn-success mr-2"><?=_SAVE?></button>
 				</form>
 			</div>
 		</div>

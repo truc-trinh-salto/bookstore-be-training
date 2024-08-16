@@ -106,25 +106,25 @@
                     }
 			?>
             <form class="form-inline nav-item" method="GET" action="">
-                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search_keyword">
+                    <input class="form-control mr-sm-2" type="search" placeholder="<?=_SEARCH?>" aria-label="Search" name="search_keyword">
                     <input type="hidden" name="branch_id" value="<?php echo $branch_id?>">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Tìm kiếm</button>
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><?=_SEARCH?></button>
             </form>
             <div class="d-flex justify-content-center">
                         <nav aria-label="Page navigation example">
                                 <ul class="pagination">
                                     <?php if($page - 1 == 0):?>
-                                        <li class="page-item disabled"><a class="page-link" href="branch_stock.php?branch_id=<?php echo $branch_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>">Previous</a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="branch_stock.php?branch_id=<?php echo $branch_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="branch_stock.php?branch_id=<?php echo $branch_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>">Previous</a></li>
+                                        <li class="page-item"><a class="page-link" href="branch_stock.php?branch_id=<?php echo $branch_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                         <li class="page-item"><a class="page-link" href="branch_stock.php?branch_id=<?php echo $branch_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?php echo $page-1 ?></a></li>
                                     <?php endif;?>
                                     <li class="page-item active"><a class="page-link" href="branch_stock.php?branch_id=<?php echo $branch_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
                                     <?php if($page +1 > $number_page):?>
-                                        <li class="page-item disabled"><a class="page-link" href="branch_stock.php?branch_id=<?php echo $branch_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>">Next</a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="branch_stock.php?branch_id=<?php echo $branch_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php else:?>
                                         <li class="page-item"><a class="page-link" href="branch_stock.php?branch_id=<?php echo $branch_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?php echo $page + 1 ?></a></li>
-                                        <li class="page-item"><a class="page-link" href="branch_stock.php?branch_id=<?php echo $branch_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>">Next</a></li>
+                                        <li class="page-item"><a class="page-link" href="branch_stock.php?branch_id=<?php echo $branch_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php endif;?>
                                 </ul>
                             </nav>
@@ -134,14 +134,14 @@
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">Hình ảnh</th>
-                                <th scope="col">Tên sách</th>
-                                <th scope="col">Tác giả</th>
-                                <th scope="col">Số lượng</th>
-                                <th scope="col">Thể loại</th>
-                                <th scope="col">Giá Tiền</th>
-                                <th scope="col">Hiển thị trang thủ</th>
-                                <th scope="col">Trạng thái</th>
+                                <th scope="col"><?=_PHOTO?></th>
+                                <th scope="col"><?=_BOOKNAME?></th>
+                                <th scope="col"><?=_AUTHORS?></th>
+                                <th scope="col"><?=_QUANTITY?></th>
+                                <th scope="col"><?=_CATEGORY?></th>
+                                <th scope="col"><?=_PRICE?></th>
+                                <th scope="col"><?=_SHOWHOME?></th>
+                                <th scope="col"><?=_STATUS?></th>
                             </tr>
                         </thead>
                             <?php foreach($books as $book):?> 
@@ -182,13 +182,13 @@
                                     </td>
                                     <td>
                                         <?php if($book['status'] == 1): ?>
-                                            <a href="action_stock.php?book_id=<?php echo $book['book_id']?>&branch_id=<?php echo $book['branch_id']?>&action=out" class="btn btn-success btn-sm">Còn hàng</a>
+                                            <a href="action_stock.php?book_id=<?php echo $book['book_id']?>&branch_id=<?php echo $book['branch_id']?>&action=out" class="btn btn-success btn-sm"><?=_INSTOCK?></a>
                                         <?php else: ?>
-                                            <a href="action_stock.php?book_id=<?php echo $book['book_id']?>&branch_id=<?php echo $book['branch_id']?>&action=in" class="btn btn-danger btn-sm">Hết hàng</a>
+                                            <a href="action_stock.php?book_id=<?php echo $book['book_id']?>&branch_id=<?php echo $book['branch_id']?>&action=in" class="btn btn-danger btn-sm"><?=_OUTSTOCK?></a>
                                         <?php endif; ?>
 
                                         <?php if($book['branch_select'] == 1): ?>
-                                            <a href="" class="btn btn-info btn-sm">Xuất kho</a>
+                                            <a href="" class="btn btn-info btn-sm"><?=_WAREHOUSE?></a>
                                         <?php endif;?>
                                     </td>
                                     

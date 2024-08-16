@@ -112,14 +112,14 @@
             <div class="row">
                 <div class="col-md-6">
                     <form class="form-inline nav-item" method="GET" action="">
-                        <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search_keyword">
-                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Tìm kiếm</button>
+                        <input class="form-control mr-sm-2" type="search" placeholder="<?=_SEARCH?>" aria-label="Search" name="search_keyword">
+                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><?=_SEARCH?></button>
                     </form>
                 </div>
                 <div class="col-md-6 justify-content-right">
                     <form class="form-inline nav-item" method="POST" action="<?php echo $import['status'] == 0? 'make_import.php':'' ?>">
                         <input type="hidden" name="import_id" value="<?php echo $import_id?>">
-                        <button class="btn btn-success my-2 my-sm-0 font-weight-bold" type="submit" <?php echo $import['status'] == 0? '':'disabled=disabled' ?>><?php echo $import['status'] == 0? 'Xác thực nhập hàng':'Đã xác nhận'?></button>
+                        <button class="btn btn-success my-2 my-sm-0 font-weight-bold" type="submit" <?php echo $import['status'] == 0? '':'disabled=disabled' ?>><?php echo $import['status'] == 0? _SAVE: _ACCEPT?></button>
                     </form>
                 </div>
             </div>
@@ -127,22 +127,22 @@
 
             <div class="row">
                     <div class="col-md-12 text-info d-flex justify-content-center">
-                        <h3>Tiêu đề: <?php echo $import['title'] ?></h3>
+                        <h3><?=_TITLE?>: <?php echo $import['title'] ?></h3>
                     </div>
             </div>       
             <div class="d-flex justify-content-center">
                         <nav aria-label="Page navigation example">
                                 <ul class="pagination">
                                     <?php if($page - 1 == 0):?>
-                                        <li class="page-item disabled"><a class="page-link" href="detail_import.php?import_id=<?php echo $import_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>">Previous</a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="detail_import.php?import_id=<?php echo $import_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="detail_import.php?import_id=<?php echo $import_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>">Previous</a></li>
+                                        <li class="page-item"><a class="page-link" href="detail_import.php?import_id=<?php echo $import_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php endif;?>
                                     <li class="page-item active"><a class="page-link" href="detail_import.php?import_id=<?php echo $import_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
                                     <?php if($page +1 > $number_page):?>
-                                        <li class="page-item disabled"><a class="page-link" href="detail_import.php?import_id=<?php echo $import_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>">Next</a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="detail_import.php?import_id=<?php echo $import_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="detail_import.php?import_id=<?php echo $import_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>">Next</a></li>
+                                        <li class="page-item"><a class="page-link" href="detail_import.php?import_id=<?php echo $import_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php endif;?>
                                 </ul>
                             </nav>
@@ -152,22 +152,22 @@
                             <form action="import_excel.php" method="POST" enctype="multipart/form-data">
                                 <input type="hidden" name="import_id" value="<?php echo $import_id?>">
                                 <input type="file" class="text-center center-block file-upload" name="fileimport">
-                                <button class="btn btn-outline-success" type="submit" name="submit-import">Thực hiện nhập file</button>
+                                <button class="btn btn-outline-success" type="submit" name="submit-import"><?=_MAKEIMPORT?></button>
                             </form>
                     </div>
                     <table class="table">
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">Hình ảnh</th>
-                                <th scope="col">Tên sách</th>
-                                <th scope="col">Tác giả</th>
-                                <th scope="col">Thể loại</th>
-                                <th scope="col">Giá Tiền</th>
-                                <th scope="col">Số lượng nhập</th>
-                                <th scope="col">Trước nhập hàng</th>
-                                <th scope="col">Sau nhập hàng</th>
-                                <th scope="col">Thao tác</th>
+                                <th scope="col"><?=_PHOTO?></th>
+                                <th scope="col"><?=_BOOKNAME?></th>
+                                <th scope="col"><?=_AUTHORS?></th>
+                                <th scope="col"><?=_CATEGORY?></th>
+                                <th scope="col"><?=_PRICE?></th>
+                                <th scope="col"><?=_IMPORTED?></th>
+                                <th scope="col"><?=_PREIMPORTED?></th>
+                                <th scope="col"><?=_POSTIMPORTED?></th>
+                                <th scope="col"><?=_ACTION?></th>
                             </tr>
                         </thead>
                             <?php foreach($books as $book):?> 
@@ -211,8 +211,8 @@
                                     </td>
                                     
                                     <td>
-                                        <a href="#" name="button-edit-<?php echo $book['book_id']?>" class="btn btn-primary btn-edit-quantity" style="display:block;"data-book-id="<?php echo $book['book_id'] ?>">Chỉnh sửa</a>
-                                        <a href="#" class="btn btn-success btn-save-quantity" style="display:none;" data-book-id="<?php echo $book['book_id'] ?>">Lưu lại</a>
+                                        <a href="#" name="button-edit-<?php echo $book['book_id']?>" class="btn btn-primary btn-edit-quantity" style="display:block;"data-book-id="<?php echo $book['book_id'] ?>"><?=_EDIT?></a>
+                                        <a href="#" class="btn btn-success btn-save-quantity" style="display:none;" data-book-id="<?php echo $book['book_id'] ?>"><?=_SAVE?></a>
                                     </td>
 
                                     

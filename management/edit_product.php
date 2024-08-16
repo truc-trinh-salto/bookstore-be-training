@@ -72,7 +72,7 @@
         <div class="col-md-7 grid-margin stretch-card">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="card-title">Thêm sản phẩm mới</h4>
+                    <h4 class="card-title"><?=_EDITPRODUCT?></h4>
                     <?php 
                         if(isset($_SESSION['message'])){
                             ?>
@@ -91,7 +91,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="exampleInputCategory">Mục hình ảnh</label>
+                            <label for="exampleInputCategory"><?=_GALLERY?></label>
                             <select class="form-control select-image" id="exampleInputCategory" name="image_id" onchange="handleSelectChange(event)">
                                 <?php $index = 0; ?>
                                 <?php foreach($images as $image):?>
@@ -101,36 +101,36 @@
                                             echo ' selected="selected" ';
                                         }
                                     ?>
-                                    >Hình <?= $index + 1?></option>
+                                    ><?=_PHOTO?> <?= $index + 1?></option>
                                     <?php $index++;?>
                                 <?php endforeach;?>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="exampleInputName1">Tên sản phẩm</label>
-                            <input type="text" class="form-control" id="exampleInputName1" placeholder="Product Name" name="name" value="<?php echo $book['title']?>">
+                            <label for="exampleInputName1"><?=_BOOKNAME?></label>
+                            <input type="text" class="form-control" id="exampleInputName1" placeholder="<?=_BOOKNAME?>" name="name" value="<?php echo $book['title']?>">
                         </div>
                         <div class="form-group">
-                            <label for="exampleInputAuthor1">Tác giả</label>
-                            <input type="text" class="form-control" id="exampleInputAuthor1" placeholder="Authors" name="authors" value="<?php echo $book['authors']?>">
+                            <label for="exampleInputAuthor1"><?=_AUTHORS?></label>
+                            <input type="text" class="form-control" id="exampleInputAuthor1" placeholder="Authors" name="<?=_AUTHORS?>" value="<?php echo $book['authors']?>">
                         </div>
                         <div class="form-group">
-                            <label for="exampleInputDescription1">Mô tả</label>
-                            <input type="text" class="form-control" id="exampleInputDescription1" placeholder="Description" name="description" value="<?php echo $book['description']?>">
+                            <label for="exampleInputDescription1"><?=_DESCRIPTION?></label>
+                            <input type="text" class="form-control" id="exampleInputDescription1" placeholder="<?=_DESCRIPTION?>" name="description" value="<?php echo $book['description']?>">
                         </div>
                         <div class="form-group">
-                            <label for="exampleInputQuantity">Số lượng</label>
-                            <input type="number" class="form-control" id="exampleInputQuantity" placeholder="Quantity" name="quantity" value="<?php echo $book['stock']?>">
+                            <label for="exampleInputQuantity"><?=_QUANTITY?></label>
+                            <input type="number" class="form-control" id="exampleInputQuantity" placeholder="<?=_QUANTITY?>" name="quantity" value="<?php echo $book['stock']?>">
                         </div>
                         <div class="form-group">
-                            <label for="exampleInputHot">Hiển thị trang chủ</label>
+                            <label for="exampleInputHot"><?=_SHOWHOME?></label>
                             <select class="form-control" id="exampleInputHot" name="hotItem">
-                                <option value="1">Có</option>
-                                <option value="0">Không</option>
+                                <option value="1"><?=_YES?></option>
+                                <option value="0"><?=_NO?></option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="exampleInputCategory">Thể loại</label>
+                            <label for="exampleInputCategory"><?=_CATEGORY?></label>
                             <select class="form-control" id="exampleInputCategory" name="category">
                                 <?php foreach($categories as $category):?>
                                     <option value="<?php echo $category['category_id']?>"
@@ -144,11 +144,11 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="exampleInputPrice">Giá tiền</label>
+                            <label for="exampleInputPrice"><?=_PRICE?></label>
                             <input type="number" class="form-control" id="exampleInputPrice" name="price" value="<?php echo $book['price']?>">
                         </div>
-                        <button type="submit" name="submit" class="btn btn-success mr-2">Lưu lại</button>
-                        <a href="product.php" class="btn btn-danger mr-2">Huỷ</a>
+                        <button type="submit" name="submit" class="btn btn-success mr-2"><?=_SAVE?></button>
+                        <a href="product.php" class="btn btn-danger mr-2"><?=_CANCEL?></a>
                     </form>
                 </div>
             </div>
@@ -161,7 +161,7 @@
                 <form action="edit_branch_select.php" method="POST">
                         <input type="hidden" name="book_id" value="<?php echo $book_id ?>">
                         <div class="form-group">
-                            <label for="exampleInputCategory">Nơi xuất kho</label>
+                            <label for="exampleInputCategory"><?=_WAREHOUSE?></label>
                             <select class="form-control" id="exampleInputCategory" name="branch_select">
                                 <?php foreach($branchs as $branch_select):?>
                                     <option value="<?php echo $branch_select['branch_id']?>"
@@ -174,7 +174,7 @@
                                 <?php endforeach;?>
                             </select>
                         </div>
-                        <button type="submit" name="submit" class="btn btn-success mr-2">Lưu lại</button>
+                        <button type="submit" name="submit" class="btn btn-success mr-2"><?=_SAVE?></button>
                 </form>
             </div>
             <div class="row-md-12 grid margin stretch-card-card">
@@ -182,10 +182,10 @@
                             <thead>
                                 <tr>
                                     <th scope="col">#</th>
-                                    <th scope="col">Tên chi nhánh</th>
-                                    <th scope="col">Địa chỉ</th>
-                                    <th scope="col">Số điện thoại</th>
-                                    <th scope="col">Chi tiết</th>
+                                    <th scope="col"><?=_BRANCHNAME?></th>
+                                    <th scope="col"><?=_ADDRESS?></th>
+                                    <th scope="col"><?=_HOTLINE?></th>
+                                    <th scope="col"><?=_DETAIL?></th>
                                 </tr>
                             </thead>
                                 <?php foreach($branchs as $branch):?> 
@@ -196,14 +196,14 @@
                                         <td><?= $branch['hotline'] ?></td>
                                         <td>
                                             <?php if($branch['status'] == 1): ?>
-                                                <a href="action_stock.php?book_id=<?php echo $book_id?>&branch_id=<?php echo $branch['branch_id']?>&action=out" class="btn btn-success btn-sm">Còn hàng</a>
+                                                <a href="action_stock.php?book_id=<?php echo $book_id?>&branch_id=<?php echo $branch['branch_id']?>&action=out" class="btn btn-success btn-sm"><?=_INSTOCK?></a>
                                             <?php else: ?>
-                                                <a href="action_stock.php?book_id=<?php echo $book_id?>&branch_id=<?php echo $branch['branch_id']?>&action=in" class="btn btn-danger btn-sm">Hết hàng</a>
+                                                <a href="action_stock.php?book_id=<?php echo $book_id?>&branch_id=<?php echo $branch['branch_id']?>&action=in" class="btn btn-danger btn-sm"><?=_OUTSTOCK?></a>
                                             <?php endif; ?>
                                             
 
                                             <?php if($branch['branch_select'] == 1):?>
-                                            <a href="" class="btn btn-info btn-sm">Xuất kho</a>
+                                            <a href="" class="btn btn-info btn-sm"><?=_WAREHOUSE?></a>
                                             <?php endif; ?>
                                             
                                         </td>

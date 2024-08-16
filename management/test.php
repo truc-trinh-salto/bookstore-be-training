@@ -149,9 +149,9 @@
                             <nav aria-label="Page navigation example">
                                     <ul class="pagination">
                                         <?php if($page - 1 == 0):?>
-                                            <li class="page-item disabled"><a class="page-link" href="hot_item.php?search_keyword=<?php echo $search_keyword ?>&date_select=<?php echo $date ?>&page=<?php echo $page -1?>">Previous</a></li>
+                                            <li class="page-item disabled"><a class="page-link" href="hot_item.php?search_keyword=<?php echo $search_keyword ?>&date_select=<?php echo $date ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                         <?php else:?>
-                                            <li class="page-item"><a class="page-link" href="hot_item.php?search_keyword=<?php echo $search_keyword ?>&date_select=<?php echo $date ?>&page=<?php echo $page -1?>">Previous</a></li>
+                                            <li class="page-item"><a class="page-link" href="hot_item.php?search_keyword=<?php echo $search_keyword ?>&date_select=<?php echo $date ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                         <?php endif;?>
                                         <li class="page-item active"><a class="page-link" href="hot_item.php?search_keyword=<?php echo $search_keyword ?>&date_select=<?php echo $date ?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
                                         <?php if($page +1 > $number_page):?>

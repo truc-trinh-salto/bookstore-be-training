@@ -1,10 +1,22 @@
 <?php
     session_start();
     require_once('database.php');
+    if(isset($_GET['lang']) && !empty($_GET['lang'])){
+        $_SESSION['lang'] = $_GET['lang'];
+        if(isset($_SESSION['lang']) && $_SESSION['lang'] != $_GET['lang']){
+         echo "<script type='text/javascript'> location.reload(); </script>";
+        }
+    }
+    if(isset($_SESSION['lang'])){
+            include "public/language/".$_SESSION['lang'].".php";
+    }else{
+            include "public/language/en.php";
+    }
 
     $db = DBConfig::getDB();
 
     if(isset($_GET['order_id'])){
+        $order_id = $_GET['order_id'];
         $stmt = $db->prepare('SELECT o.book_id, o.quantity, o.price, o.total, o.order_id, b.title, b.authors
                                 FROM order_detail as o
                                 LEFT JOIN books as b ON o.book_id = b.book_id
@@ -35,6 +47,10 @@
     $stmt->execute();
 
     $routes = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+    $stmt = $db->prepare('SELECT * FROM categories');
+    $stmt->execute();
+    $categories = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
 
     $index = 1;
@@ -69,58 +85,21 @@
 </head>
 <body>
     <div class="app">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="home.php">Book Store</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <?php 
-                                if($_SESSION['user_id']) {
-                                    echo $_SESSION['fullname'];
-                                } else {
-                                    echo 'Tài khoản';
-                                }
-                            ?>
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <?php if($_SESSION['user_id']): ?>
-                            <a class="dropdown-item" href="history.php">Lịch sử mua hàng</a>
-                            <a class="dropdown-item" href="profile.php">Thông tin cá nhân</a>
-                            <?php else:?>
-                            <a class="dropdown-item" href="index.php">Đăng nhập</a>
-                            <?php endif; ?>
-                            <a class="dropdown-item" href="logout.php">Đăng xuất
-                        </a>
-                        </div>
-                    </li>
-                    <li class="nav-item">
-                        <a class ="nav-link"href="view_cart.php"><span class="badge"><?php echo count($_SESSION['cart']); ?></span> Cart <span class="glyphicon glyphicon-shopping-cart"></span></a>
-                    </li>
-                    
-                </ul>
-            </div>
-        </div>
-    </nav>
+        <?php include "partials/sub_header.php"?>
         <div class="container">
             <div class="mt-4">
                 <div class="row">
-                    <h3 class="text-center">Mã đơn hàng : <?php echo $_GET['order_id'] ?></h3>
+                    <h3 class="text-center"><?=_ORDERID?> : <?php echo $_GET['order_id'] ?></h3>
                     
                     <table class="table">
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">Tên sách</th>
-                                <th scope="col">Tác giả</th>
-                                <th scope="col">Số lượng</th>
-                                <th scope="col">Giá Tiền</th>
-                                <th scope="col">Tổng tiền</th>
+                                <th scope="col"><?=_BOOKNAME?> </th>
+                                <th scope="col"><?=_AUTHORS?> </th>
+                                <th scope="col"><?=_QUANTITY?> </th>
+                                <th scope="col"><?=_PRICE?> </th>
+                                <th scope="col"><?=_TOTALPRICEBOOK?> </th>
                             </tr>
                         </thead>
                             <?php foreach($order_details as $order_detail):?> 
@@ -137,17 +116,17 @@
                                 </tr>   
                             <?php endforeach;?>
                                 <tr>
-                                    <td colspan="5" class="text-left font-weight-bold">Tạm tính: </td>
+                                    <td colspan="5" class="text-left font-weight-bold"><?=_TOTALORDER?> : </td>
                                     <td colspan="1" class="font-weight-bold"><?php echo number_format($total,2)?></td>
                                 </tr>
 
                                 <tr>
-                                    <td colspan="5" class="text-left font-weight-bold">Giảm giá: </td>
+                                    <td colspan="5" class="text-left font-weight-bold"><?=_DISCOUNT?> : </td>
                                     <td colspan="1" class="font-weight-bold text-danger"><?php echo number_format($total - $transaction['total'],2)?></td>
                                 </tr>
 
                                 <tr>
-                                    <td colspan="5" class="text-left font-weight-bold">Tổng tiền: </td>
+                                    <td colspan="5" class="text-left font-weight-bold"><?=_TOTAL?> : </td>
                                     <td colspan="1" class="font-weight-bold text-success"><?php echo number_format($transaction['total'],2)?></td>
                                 </tr>
                         </tbody>
@@ -158,9 +137,9 @@
                         <ul
                             class="progressbar rb-rounded-square d-flex justify-content-center"
                         >
-                            <li class="box <?php if($routes[0]['status'] == 1) echo 'active' ?>">Đóng gói hàng</li>
-                            <li class="truck-fast <?php if($routes[1]['status'] == 1) echo 'active' ?>">Đang giao hàng</li>
-                            <li class="success <?php if($routes[2]['status'] == 1) echo 'active' ?>">Thành công</li>
+                        <li class="box <?php if($routes[0]['status'] == 1) echo 'active' ?>"><?=_PACKAGE?> </li>
+                            <li class="truck-fast <?php if($routes[1]['status'] == 1) echo 'active' ?>"><?=_DELIVERING?> </li>
+                            <li class="success <?php if($routes[2]['status'] == 1) echo 'active' ?>"><?=_SUCCESS?> </li>
                         </ul>
                         <!-- Rounded Square Marker Ends -->
                         </div>

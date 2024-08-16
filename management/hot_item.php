@@ -136,13 +136,13 @@
                 ?>
 
             <div class="row">
-                <div class="col-md-6 d-flex justify-content-start">
-                            <a href="product.php" class="btn btn-success">Quay lại</a>
+                <div class="col-md-6 justify-content-start">
+                            <a href="product.php" class="btn btn-success"><?=_BACK?></a>
                 </div>
                 <div class="col-md-6 d-flex justify-content-end">
                         <form class="form-inline nav-item col-md-6 justify-content-center" method="GET" action="export.php">
                             <input class="form-control mr-sm-2" type="hidden" name="date_select" value="<?php echo $date?>">
-                            <button class="btn btn-info my-2 my-sm-0" type="submit">Xuất file</button>
+                            <button class="btn btn-info my-2 my-sm-0" type="submit"><?=_EXPORT?></button>
                         </form>
                 </div>
             </div>
@@ -150,15 +150,15 @@
                             <nav aria-label="Page navigation example">
                                     <ul class="pagination">
                                         <?php if($page - 1 == 0):?>
-                                            <li class="page-item disabled"><a class="page-link" href="hot_item.php?search_keyword=<?php echo $search_keyword ?>&date_select=<?php echo $date ?>&page=<?php echo $page -1?>">Previous</a></li>
+                                            <li class="page-item disabled"><a class="page-link" href="hot_item.php?search_keyword=<?php echo $search_keyword ?>&date_select=<?php echo $date ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                         <?php else:?>
-                                            <li class="page-item"><a class="page-link" href="hot_item.php?search_keyword=<?php echo $search_keyword ?>&date_select=<?php echo $date ?>&page=<?php echo $page -1?>">Previous</a></li>
+                                            <li class="page-item"><a class="page-link" href="hot_item.php?search_keyword=<?php echo $search_keyword ?>&date_select=<?php echo $date ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                         <?php endif;?>
                                         <li class="page-item active"><a class="page-link" href="hot_item.php?search_keyword=<?php echo $search_keyword ?>&date_select=<?php echo $date ?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
                                         <?php if($page +1 > $number_page):?>
-                                            <li class="page-item disabled"><a class="page-link" href="hot_item.php?search_keyword=<?php echo $search_keyword ?>&date_select=<?php echo $date ?>&page=<?php echo $page +1?>">Next</a></li>
+                                            <li class="page-item disabled"><a class="page-link" href="hot_item.php?search_keyword=<?php echo $search_keyword ?>&date_select=<?php echo $date ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                         <?php else:?>
-                                            <li class="page-item"><a class="page-link" href="hot_item.php?search_keyword=<?php echo $search_keyword ?>&date_select=<?php echo $date ?>&page=<?php echo $page +1?>">Next</a></li>
+                                            <li class="page-item"><a class="page-link" href="hot_item.php?search_keyword=<?php echo $search_keyword ?>&date_select=<?php echo $date ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                         <?php endif;?>
                                     </ul>
                                 </nav>
@@ -166,9 +166,9 @@
                     <div class="row">
                         <div class="col-md-12 d-flex justify-content-center">
                             <form class="form-inline nav-item col-md-6" method="GET" action="">
-                                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search_keyword" value="<?php echo $search_keyword?>">
+                                    <input class="form-control mr-sm-2" type="search" placeholder="<?=_SEARCH?>" aria-label="Search" name="search_keyword" value="<?php echo $search_keyword?>">
                                     <input class="form-control mr-sm-2" type="month" placeholder="Search" aria-label="Search" name="date_select" value="<?php echo $date?>">
-                                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Tìm kiếm</button>
+                                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><?=_SEARCH?></button>
                             </form>
                         </div>
                         
@@ -176,16 +176,16 @@
                             <thead>
                                 <tr>
                                     <th scope="col">#</th>
-                                    <th scope="col">Hình ảnh</th>
-                                    <th scope="col">Tên sách</th>
-                                    <th scope="col">Tác giả</th>
-                                    <th scope="col">Thể loại</th>
-                                    <th scope="col">Giá Tiền</th>
-                                    <th scope="col">Hiển thị trang thủ</th>
-                                    <th scope="col">Số lượng đã bán</th>
-                                    <th scope="col">Số lượng lúc đầu</th>
-                                    <th scope="col">Số lượng còn lại</th>
-                                    <th scope="col">Thao tác</th>
+                                    <th scope="col"><?=_PHOTO?></th>
+                                    <th scope="col"><?=_BOOKNAME?></th>
+                                    <th scope="col"><?=_AUTHORS?></th>
+                                    <th scope="col"><?=_CATEGORY?></th>
+                                    <th scope="col"><?=_PRICE?></th>
+                                    <th scope="col"><?=_SHOWHOME?></th>
+                                    <th scope="col"><?=_QUANTITYSOLD?></th>
+                                    <th scope="col"><?=_QUANTITYTOTAL?></th>
+                                    <th scope="col"><?=_STOCK?></th>
+                                    <th scope="col"><?=_ACTION?></th>
                                 </tr>
                             </thead>
                                 <?php foreach($books as $book):?> 
@@ -230,7 +230,7 @@
                                         <td class="text-info font-weight-bold"><?php echo $book['after_stock']?></td>
                                         <td class="text-success font-weight-bold"><?php echo $book['stock']?></td>
                                         <td>
-                                            <a href="edit_product.php?book_id=<?php echo $book['book_id']?>" class="btn btn-primary btn-sm">Chỉnh sửa</a>
+                                            <a href="edit_product.php?book_id=<?php echo $book['book_id']?>" class="btn btn-primary btn-sm"><?=_EDIT?></a>
                                         </td>
                                         
                                     <?php $index ++?>

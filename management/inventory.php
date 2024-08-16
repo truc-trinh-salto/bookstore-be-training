@@ -93,10 +93,10 @@
                 </div> -->
             <div class="row">
                 <div class="col-md-6 d-flex justify-content-start">
-                            <a href="product.php" class="btn btn-success">Quay lại</a>
+                            <a href="product.php" class="btn btn-success"><?=_BACK?></a>
                 </div>
                 <div class="col-md-6 d-flex justify-content-end">
-                    <a class="btn btn-info" href="import.php">Nhập hàng</a>
+                    <a class="btn btn-info" href="import.php"><?=_ADDIMPORT?></a>
                 </div>
             </div>
             
@@ -104,15 +104,15 @@
                         <nav aria-label="Page navigation example">
                                 <ul class="pagination">
                                     <?php if($page - 1 == 0):?>
-                                        <li class="page-item disabled"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>">Previous</a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>">Previous</a></li>
+                                        <li class="page-item"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php endif;?>
                                     <li class="page-item active"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
                                     <?php if($page +1 > $number_page):?>
-                                        <li class="page-item disabled"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>">Next</a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>">Next</a></li>
+                                        <li class="page-item"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php endif;?>
                                 </ul>
                             </nav>
@@ -128,11 +128,11 @@
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">Tiêu đề</th>
-                                <th scope="col">Ngày nhập hàng</th>
-                                <th scope="col">Tổng số lượng</th>
-                                <th scope="col">Trạng thái</th>
-                                <th scope="col">Chi tiết</th>
+                                <th scope="col"><?=_TITLE?></th>
+                                <th scope="col"><?=_DATEIMPORT?></th>
+                                <th scope="col"><?=_TOTALQUANTITY?></th>
+                                <th scope="col"><?=_STATUS?></th>
+                                <th scope="col"><?=_ACTION?></th>
                             </tr>
                         </thead>
                             <?php foreach($imports as $import):?>
@@ -144,16 +144,16 @@
                                     <td>
                                         <?php 
                                             if($import['status'] == 0){
-                                                echo "<span class='text-danger font-weight-bold'>Chưa xác nhận</span>";
+                                                echo "<span class='text-danger font-weight-bold'>"._NOTACCEPT."</span>";
                                             } else {
-                                                echo "<span class='text-success font-weight-bold'>Đã xác nhận</span>";
+                                                echo "<span class='text-success font-weight-bold'>"._ACCEPT."</span>";
                                             } 
                                         ?>
                                     </td>
                                     <td>
-                                        <a href="detail_import.php?import_id=<?php echo $import['id']?>" class="btn btn-info btn-sm">Chi tiết</a>
+                                        <a href="detail_import.php?import_id=<?php echo $import['id']?>" class="btn btn-info btn-sm"><?=_DETAIL?></a>
                                         <?php if($import['status'] == 0): ?>
-                                            <a href="delete_import.php?import_id=<?php echo $import['id']?>" class="btn btn-danger btn-sm">Xoá</a>
+                                            <a href="delete_import.php?import_id=<?php echo $import['id']?>" class="btn btn-danger btn-sm"><?=_DELETE?></a>
                                         <?php endif; ?>
                                     </td>
                                 <?php $index ++?>

@@ -2,6 +2,8 @@
     session_start();
     require_once('../database.php');
 
+    $user_id = $_GET['user_id'];
+
     $db = DBConfig::getDB();
 
     $stmt = $db->prepare('SELECT t.createdAt, t.address, t.receiver, t.order_id, t.total, o.user_id, tr.status 
@@ -39,11 +41,11 @@
                         <thead>
                             <tr>
                             <th scope="col">#</th>
-                            <th scope="col">Thời gian check out</th>
-                            <th scope="col">Người nhận</th>
-                            <th scope="col">Tổng đơn hàng</th>
-                            <th scope="col">Trạng thái</th>
-                            <th scope="col">Xem chi tiết</th>
+                            <th scope="col"><?=_TIMECHECKOUT?></th>
+                            <th scope="col"><?=_RECEIVER?></th>
+                            <th scope="col"><?=_TOTAL?></th>
+                            <th scope="col"><?=_STATUS?></th>
+                            <th scope="col"><?=_DETAIL?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -54,10 +56,10 @@
                                 <td><?= $transaction['receiver']?></td>
                                 <td><?= $transaction['total']?></td>
                                 <td><?php echo $transaction['status'] != 1 
-                                                                ? '<span class="text-warning font-weight-bold">Đang giao</span>' 
-                                                                : '<span class="text-success font-weight-bold">Giao thành công</span>' ?>
+                                                                ? '<span class="text-warning font-weight-bold">'._PENDING.'</span>' 
+                                                                : '<span class="text-success font-weight-bold">'._SUCCESS.'</span>' ?>
                                 </td>
-                                <td><a href="detail_transaction.php?order_id=<?php echo $transaction['order_id']?>">Chi tiết</a></td>
+                                <td><a class="btn btn-info"href="detail_transaction.php?order_id=<?php echo $transaction['order_id']?>"><?=_DETAIL?></a></td>
                                 <?php $index ++?>
                             </tr>
                             <?php endforeach;?>

@@ -1,3 +1,27 @@
+<?php 
+    require_once('database.php');
+    $db = DBConfig::getDB();
+    session_start();
+
+    if(isset($_GET['lang']) && !empty($_GET['lang'])){
+        $_SESSION['lang'] = $_GET['lang'];
+        if(isset($_SESSION['lang']) && $_SESSION['lang'] != $_GET['lang']){
+         echo "<script type='text/javascript'> location.reload(); </script>";
+        }
+    }
+    if(isset($_SESSION['lang'])){
+            include "public/language/".$_SESSION['lang'].".php";
+    }else{
+            include "public/language/en.php";
+    }
+
+    $stmt = $db->prepare('SELECT * FROM categories');
+    $stmt->execute();
+    $categories = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+
+?>
+
 <DOCTYPE html>
 <html>
    <head>
@@ -10,37 +34,43 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
   </head>
   <body>
-    <div class="mt-4">
-    <?php 
-            session_start();
-            $back_server = $_SERVER['HTTP_REFERER'];
-			if(isset($_SESSION['message'])){
-				?>
-				<div class="alert alert-info text-center">
-					<?php echo $_SESSION['message']; ?>
-				</div>
-				<?php
-				unset($_SESSION['message']);
-			}
- 
-			?>
-    <div class="row justify-content-center">
-    <form method="POST" action="">
-        <div class="form-group">
-            <label for="username">Tài Khoản</label>
-            <input type="username" class="form-control" id="username" name="username" required>
-        </div>
+    <div class="app">
+        <?php include('partials/sub_header.php')?>
+        <div class="container">
+        
+        <div class="mt-4">
+            <?php 
+                    session_start();
+                    $back_server = $_SERVER['HTTP_REFERER'];
+                    if(isset($_SESSION['message'])){
+                        ?>
+                        <div class="alert alert-info text-center">
+                            <?php echo $_SESSION['message']; ?>
+                        </div>
+                        <?php
+                        unset($_SESSION['message']);
+                    }
+        
+                    ?>
+            <div class="row justify-content-center">
+            <form method="POST" action="">
+                <div class="form-group">
+                    <label for="username"><?=_USERNAME?></label>
+                    <input type="username" class="form-control" id="username" name="username" required>
+                </div>
 
-        <input type="hidden" name="back" value="<?php echo $back_server ?>">
-        <div class="form-group">
-            <label for="password">Mật khẩu</label>
-            <input type="password" class="form-control" id="password" name="password" required>
+                <input type="hidden" name="back" value="<?php echo $back_server ?>">
+                <div class="form-group">
+                    <label for="password"><?=_PASSWORD?></label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+                <button type="submit" name="submit" class="btn btn-primary">Login</button>
+                <p class="my-4"><?=_HAVEACCOUNT?>? <a style="font-weight:bold" href="register.php"><?=_REGISTER?></a>
+                </form>
+            </div>
+            
+            </div>
         </div>
-        <button type="submit" name="submit" class="btn btn-primary">Login</button>
-        <p class="my-4">Bạn chưa có tài khoản? <a style="font-weight:bold" href="register.php">Đăng ký tài khoản</a>
-        </form>
-    </div>
-    
     </div>
   </body>
 </html>

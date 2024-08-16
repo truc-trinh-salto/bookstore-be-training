@@ -62,14 +62,14 @@
                     <form action="add_gallery.php" method="POST" enctype="multipart/form-data">
                         <div class="text-center">
                                 <img src="http://ssl.gstatic.com/accounts/ui/avatar_2x.png" class="avatar img-circle img-thumbnail" alt="avatar" height="300" width="300">
-                                <h6>Add more photo for book...</h6>
+                                <h6><?=_UPLOADGALLERY?></h6>
                                 <input type="file" class="text-center center-block file-upload" name="profile_image[]" multiple="multiple">
                         </div>
                         <input type="hidden" name="book_id" value="<?php echo $book_id ?>">
                         <div class="form-group">
                             <div class="col-xs-12 d-flex justify-content-center">
                                 <br>
-                                <button class="btn btn-lg btn-success pull-right" type="submit" name="submit"><i class="glyphicon glyphicon-ok-sign"></i> Save</button>
+                                <button class="btn btn-lg btn-success pull-right" type="submit" name="submit"><i class="glyphicon glyphicon-ok-sign"></i><?=_SAVE?></button>
                             </div>
                         </div>
                     </form>
@@ -78,15 +78,15 @@
                         <nav aria-label="Page navigation example">
                                 <ul class="pagination">
                                     <?php if($page - 1 == 0):?>
-                                        <li class="page-item disabled"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>">Previous</a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>">Previous</a></li>
+                                        <li class="page-item"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php endif;?>
                                     <li class="page-item active"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
                                     <?php if($page +1 > $number_page):?>
-                                        <li class="page-item disabled"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>">Next</a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>">Next</a></li>
+                                        <li class="page-item"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php endif;?>
                                 </ul>
                             </nav>
@@ -96,9 +96,9 @@
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">Hình ảnh</th>
-                                <th scope="col">Mặc định</th>
-                                <th scope="col">Thao tác</th>
+                                <th scope="col"><?=_PHOTO?></th>
+                                <th scope="col"><?=_DEFAULT?></th>
+                                <th scope="col"><?=_ACTION?></th>
                             </tr>
                         </thead>
                             <?php foreach($images as $image):?> 
@@ -109,12 +109,12 @@
                                     </td>
                                     <td>
                                         <?php if($image['isShow'] == 0): ?>
-                                            <a href="default_gallery.php?image_id=<?= $image['image_id']?>&book_id=<?= $book_id?>" class="btn btn-success">Chọn</a>
+                                            <a href="default_gallery.php?image_id=<?= $image['image_id']?>&book_id=<?= $book_id?>" class="btn btn-success"><?=_CHOOSE?></a>
                                         <?php else: ?>
-                                            <a href="default_gallery.php?image_id=<?= $image['image_id']?>&book_id=<?= $book_id?>" class="btn btn-danger">Huỷ</a>
+                                            <a href="default_gallery.php?image_id=<?= $image['image_id']?>&book_id=<?= $book_id?>" class="btn btn-danger"><?=_CANCEL?></a>
                                         <?php endif; ?>
                                     <td>
-                                        <a href="delete_gallery.php?image_id=<?php echo $image['image_id']?>" class="btn btn-danger">Xoá</a>
+                                        <a href="delete_gallery.php?image_id=<?php echo $image['image_id']?>" class="btn btn-danger"><?=_DELETE?></a>
                                     </td>
                     
 

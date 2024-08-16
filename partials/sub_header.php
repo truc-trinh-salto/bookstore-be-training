@@ -90,8 +90,9 @@
 						}
 					</script>
 						<form method='get' action='' id='form_lang'>
+                            <input type='hidden' name='order_id' value=<?=$order_id?>>
                             <input type='hidden' name='book_id' value=<?=$book_id?>>
-							<?=_SELECTLANGUAGES?>: <select name='lang' onchange='changeLang();' >
+							<?=_SELECTLANGUAGES?>: <select name='lang' class="text-info font-weight-bold" onchange='changeLang();' >
 							<option value='en' <?php if(isset($_SESSION['lang']) && $_SESSION['lang'] == 'en'){ echo "selected"; } ?> >English</option>
 							<option value='vi' <?php if(isset($_SESSION['lang']) && $_SESSION['lang'] == 'vi'){ echo "selected"; } ?> >Vietnamese</option>
 							</select>

@@ -28,7 +28,7 @@
 	<div class="col-md-12 grid-margin stretch-card">
 		<div class="card">
 			<div class="card-body">
-				<h4 class="card-title">Thêm ohi nhánh mới</h4>
+				<h4 class="card-title"><?=_ADDBRANCH?></h4>
                 <?php 
                     if(isset($_SESSION['message'])){
                         ?>
@@ -41,23 +41,23 @@
 			?>
 				<form action="" method="POST" class="forms-sample">
 					<div class="form-group">
-						<label for="exampleInputImageUrl">Hình ảnh</label>
-						<input type="text" class="form-control" id="exampleInputImageUrl" placeholder="Image URL" name="image">
+						<label for="exampleInputImageUrl"><?=_PHOTO?></label>
+						<input type="text" class="form-control" id="exampleInputImageUrl" placeholder="<?=_PHOTO?>" name="image">
 					</div>
 					<div class="form-group">
-						<label for="exampleInputName1">Tên chi nhánh</label>
-						<input type="text" class="form-control" id="exampleInputName1" placeholder="Branch Name" name="name" required>
+						<label for="exampleInputName1"><?=_BRANCHNAME?></label>
+						<input type="text" class="form-control" id="exampleInputName1" placeholder="<?=_BRANCHNAME?>" name="name" required>
 					</div>
                     <div class="form-group">
-						<label for="exampleInputAuthor1">Địa chỉ</label>
-						<input type="text" class="form-control" id="exampleInputAuthor1" placeholder="Authors" name="address" required>
+						<label for="exampleInputAuthor1"><?=_ADDRESS?></label>
+						<input type="text" class="form-control" id="exampleInputAuthor1" placeholder="<?=_ADDRESS?>" name="address" required>
 					</div>
                     <div class="form-group">
-						<label for="exampleInputDescription1">Số điện thoại</label>
-						<input type="text" class="form-control" id="exampleInputDescription1" placeholder="Description" name="hotline" required>
+						<label for="exampleInputDescription1"><?=_HOTLINE?></label>
+						<input type="text" class="form-control" id="exampleInputDescription1" placeholder="<?=_HOTLINE?>" name="hotline" required>
 					</div>
 					
-					<button type="submit" name="submit" class="btn btn-success mr-2">Save</button>
+					<button type="submit" name="submit" class="btn btn-success mr-2"><?=_SAVE?></button>
 				</form>
 			</div>
 		</div>

@@ -3,6 +3,7 @@
     require_once('../database.php');
 
     $db = DBConfig::getDB();
+    $order_id = $_GET['order_id'];
 
     if(isset($_GET['order_id'])){
         $stmt = $db->prepare('SELECT o.book_id, o.quantity, o.price, o.total, o.order_id, b.title, b.authors
@@ -168,16 +169,16 @@
         <div class="container">
             <div class="mt-4">
                 <div class="row">
-                    <h3 class="text-center">Mã đơn hàng : <?php echo $_GET['order_id'] ?></h3>
+                    <h3 class="text-center"><?=_ORDERID?> : <?php echo $_GET['order_id'] ?></h3>
                     <table class="table">
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">Tên sách</th>
-                                <th scope="col">Tác giả</th>
-                                <th scope="col">Số lượng</th>
-                                <th scope="col">Giá Tiền</th>
-                                <th scope="col">Tổng tiền của sản phẩm</th>
+                                <th scope="col"><?=_BOOKNAME?> </th>
+                                <th scope="col"><?=_AUTHORS?> </th>
+                                <th scope="col"><?=_QUANTITY?> </th>
+                                <th scope="col"><?=_PRICE?> </th>
+                                <th scope="col"><?=_TOTALPRICEBOOK?> </th>
                             </tr>
                         </thead>
                             <?php foreach($order_details as $order_detail):?> 
@@ -194,17 +195,17 @@
                                 </tr>   
                             <?php endforeach;?>
                                 <tr>
-                                    <td colspan="5" class="text-left font-weight-bold">Tổng tiền đơn hàng: </td>
+                                    <td colspan="5" class="text-left font-weight-bold"><?=_TOTALORDER?> : </td>
                                     <td colspan="1" class="font-weight-bold"><?php echo number_format($total,2)?></td>
                                 </tr>
 
                                 <tr>
-                                    <td colspan="5" class="text-left font-weight-bold">Giảm giá: </td>
+                                    <td colspan="5" class="text-left font-weight-bold"><?=_DISCOUNT?> : </td>
                                     <td colspan="1" class="font-weight-bold text-danger"><?php echo number_format($total - $transaction['total'],2)?></td>
                                 </tr>
 
                                 <tr>
-                                    <td colspan="5" class="text-left font-weight-bold">Tổng tiền: </td>
+                                    <td colspan="5" class="text-left font-weight-bold"><?=_TOTAL?> : </td>
                                     <td colspan="1" class="font-weight-bold text-success"><?php echo number_format($transaction['total'],2)?></td>
                                 </tr>
                         </tbody>
@@ -215,9 +216,9 @@
                         <ul
                             class="progressbar rb-rounded-square d-flex justify-content-center"
                         >
-                            <li class="box <?php if($routes[0]['status'] == 1) echo 'active' ?>">Đóng gói hàng</li>
-                            <li class="truck-fast <?php if($routes[1]['status'] == 1) echo 'active' ?>">Đang giao hàng</li>
-                            <li class="success <?php if($routes[2]['status'] == 1) echo 'active' ?>">Thành công</li>
+                            <li class="box <?php if($routes[0]['status'] == 1) echo 'active' ?>"><?=_PACKAGE?> </li>
+                            <li class="truck-fast <?php if($routes[1]['status'] == 1) echo 'active' ?>"><?=_DELIVERING?> </li>
+                            <li class="success <?php if($routes[2]['status'] == 1) echo 'active' ?>"><?=_SUCCESS?> </li>
                         </ul>
                         <!-- Rounded Square Marker Ends -->
                         </div>

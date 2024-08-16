@@ -3,19 +3,37 @@
     $db = DBConfig::getDB();
     session_start();
 
+    if(isset($_GET['lang']) && !empty($_GET['lang'])){
+        $_SESSION['lang'] = $_GET['lang'];
+        if(isset($_SESSION['lang']) && $_SESSION['lang'] != $_GET['lang']){
+         echo "<script type='text/javascript'> location.reload(); </script>";
+        }
+    }
+    if(isset($_SESSION['lang'])){
+            include "public/language/".$_SESSION['lang'].".php";
+    }else{
+            include "en.php";
+    }
+
     $lastID = $_POST['id'];
     $category_last;
     $limit = 1;
 
     $index = 1;
 
-    $stmt = $db->prepare('SELECT * FROM categories WHERE category_id > ? ORDER BY category_id ASC');
+    $stmt = $db->prepare('SELECT c.category_id, c.name_category,b.total_books  FROM categories as c
+                                LEFT JOIN (SELECT COUNT(*) as total_books,category_id FROM books GROUP BY category_id) as b
+                                ON b.category_id = c.category_id  
+                                WHERE b.total_books > 0 AND c.category_id > ? ORDER BY c.category_id ASC');
     $stmt->bind_param('i', $lastID);
     $stmt->execute();
 
     $number_rows = $stmt->get_result()->num_rows;
 
-    $stmt = $db->prepare('SELECT * FROM categories where category_id > ? ORDER BY category_id ASC LIMIT ?');
+    $stmt = $db->prepare('SELECT c.category_id, c.name_category,b.total_books  FROM categories as c
+                                LEFT JOIN (SELECT COUNT(*) as total_books,category_id FROM books GROUP BY category_id) as b
+                                ON b.category_id = c.category_id  
+                                WHERE b.total_books > 0 AND c.category_id > ? ORDER BY c.category_id ASC LIMIT ?');
     $stmt->bind_param('ii', $lastID, $limit);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -58,14 +76,14 @@
                                         $image = $stmt->get_result()->fetch_assoc();
                                     ?>
                                 <a href="">
-                                    <img class="card-img-top" width="150" height="200" src="<?php echo $image['image']?:'https://tse4.mm.bing.net/th?id=OIP.ZiwfBrifIO4lV_Q-gIC7VQHaKx&pid=Api&P=0&h=180' ?>" alt="">
+                                    <img class="card-img-top" width="150" height="200" src="<?php echo $image['address']?:'https://tse4.mm.bing.net/th?id=OIP.ZiwfBrifIO4lV_Q-gIC7VQHaKx&pid=Api&P=0&h=180' ?>" alt="">
                                 </a>
                                 
                                 <div class="card-body">
                                     <a href="detail_product.php?book_id=<?php echo $book['book_id'] ?>">
                                         <h5 class="card-title"><?= $book['title']?></h5>
                                     </a>
-                                    <p class="card-text" >Tác giả: <?= $book['authors']?></p>
+                                    <p class="card-text" ><?=_AUTHORS?>: <?= $book['authors']?></p>
                                         <?php if($book['sale'] && $book['sale'] != 0 && $book['sale'] != null): ?>
                                             <p class="text-success font-weight-bold"><del class="text-danger"><?php echo number_format($book['price'],2) ?></del> <?php echo number_format($book['price'] - $book['sale']*$book['price'] / 100,2)?></p>
                                         <?php else:?>
@@ -82,7 +100,7 @@
                                     
 
                                     <button type="submit" class ="btn btn-primary shadow-0 me-1 btn-add-to-cart" data-book-id="<?php echo $book['book_id']; ?>" name="add-to-cart" >
-                                        Thêm vào giỏ hàng
+                                        <?=_ADDTOCART?>
                                     </button>
                                     
                                 </div>

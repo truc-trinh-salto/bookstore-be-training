@@ -8,12 +8,12 @@
         if(isset($_SESSION['lang']) && $_SESSION['lang'] != $_GET['lang']){
          echo "<script type='text/javascript'> location.reload(); </script>";
         }
-       }
-       if(isset($_SESSION['lang'])){
+    }
+    if(isset($_SESSION['lang'])){
             include "public/language/".$_SESSION['lang'].".php";
-       }else{
-            include "en.php";
-       }
+    }else{
+            include "public/language/en.php";
+    }
 
     $category_last;
 
@@ -23,7 +23,11 @@
         $_SESSION['qty_array'] = array();
     }
 
-    $stmt = $db->prepare('SELECT * FROM categories limit 1');
+    $stmt = $db->prepare('SELECT c.category_id, c.name_category,b.total_books  FROM categories as c
+                                LEFT JOIN (SELECT COUNT(*) as total_books,category_id FROM books GROUP BY category_id) as b
+                                ON b.category_id = c.category_id  
+                                WHERE b.total_books > 0 
+                                limit 1');
     $stmt->execute();
     $categories = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
@@ -232,7 +236,7 @@
                                     <a href="detail_product.php?book_id=<?php echo $book['book_id'] ?>">
                                         <h5 class="card-title"><?= $book['title']?></h5>
                                     </a>
-                                    <p class="card-text" >Tác giả: <?= $book['authors']?></p>
+                                    <p class="card-text" ><?=_AUTHORS?>: <?= $book['authors']?></p>
                                         <?php if($book['sale'] && $book['sale'] != 0 && $book['sale'] != null): ?>
                                             <p class="text-success font-weight-bold"><del class="text-danger"><?php echo number_format($book['price'],2) ?></del> <?php echo number_format($book['price'] - $book['sale']*$book['price'] / 100,2)?></p>
                                         <?php else:?>
@@ -249,7 +253,7 @@
                                     
 
                                     <button type="submit" class ="btn btn-primary shadow-0 me-1 btn-add-to-cart" data-book-id="<?php echo $book['book_id']; ?>" name="add-to-cart" >
-                                        Thêm vào giỏ hàng
+                                    <?=_ADDTOCART?>
                                     </button>
                                     
                                 </div>

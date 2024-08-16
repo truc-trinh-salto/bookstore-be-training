@@ -2,6 +2,21 @@
     session_start();
     require_once('database.php');
     $db = DBConfig::getDB();
+    if(isset($_GET['lang']) && !empty($_GET['lang'])){
+      $_SESSION['lang'] = $_GET['lang'];
+      if(isset($_SESSION['lang']) && $_SESSION['lang'] != $_GET['lang']){
+       echo "<script type='text/javascript'> location.reload(); </script>";
+      }
+  }
+  if(isset($_SESSION['lang'])){
+          include "public/language/".$_SESSION['lang'].".php";
+  }else{
+          include "public/language/en.php";
+  }
+
+  $stmt = $db->prepare('SELECT * FROM categories');
+  $stmt->execute();
+  $categories = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 ?>
 
 <html lang="en"><head>
@@ -27,16 +42,12 @@
   <body class="bg-light">
 
     <div class="container">
-      <div class="py-5 text-center">
-        <img class="d-block mx-auto mb-4" src="https://getbootstrap.com/docs/4.0/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
-        <h2>Checkout form</h2>
-        <p class="lead">Below is an example form built entirely with Bootstrap's form controls. Each required form group has a validation state that can be triggered by attempting to submit the form without completing it.</p>
-      </div>
+      <?php include 'partials/sub_header.php';?>
 
       <div class="row">
         <div class="col-md-4 order-md-2 mb-4">
           <h4 class="d-flex justify-content-between align-items-center mb-3">
-            <span class="text-muted">Your cart</span>
+            <span class="text-muted"><?=_YOURCART?></span>
             <span class="badge badge-secondary badge-pill"><?php echo count($_SESSION['cart']); ?></span>
           </h4>
           <ul class="list-group mb-3">
@@ -66,8 +77,8 @@
                                     <h6 class="my-0"><?php echo $row['title'] ?></h6>
                                     <div>
                                         <small class="text-muted">
-                                            <td>Price: <?php echo number_format($price, 2); ?></td>
-                                            <td class="form-control" value="<?php echo $_SESSION['qty_array'][$index]; ?>" name="qty_<?php echo $index; ?>">Quantity: <?php echo $_SESSION['qty_array'][$index]; ?></td>
+                                            <td><?=_PRICE?>: <?php echo number_format($price, 2); ?></td>
+                                            <td class="form-control" value="<?php echo $_SESSION['qty_array'][$index]; ?>" name="qty_<?php echo $index; ?>"><?=_QUANTITY?>: <?php echo $_SESSION['qty_array'][$index]; ?></td>
                                         </small>
                                     </div>
                                     <span class="text-muted"><?php echo number_format($_SESSION['qty_array'][$index]*$price, 2); ?></span>
@@ -80,7 +91,7 @@
 						else{
 							?>
 							<tr>
-								<td colspan="4" class="text-center">No Item in Cart</td>
+								<td colspan="4" class="text-center"><?=_EMPTYCART?></td>
                                 </tr>
 							<?php
 						}
@@ -96,16 +107,16 @@
             
             
             <li class="list-group-item d-flex justify-content-between">
-              <span>Total (VND)</span>
+              <span><?=_TOTAL?> (VND)</span>
               <strong id="total-price"><?php echo number_format($total, 2); ?></strong>
             </li>
           </ul>
 
           <div class="card p-2">
             <div class="input-group">
-              <input type="text" class="form-control" placeholder="Promo code" name="code" id="coupon">
+              <input type="text" class="form-control" placeholder="<?=_PROMOCODE?>" name="code" id="coupon">
               <div class="input-group-append">
-                <button class="btn btn-secondary btn-apply-coupon">Redeem</button>
+                <button class="btn btn-secondary btn-apply-coupon"><?=_REDEEM?></button>
               </div>
             </div>
           </div>
@@ -117,101 +128,101 @@
 
         </div>
         <div class="col-md-8 order-md-1">
-          <h4 class="mb-3">Billing address</h4>
+          <h4 class="mb-3"><?=_BILLADDRESS?></h4>
           <form class="needs-validation" novalidate="" method="POST">
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="firstName">First name</label>
+                <label for="firstName"><?=_FIRST?></label>
                 <input type="hidden" name="code-user" value="" id="code-user">
                 <input type="text" class="form-control" id="firstName" placeholder="" value="" required="" name="firstname">
                 <div class="invalid-feedback">
-                  Valid first name is required.
+                  <?=_VALIDFIRST?>.
                 </div>
               </div>
               <div class="col-md-6 mb-3">
-                <label for="lastName">Last name</label>
+                <label for="lastName"><?=_LAST?></label>
                 <input type="text" class="form-control" id="lastName" placeholder="" value="" required="" name="lastname">
                 <div class="invalid-feedback">
-                  Valid last name is required.
+                  <?=_VALIDLAST?>.
                 </div>
               </div>
             </div>
 
             <div class="mb-3">
-              <label for="username">Username</label>
+              <label for="username"><?=_USERNAME?></label>
               <div class="input-group">
                 <div class="input-group-prepend">
                   <span class="input-group-text">@</span>
                 </div>
-                <input type="text" class="form-control" id="username" placeholder="Username" required="" name="username">
+                <input type="text" class="form-control" id="username" placeholder="<?=_USERNAME?>" required="" name="username">
                 <div class="invalid-feedback" style="width: 100%;">
-                  Your username is required.
+                  <?=_VALIDUSERNAME?>.
                 </div>
               </div>
             </div>
 
             <div class="mb-3">
-              <label for="email">Email <span class="text-muted">(Optional)</span></label>
-              <input type="email" class="form-control" id="email" placeholder="you@example.com">
+              <label for="email"><?=_EMAIL?> <span class="text-muted">(<?=_OPTIONAL?>)</span></label>
+              <input type="email" class="form-control" id="email" placeholder="ABC@example.com">
               <div class="invalid-feedback">
-                Please enter a valid email address for shipping updates.
+              <?=_VALIDEMAIL?>.
               </div>
             </div>
 
             <div class="mb-3">
-              <label for="address">Address</label>
+              <label for="address"><?=_ADDRESS?></label>
               <input type="text" class="form-control" id="address" placeholder="1234 Main St" required="" name="address">
               <div class="invalid-feedback">
-                Please enter your shipping address.
+                <?=_VALIDADDRESS?>.
               </div>
             </div>
 
             <div class="mb-3">
-              <label for="address2">Address 2 <span class="text-muted">(Optional)</span></label>
+              <label for="address2"><?=_ADDRESS2?> <span class="text-muted">(<?=_OPTIONAL?>)</span></label>
               <input type="text" class="form-control" id="address2" placeholder="Apartment or suite">
             </div>
 
             <div class="row">
               <div class="col-md-5 mb-3">
-                <label for="country">Country</label>
+                <label for="country"><?=_COUNTRY?></label>
                 <select class="custom-select d-block w-100" id="country" required="" name="country">
-                  <option value="">Choose...</option>
+                  <option value=""><?=_CHOOSE?>...</option>
                   <option>United States</option>
                 </select>
                 <div class="invalid-feedback">
-                  Please select a valid country.
+                <?=_VALIDCOUNTRY?>.
                 </div>
               </div>
               <div class="col-md-4 mb-3">
-                <label for="state">State</label>
+                <label for="state"><?=_STATE?></label>
                 <select class="custom-select d-block w-100" id="state" required="" name="state">
-                  <option value="">Choose...</option>
+                  <option value=""><?=_CHOOSE?>...</option>
                   <option>California</option>
                 </select>
                 <div class="invalid-feedback">
-                  Please provide a valid state.
+                <?=_VALIDSTATE?>.
                 </div>
               </div>
               <div class="col-md-3 mb-3">
-                <label for="zip">Zip</label>
+                <label for="zip"><?=_ZIP?></label>
                 <input type="text" class="form-control" id="zip" placeholder="" required="">
                 <div class="invalid-feedback">
-                  Zip code required.
+                <?=_VALIDZIP?>.
                 </div>
               </div>
             </div>
             <hr class="mb-4">
             <div class="custom-control custom-checkbox">
               <input type="checkbox" class="custom-control-input" id="same-address">
-              <label class="custom-control-label" for="same-address">Shipping address is the same as my billing address</label>
+              <label class="custom-control-label" for="same-address"><?=_SHIPNOTE1?></label>
             </div>
             <div class="custom-control custom-checkbox">
               <input type="checkbox" class="custom-control-input" id="save-info">
-              <label class="custom-control-label" for="save-info">Save this information for next time</label>
+              <label class="custom-control-label" for="save-info"><?=_SHIPNOTE2?></label>
             </div>
             <hr class="mb-4">
 
-            <h4 class="mb-3">Payment</h4>
+            <h4 class="mb-3"><?=_PAYMENT?></h4>
 
             <div class="d-block my-3">
               <!-- <div class="custom-control custom-radio">
@@ -261,19 +272,10 @@
               </div>
             </div>
             <hr class="mb-4">
-            <button class="btn btn-primary btn-lg btn-block" type="submit" name="submit">Continue to checkout</button>
+            <button class="btn btn-primary btn-lg btn-block" type="submit" name="submit"><?=_CONFIRMCHECKOUT?></button>
           </form>
         </div>
       </div>
-
-      <footer class="my-5 pt-5 text-muted text-center text-small">
-        <p class="mb-1">© 2017-2018 Company Name</p>
-        <ul class="list-inline">
-          <li class="list-inline-item"><a href="#">Privacy</a></li>
-          <li class="list-inline-item"><a href="#">Terms</a></li>
-          <li class="list-inline-item"><a href="#">Support</a></li>
-        </ul>
-      </footer>
     </div>
 
     <!-- Bootstrap core JavaScript

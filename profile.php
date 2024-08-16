@@ -3,6 +3,18 @@
     require_once('database.php');
     $db = DBConfig::getDB();
 
+    if(isset($_GET['lang']) && !empty($_GET['lang'])){
+        $_SESSION['lang'] = $_GET['lang'];
+        if(isset($_SESSION['lang']) && $_SESSION['lang'] != $_GET['lang']){
+         echo "<script type='text/javascript'> location.reload(); </script>";
+        }
+    }
+    if(isset($_SESSION['lang'])){
+            include "public/language/".$_SESSION['lang'].".php";
+    }else{
+            include "en.php";
+    }
+
     $user_id = $_SESSION['user_id'];
 
     $stmt = $db->prepare('SELECT * FROM users where id =?');
@@ -17,7 +29,24 @@
     $categories = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 ?>
 
+<!DOCTYPE html>
+<html>
+   <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <title>Demo PHP MVC</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+    <style>
+        .dropdown:hover>.dropdown-menu {
+            display: block;
+            }
 
+        
+    </style>
+</head>
 
 <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
@@ -29,62 +58,22 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <!------ Include the above in your HEAD tag ---------->
 
-<head>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<!-- <head>
   <title>Bootstrap Example</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-</head>
+</head> -->
 
 <body>
 <hr>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="home.php">Book Store</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Thể loại</a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <?php foreach($categories as $category):?>
-                                <a class="dropdown-item" href="category.php?category_id=<?php echo $category['category_id'];?>&name=<?php echo $category['name_category'];?>"><?php echo $category['name_category'];?></a>
-                            <?php endforeach;?>    
-                        </div>
-                    </li>
-                    <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <?php 
-                                if($_SESSION['user_id']) {
-                                    echo $_SESSION['fullname'];
-                                } else {
-                                    echo 'Tài khoản';
-                                }
-                            ?>
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <?php if($_SESSION['user_id']): ?>
-                            <a class="dropdown-item" href="history.php">Lịch sử mua hàng</a>
-                            <a class="dropdown-item" href="profile.php">Thông tin cá nhân</a>
-                            <?php else:?>
-                            <a class="dropdown-item" href="index.php">Đăng nhập</a>
-                            <?php endif; ?>
-                            <a class="dropdown-item" href="logout.php">Đăng xuất
-                        </a>
-                        </div>
-                    </li>
-                    <li class="nav-item">
-                        <a class ="nav-link"href="view_cart.php"><span class="badge"><?php echo count($_SESSION['cart']); ?></span> Cart <span class="glyphicon glyphicon-shopping-cart"></span></a>
-                    </li>
-                    
-                </ul>
-            </div>
-        </div>
-    </nav>
+<?php include 'partials/sub_header.php';?>
 <div class="container bootstrap snippet">
         <?php 
 			if(isset($_SESSION['message'])){
@@ -112,19 +101,19 @@
       </div></hr><br>
 
                
-          <div class="panel panel-default">
+          <!-- <div class="panel panel-default">
             <div class="panel-heading">Website <i class="fa fa-link fa-1x"></i></div>
             <div class="panel-body"><a href="http://bootnipets.com">bootnipets.com</a></div>
-          </div>
+          </div> -->
           
           
-          <ul class="list-group">
+          <!-- <ul class="list-group">
             <li class="list-group-item text-muted">Activity <i class="fa fa-dashboard fa-1x"></i></li>
             <li class="list-group-item text-right"><span class="pull-left"><strong>Shares</strong></span> 125</li>
             <li class="list-group-item text-right"><span class="pull-left"><strong>Likes</strong></span> 13</li>
             <li class="list-group-item text-right"><span class="pull-left"><strong>Posts</strong></span> 37</li>
             <li class="list-group-item text-right"><span class="pull-left"><strong>Followers</strong></span> 78</li>
-          </ul> 
+          </ul>  -->
                
           <div class="panel panel-default">
             <div class="panel-heading">Social Media</div>
@@ -137,9 +126,9 @@
         
     	<div class="col-sm-9">
             <ul class="nav nav-tabs">
-                <li class="active"><a data-toggle="tab" href="#home">Thông tin cá nhân</a></li>
-                <li><a data-toggle="tab" href="#messages">Hình ảnh</a></li>
-                <li><a data-toggle="tab" href="#settings">Đổi mật khẩu</a></li> 
+                <li class="active"><a data-toggle="tab" href="#home"><?=_IN4?></a></li>
+                <li><a data-toggle="tab" href="#messages"><?=_AVATAR?></a></li>
+                <li><a data-toggle="tab" href="#settings"><?=_CHANGEPASSWORD?></a></li> 
               </ul>
 
               
@@ -149,14 +138,14 @@
                   <form class="form" action="edit_profile.php" method="POST" id="registrationForm">
                       <div class="form-group">
                           <div class="col-xs-6">
-                              <label for="fullname"><h4>Full name</h4></label>
-                              <input type="text" class="form-control" name="fullname" id="fullname" placeholder="fullname name" title="enter your first name if any." value="<?php echo $user['fullname'] ?>">
+                              <label for="fullname"><h4><?=_NAME?></h4></label>
+                              <input type="text" class="form-control" name="fullname" id="fullname" placeholder="<?=_NAME?>" title="enter your first name if any." value="<?php echo $user['fullname'] ?>">
                           </div>
                       </div>
                       <div class="form-group">
                           
                           <div class="col-xs-6">
-                            <label for="date"><h4>Birthday</h4></label>
+                            <label for="date"><h4><?=_BIRTHDAY?></h4></label>
                                 <input type="date" class="form-control" id="date" name="birthday" required value="<?php echo $user['birthday'] ?>">
                           </div>
                       </div>
@@ -164,23 +153,23 @@
                       <div class="form-group">
                           
                           <div class="col-xs-6">
-                              <label for="phone"><h4>Phone</h4></label>
-                              <input type="text" class="form-control" name="phone" id="phone" placeholder="enter phone" title="enter your phone number if any." value="<?php echo $user['phonenumber'] ?>">
+                              <label for="phone"><h4><?=_PHONE?></h4></label>
+                              <input type="text" class="form-control" name="phone" id="phone" placeholder="<?=_PHONE?>" title="enter your phone number if any." value="<?php echo $user['phonenumber'] ?>">
                           </div>
                       </div>
           
                       <div class="form-group">
                           
                           <div class="col-xs-6">
-                              <label for="email"><h4>Email</h4></label>
-                              <input type="email" class="form-control" name="email" id="email" placeholder="you@email.com" title="enter your email." value="<?php echo $user['email'] ?>">
+                              <label for="email"><h4><?=_EMAIL?></h4></label>
+                              <input type="email" class="form-control" name="email" id="email" placeholder="ABC@email.com" title="enter your email." value="<?php echo $user['email'] ?>">
                           </div>
                       </div>
                       <div class="form-group">
                           
                           <div class="col-xs-6">
-                              <label for="location"><h4>Location</h4></label>
-                              <input type="text" class="form-control" id="location" placeholder="somewhere" title="enter a location">
+                              <label for="location"><h4><?=_LOCATION?></h4></label>
+                              <input type="text" class="form-control" id="location" placeholder="<?=_LOCATION?>" title="enter a location">
                           </div>
                       </div>
                       <!-- <div class="form-group">
@@ -200,8 +189,8 @@
                       <div class="form-group">
                            <div class="col-xs-12">
                                 <br>
-                              	<button class="btn btn-lg btn-success" type="submit" name="submit"><i class="glyphicon glyphicon-ok-sign"></i> Save</button>
-                               	<button class="btn btn-lg" type="reset"><i class="glyphicon glyphicon-repeat"></i> Reset</button>
+                              	<button class="btn btn-lg btn-success" type="submit" name="submit"><i class="glyphicon glyphicon-ok-sign"></i> <?=_SAVE?></button>
+                               	<!-- <button class="btn btn-lg" type="reset"><i class="glyphicon glyphicon-repeat"></i> Reset</button> -->
                             </div>
                       </div>
               	</form>
@@ -217,13 +206,13 @@
                <form action="uploadImage.php" method="POST" enctype="multipart/form-data">
                     <div class="text-center">
                             <img src="http://ssl.gstatic.com/accounts/ui/avatar_2x.png" class="avatar img-circle img-thumbnail" alt="avatar" height="300" width="300">
-                            <h6>Upload a different photo...</h6>
+                            <h6><?=_UPLOADPHOTO?></h6>
                             <input type="file" class="text-center center-block file-upload" name="profile_image">
                     </div>
                     <div class="form-group">
                         <div class="col-xs-12 right">
                             <br>
-                            <button class="btn btn-lg btn-success pull-right" type="submit" name="submit"><i class="glyphicon glyphicon-ok-sign"></i> Save</button>
+                            <button class="btn btn-lg btn-success pull-right" type="submit" name="submit"><i class="glyphicon glyphicon-ok-sign"></i> <?=_SAVE?></button>
                         </div>
                     </div>
                </form>
@@ -234,26 +223,26 @@
                   <form method="POST" action="change_password.php">
                     <div class="form-group">
                           <div class="col-xs-12">
-                              <label for="old_password"><h4>Mật khẩu cũ</h4></label>
-                              <input type="password" class="form-control" name="old_password" id="old_password" placeholder="password" title="enter your password.">
+                              <label for="old_password"><h4><?=_OLDPASSWORD?></h4></label>
+                              <input type="password" class="form-control" name="old_password" id="old_password" placeholder="<?=_OLDPASSWORD?>" title="enter your password.">
                           </div>
                       </div>
                       <div class="form-group">
                           <div class="col-xs-12">
-                              <label for="new_password"><h4>Mật khẩu mới</h4></label>
-                              <input type="password" class="form-control" name="new_password" id="new_password" placeholder="password" title="enter your password.">
+                              <label for="new_password"><h4><?=_NEWPASSWORD?></h4></label>
+                              <input type="password" class="form-control" name="new_password" id="new_password" placeholder="<?=_NEWPASSWORD?>" title="enter your password.">
                           </div>
                       </div>
                       <div class="form-group">
                           <div class="col-xs-12">
-                            <label for="confirm_password"><h4>Xác nhận mật khẩu mới</h4></label>
-                              <input type="password" class="form-control" name="confirm_password" id="confirm_password" placeholder="password2" title="enter your password2.">
+                            <label for="confirm_password"><h4><?=_CONFIRMPASSWORD?></h4></label>
+                              <input type="password" class="form-control" name="confirm_password" id="confirm_password" placeholder="<?=_CONFIRMPASSWORD?>" title="enter your password2.">
                           </div>
                       </div>
                       <div class="form-group">
                            <div class="col-xs-12">
                                 <br>
-                              	<button class="btn btn-lg btn-success pull-right" type="submit" name="submit"><i class="glyphicon glyphicon-ok-sign"></i> Save</button>
+                              	<button class="btn btn-lg btn-success pull-right" type="submit" name="submit"><i class="glyphicon glyphicon-ok-sign"></i> <?=_SAVE?></button>
                                	<!--<button class="btn btn-lg" type="reset"><i class="glyphicon glyphicon-repeat"></i> Reset</button>-->
                             </div>
                       </div>

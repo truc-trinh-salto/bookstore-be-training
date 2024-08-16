@@ -23,7 +23,7 @@
 	<div class="col-md-12 grid-margin stretch-card">
 		<div class="card">
 			<div class="card-body">
-				<h4 class="card-title">Thêm sản phẩm mới</h4>
+				<h4 class="card-title"><?=_ADDCATEGORY?></h4>
                 <?php 
                     if(isset($_SESSION['message'])){
                         ?>
@@ -36,12 +36,12 @@
 			?>
 				<form action="" method="POST" class="forms-sample">
 					<div class="form-group">
-						<label for="exampleInputName1">Tên sản phẩm</label>
-						<input type="text" class="form-control" id="exampleInputName1" placeholder="Product Name" name="name">
+						<label for="exampleInputName1"><?=_CATEGORYNAME?></label>
+						<input type="text" class="form-control" id="exampleInputName1" placeholder="<?=_CATEGORYNAME?>" name="name">
 					</div>
                     
                 
-					<button type="submit" name="submit" class="btn btn-success mr-2">Save</button>
+					<button type="submit" name="submit" class="btn btn-success mr-2"><?=_SAVE?></button>
 				</form>
 			</div>
 		</div>

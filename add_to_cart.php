@@ -43,10 +43,15 @@
             if ($cart['sale'] != null && $cart['sale'] > 0) {
                 $price -= ($price * $cart['sale'] / 100);
             }
+            $stmt = $db->prepare('SELECT * FROM gallery_image WHERE book_id =? and isShow = 1');
+            $stmt->bind_param('i', $cart['book_id']);
+            $stmt->execute();
+            $image_cart = $stmt->get_result()->fetch_assoc();
+          
 
             $content .= '<div class="row mt-4">
                             <div class="col-6">
-                                <img width="70" height="70" src="' . $cart['image'] . '">
+                                <img width="70" height="70" src="' . $image_cart['address'] . '">
                             </div>
                             <div class="col-6">
                                 <a href="">' . $cart['title'] . '</a>
@@ -83,10 +88,14 @@
             if ($cart['sale'] != null && $cart['sale'] > 0) {
                 $price -= ($price * $cart['sale'] / 100);
             }
+            $stmt = $db->prepare('SELECT * FROM gallery_image WHERE book_id =? and isShow = 1');
+            $stmt->bind_param('i', $cart['book_id']);
+            $stmt->execute();
+            $image_cart = $stmt->get_result()->fetch_assoc();
 
             $content .= '<div class="row mt-4">
                             <div class="col-6">
-                                <img width="70" height="70" src="' . $cart['image'] . '">
+                                <img width="70" height="70" src="' . $image_cart['address'] . '">
                             </div>
                             <div class="col-6">
                                 <a href="">' . $cart['title'] . '</a>

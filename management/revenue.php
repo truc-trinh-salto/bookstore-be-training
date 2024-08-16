@@ -116,25 +116,25 @@
                 <form class="row" method="GET">
                     <div class="form-group mb-4">
                         <div class="datepicker date input-group">
-                            <input type="datetime" placeholder="Choose Date" class="form-control" id="fecha1" name="dateFrom">
+                            <input type="datetime" placeholder="<?=_STARTREVENUE?>" class="form-control" id="fecha1" name="dateFrom">
                             <div class="input-group-append">
                                 <span class="input-group-text"><i class="fa fa-calendar"></i></span>
                             </div>
                         </div>
                     </div>
                     <div class="text font-weight-bold">
-                        <span>To</span>
+                        <span><?=_TO?></span>
                     </div>
                     <div class="form-group mb-4">
                         <div class="datepicker date input-group">
-                            <input type="datetime" placeholder="Choose Date" class="form-control" id="fecha2" name="dateTo">
+                            <input type="datetime" placeholder="<?=_ENDREVENUE?>" class="form-control" id="fecha2" name="dateTo">
                             <div class="input-group-append">
                                 <span class="input-group-text"><i class="fa fa-calendar"></i></span>
                             </div>
                         </div>
                     </div>
                     <div class="">
-                        <button class="btn btn-outline-success" type="submit">Enter</button>
+                        <button class="btn btn-outline-success" type="submit"><?=_FILTER?></button>
                     </div>
                 </form>
 
@@ -142,29 +142,29 @@
                         <nav aria-label="Page navigation example">
                                 <ul class="pagination">
                                     <?php if($page - 1 == 0):?>
-                                        <li class="page-item disabled"><a class="page-link" href="revenue.php?&dateFrom=<?php echo $from ?>&dateTo=<?php echo $to ?>&page=<?php echo $page -1?>">Previous</a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="revenue.php?&dateFrom=<?php echo $from ?>&dateTo=<?php echo $to ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="revenue.php?&dateFrom=<?php echo $from ?>&dateTo=<?php echo $to ?>&page=<?php echo $page -1?>">Previous</a></li>
+                                        <li class="page-item"><a class="page-link" href="revenue.php?&dateFrom=<?php echo $from ?>&dateTo=<?php echo $to ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php endif;?>
                                     <li class="page-item active"><a class="page-link" href="revenue.php?&dateFrom=<?php echo $from ?>&dateTo=<?php echo $to ?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
                                     <?php if($page +1 > $number_page):?>
-                                        <li class="page-item disabled"><a class="page-link" href="revenue.php?&dateFrom=<?php echo $from ?>&dateTo=<?php echo $to ?>&page=<?php echo $page +1?>">Next</a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="revenue.php?&dateFrom=<?php echo $from ?>&dateTo=<?php echo $to ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="revenue.php?&dateFrom=<?php echo $from ?>&dateTo=<?php echo $to ?>&page=<?php echo $page +1?>">Next</a></li>
+                                        <li class="page-item"><a class="page-link" href="revenue.php?&dateFrom=<?php echo $from ?>&dateTo=<?php echo $to ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php endif;?>
                                 </ul>
                             </nav>
                     </div>
                 <div class="row">
-                    <h4 class="text-center">Danh Thu: <?php echo $total ?></h4>
+                    <h4 class="text-center"><?=_REVENUE?>: <?php echo number_format($total,2) ?></h4>
                     <table class="table">
                         <thead>
                             <tr>
                             <th scope="col">#</th>
-                            <th scope="col">Thời gian check out</th>
-                            <th scope="col">Người nhận</th>
-                            <th scope="col">Tổng đơn hàng</th>
-                            <th scope="col">Xem chi tiết</th>
+                            <th scope="col"><?=_TIMECHECKOUT?></th>
+                            <th scope="col"><?=_RECEIVER?></th>
+                            <th scope="col"><?=_TOTAL?></th>
+                            <th scope="col"><?=_DETAIL?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -173,8 +173,8 @@
                                 <th scope="row"><?= $index ?></th>
                                 <td><?= $transaction['createdAt'] ?></td>
                                 <td><?= $transaction['receiver']?></td>
-                                <td><?= $transaction['total']?></td>
-                                <td><a class="btn btn-primary"href="detail_transaction.php?order_id=<?php echo $transaction['order_id']?>">Chi tiết</a></td>
+                                <td><?=  number_format($transaction['total'],2)?></td>
+                                <td><a class="btn btn-primary"href="detail_transaction.php?order_id=<?php echo $transaction['order_id']?>"><?=_DETAIL?></a></td>
                                 <?php $index ++?>
                             </tr>
                             <?php endforeach;?>

@@ -47,21 +47,21 @@
                     }
 			?>
             <form class="form-inline nav-item" method="GET" action="">
-                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search_keyword">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Tìm kiếm</button>
+                    <input class="form-control mr-sm-2" type="search" placeholder="<?=_SEARCH?>" aria-label="Search" name="search_keyword">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><?=_SEARCH?></button>
             </form>
                 <div class="row">
                     <table class="table">
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">Hình ảnh</th>
-                                <th scope="col">Mô tả</th>
-                                <th scope="col">Code</th>
-                                <th scope="col">Bắt đầu</th>
-                                <th scope="col">Kết thúc</th>
-                                <th scope="col">Thao tác</th>
-                                <th scope="col">Trạng thái</th>
+                                <th scope="col"><?=_PHOTO?></th>
+                                <th scope="col"><?=_DESCRIPTION?></th>
+                                <th scope="col"><?=_SEARCH?></th>
+                                <th scope="col"><?=_STARTAT?></th>
+                                <th scope="col"><?=_ENDAT?></th>
+                                <th scope="col"><?=_ACTION?></th>
+                                <th scope="col"><?=_STATUS?></th>
                             </tr>
                         </thead>
                             <?php foreach($codesales as $codesale):?> 
@@ -75,13 +75,13 @@
                                     <td><?= $codesale['startAt'] ?></td>
                                     <td><?= $codesale['endAt']?></td>
                                     <td>
-                                        <a href="edit_codesale.php?code_id=<?php echo $codesale['id']?>" class="btn btn-primary btn-sm">Chỉnh sửa</a>
+                                        <a href="edit_codesale.php?code_id=<?php echo $codesale['id']?>" class="btn btn-primary btn-sm"><?=_EDIT?></a>
                                     </td>
                                     <td>
                                         <?php if($codesale['deactivate'] == 1):?>
-                                            <a href="activate_code.php?code_id=<?php echo $codesale['id']?>&action=out" class="btn btn-success btn-sm">Có hiệu lực</a>
+                                            <a href="activate_code.php?code_id=<?php echo $codesale['id']?>&action=out" class="btn btn-success btn-sm"><?=_CODEACTIVE?></a>
                                         <?php else: ?>
-                                             <a href="activate_code.php?code_id=<?php echo $codesale['id']?>&action=in" class="btn btn-danger btn-sm">Hết hiệu lực</a>
+                                             <a href="activate_code.php?code_id=<?php echo $codesale['id']?>&action=in" class="btn btn-danger btn-sm"><?=_CODENOTACTIVE?></a>
                                         <?php endif;?>
                                     </td>
                                 

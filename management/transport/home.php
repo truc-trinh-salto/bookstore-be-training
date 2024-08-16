@@ -146,7 +146,7 @@
                                     <?php if($page - 1 == 0):?>
                                         <li class="page-item disabled"><a class="page-link" href="home.php?&dateFrom=<?php echo $from ?>&dateTo=<?php echo $to ?>&page=<?php echo $page -1?>">Previous</a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="home.php?&dateFrom=<?php echo $from ?>&dateTo=<?php echo $to ?>&page=<?php echo $page -1?>">Previous</a></li>
+                                        <li class="page-item"><a class="page-link" href="home.php?&dateFrom=<?php echo $from ?>&dateTo=<?php echo $to ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php endif;?>
                                     <li class="page-item active"><a class="page-link" href="home.php?&dateFrom=<?php echo $from ?>&dateTo=<?php echo $to ?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
                                     <?php if($page +1 > $number_page):?>

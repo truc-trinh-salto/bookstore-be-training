@@ -2,6 +2,18 @@
     session_start();
     require_once('../database.php');
     $db = DBConfig::getDB();
+
+    if(isset($_GET['lang']) && !empty($_GET['lang'])){
+        $_SESSION['lang'] = $_GET['lang'];
+        if(isset($_SESSION['lang']) && $_SESSION['lang'] != $_GET['lang']){
+         echo "<script type='text/javascript'> location.reload(); </script>";
+        }
+    }
+    if(isset($_SESSION['lang'])){
+            include "../public/language/".$_SESSION['lang'].".php";
+    }else{
+            include "../public/language/en.php";
+    }
     $books;
 
     $limit = 6;
@@ -93,31 +105,31 @@
 			?>
             <div class="row mt-2">
                 <div class="col-md-3 d-flex justify-content-start">
-                    <a href="hot_item.php" class="btn btn-info">Bán chạy</a>
+                    <a href="hot_item.php" class="btn btn-info"><?=_HOTITEM?></a>
                 </div>
                 <div class="col-md-3 d-flex justify-content-start">
-                    <a href="inventory.php" class="btn btn-info">Nhập hàng</a>
+                    <a href="inventory.php" class="btn btn-info"><?=_IMPORT?></a>
                 </div>
                 <div class="col-md-3 d-flex justify-content-end">
-                    <a href="add_product.php" class="btn btn-info">Thêm sản phẩm mới</a>
+                    <a href="add_product.php" class="btn btn-info"><?=_ADDPRODUCT?></a>
                 </div>
                 <div class="col-md-3 d-flex justify-content-end">
-                    <a href="category.php" class="btn btn-info">Thể loại</a>
+                    <a href="category.php" class="btn btn-info"><?=_CATEGORY?></a>
                 </div>
             </div>
             <div class="d-flex justify-content-center">
                         <nav aria-label="Page navigation example">
                                 <ul class="pagination">
                                     <?php if($page - 1 == 0):?>
-                                        <li class="page-item disabled"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>">Previous</a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>">Previous</a></li>
+                                        <li class="page-item"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php endif;?>
                                     <li class="page-item active"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
                                     <?php if($page +1 > $number_page):?>
-                                        <li class="page-item disabled"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>">Next</a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>">Next</a></li>
+                                        <li class="page-item"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php endif;?>
                                 </ul>
                             </nav>
@@ -126,14 +138,14 @@
                     <div class="row">
                         <div class="col-md-6">
                             <form class="form-inline d-flex justify-content-start" method="GET" action="">
-                                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search_keyword">
-                                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Tìm kiếm</button>
+                                <input class="form-control mr-sm-2" type="search" placeholder="<?=_SEARCH?>" aria-label="Search" name="search_keyword">
+                                <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><?=_SEARCH?></button>
                             </form>
                         </div>
                         <div class="col-md-6 d-flex justify-content-end">
                                 <form action="add_update_multi_product.php" method="POST" enctype="multipart/form-data">
                                     <input type="file" class="text-center center-block file-upload" name="fileimport">
-                                    <button class="btn btn-outline-success" type="submit" name="submit-import">Thực hiện nhập file</button>
+                                    <button class="btn btn-outline-success" type="submit" name="submit-import"><?=_MAKEIMPORT?></button>
                                 </form>
                         </div>
 
@@ -141,14 +153,14 @@
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">Hình ảnh</th>
-                                <th scope="col">Tên sách</th>
-                                <th scope="col">Tác giả</th>
-                                <th scope="col">Số lượng</th>
-                                <th scope="col">Thể loại</th>
-                                <th scope="col">Giá Tiền</th>
-                                <th scope="col">Hiển thị trang thủ</th>
-                                <th scope="col" class="text-center">Thao tác</th>
+                                <th scope="col"><?=_PHOTO?></th>
+                                <th scope="col"><?=_BOOKNAME?></th>
+                                <th scope="col"><?=_AUTHORS?></th>
+                                <th scope="col"><?=_QUANTITY?></th>
+                                <th scope="col"><?=_CATEGORY?></th>
+                                <th scope="col"><?=_PRICE?></th>
+                                <th scope="col"><?=_SHOWHOME?></th>
+                                <th scope="col" class="text-center"><?=_ACTION?></th>
                             </tr>
                         </thead>
                             <?php foreach($books as $book):?> 
@@ -188,17 +200,17 @@
                                     </td>
                                     <td><?php
                                             if($book['hotItem'] == 1){
-                                                echo 'Có';
+                                                echo _YES;
                                             } else {
-                                                echo 'Không';
+                                                echo _NO;
                                             }
                                         ?>
                                     </td>
                                     <td>
                                         <div class="row">
-                                            <a href="edit_product.php?book_id=<?php echo $book['book_id']?>" class="btn btn-primary btn-sm col-md-6">Chỉnh sửa</a>
-                                            <a href="delete_product.php?book_id=<?php echo $book['book_id']?>" class="btn btn-danger btn-sm col-md-6">Xoá</a>
-                                            <a href="gallery_image.php?book_id=<?php echo $book['book_id']?>" class="btn btn-info btn-sm col-md-12 mt-2">Mục hình ảnh</a>
+                                            <a href="edit_product.php?book_id=<?php echo $book['book_id']?>" class="btn btn-primary btn-sm col-md-6"><?=_EDIT?></a>
+                                            <a href="delete_product.php?book_id=<?php echo $book['book_id']?>" class="btn btn-danger btn-sm col-md-6"><?=_DELETE?></a>
+                                            <a href="gallery_image.php?book_id=<?php echo $book['book_id']?>" class="btn btn-info btn-sm col-md-12 mt-2"><?=_GALLERY?></a>
 
 
                                         </div>
