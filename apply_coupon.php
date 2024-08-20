@@ -44,4 +44,3 @@
     }
 
     echo json_encode(['success' => true,'message' => $message, 'code_id' => $codesale['id'], 'total' => $total]);
-?>

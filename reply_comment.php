@@ -26,4 +26,3 @@
             $_SESSION['message'] = 'Comment added unsuccessfully';
         }
     }
-?>

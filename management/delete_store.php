@@ -19,4 +19,3 @@
         }
         header('Location: store_system.php');
     }
-?>
