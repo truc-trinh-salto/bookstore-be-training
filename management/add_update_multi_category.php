@@ -11,14 +11,15 @@
 
         if(!empty($_FILES['fileimport']['name']) && in_array($_FILES['fileimport']['type'], $excelMimes)){ 
             if(is_uploaded_file($_FILES['fileimport']['tmp_name'])){
-                // echo 'test';
                 $reader = new Xlsx(); 
                 $spreadsheet = $reader->load($_FILES['fileimport']['tmp_name']); 
                 $worksheet = $spreadsheet->getActiveSheet();  
                 $worksheet_arr = $worksheet->toArray(); 
                 unset($worksheet_arr[0]);
                 foreach($worksheet_arr as $row){
-                    importCategory($row[0]);
+                    if($row[0] != null || $row[0] != ''){
+                        importCategory($row[0]);
+                    }
                 }
 
                 $_SESSION['message'] = 'Nhập dữ liệu thành công';

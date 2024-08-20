@@ -32,15 +32,35 @@
     $book = $stmt->get_result()->fetch_assoc();
 
     $stmt = $db->prepare('SELECT * FROM books
-                                    WHERE category_id = ? and book_id != ? LIMIT 5');
+                                    WHERE category_id = ? and book_id != ? 
+                                    ORDER BY RAND() LIMIT 5');
     $stmt->bind_param('ii', $book['category_id'],$book_id);
     $stmt->execute();
 
     $books_same_type = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
-    $stmt = $db->prepare('SELECT * FROM books
-                                    WHERE hotItem = 1 and book_id != ? LIMIT 5');
-    $stmt->bind_param('i', $book_id);
+    $timestamp = strtotime(date('Y-m-d'));
+    $dateFrom = date('Y-m-01 00:00:00', $timestamp);
+    $dateTo  = date('Y-m-t 23:59:59', $timestamp);
+
+    $stmt = $db->prepare('SELECT b.title,b.image, b.book_id, b.description, b.category_id, b.price, 
+                                        b.created_at, b.updated_at, b.sale, b.hotItem, b.stock, b.authors, c.name_category, 
+                                        tt.total
+                                        FROM books as b 
+                                        LEFT JOIN categories as c 
+                                        ON b.category_id = c.category_id
+                                        LEFT JOIN (SELECT SUM(od.quantity)as total, od.book_id
+                                                    FROM order_detail as od 
+                                                    LEFT JOIN order_item as oi
+                                                    ON od.order_id = oi.id
+                                                    LEFT JOIN transactions as t
+                                                    on t.order_id = oi.id 
+                                                    WHERE t.createdAt >= ? and t.createdAt <= ?
+                                                    GROUP BY od.book_id) as tt
+                                        ON tt.book_id = b.book_id
+                                        WHERE b.book_id != ?
+                                        ORDER BY total DESC LIMIT 5');
+    $stmt->bind_param('ssi',$dateFrom, $dateTo, $book_id);
     $stmt->execute();
 
     $books_hot = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
@@ -251,7 +271,6 @@
                         <h3><span class="text-left"><?=_HOTITEM?></span></h3>
                         <ul class="side_prd_list list-group" style="list-style: none;">
                             <?php foreach($books_hot as $book_hoot):?>
-                                <?php if($book_hoot['hotItem'] == 1) {?>
                                     <li class="col-xs-12 item">
                                         <?php 
                                             $stmt = $db->prepare('SELECT * FROM gallery_image WHERE book_id =? and isShow = 1');
@@ -281,7 +300,6 @@
                                             <?php endif;?>
                                         </div>
                                     </li>
-                                <?php } ?>
                             <?php endforeach;?>
                         </ul>
                         </div>

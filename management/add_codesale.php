@@ -43,18 +43,18 @@
 
 					<div class="form-group">
 						<label for="exampleInputName1"><?=_DESCRIPTION?></label>
-						<input type="text" class="form-control" id="exampleInputName1" placeholder="<?=_DESCRIPTION?>" name="description">
+						<input type="text" class="form-control" id="exampleInputName1" placeholder="<?=_DESCRIPTION?>" name="description" required>
 					</div>
 
                     <div class="form-group">
 						<label for="exampleInputDescription1"><?=_CODE?></label>
-						<input type="text" class="form-control" id="exampleInputDescription1" placeholder="<?=_CODE?>" name="code">
+						<input type="text" class="form-control" id="exampleInputDescription1" placeholder="<?=_CODE?>" name="code" required>
 					</div>
 
 
                     <div class="form-group">
 						<label for="exampleInputAuthor1"><?=_MIN?></label>
-						<input type="number" class="form-control" id="exampleInputAuthor1" placeholder="<?=_MIN?>" name="min">
+						<input type="number" class="form-control" id="exampleInputAuthor1" placeholder="<?=_MIN?>" name="min" min="0" value="0" required>
 					</div>
 
                     <div class="form-group">
@@ -62,12 +62,12 @@
 						<select class="form-control" id="exampleInputHot" name="method" id="method" onchange="handleSelectChange(event)">
 							<option value="1" selected><?=_PRICE?></option>
 							<option value="0"><?=_PERCENT?></option>
-						</select>
+						</select> 
 					</div>
 
                     <div class="form-group">
 						<label for="exampleInputDescription1"><?=_VALUE?></label>
-						<input type="number" class="form-control" id="exampleInputDescription1" placeholder="<?=_VALUE?>" name="value">
+						<input type="number" class="form-control" id="value-discount" placeholder="<?=_VALUE?>" name="value" min="0" value="0">
 					</div>
 
                     <div class="form-group" style="display: none;" id="max">
@@ -113,8 +113,11 @@
         var value = selectElement.value;
         if(value == 0){
             document.getElementById('max').style.display = 'block';
+            $("#value-discount").attr("max",100);
         } else {
             document.getElementById('max').style.display = 'none';
+            $("#value-discount").removeAttr("max");
+            
         }
     }
 </script>
@@ -122,33 +125,51 @@
 <?php
     if(isset($_POST['submit']) && $_SERVER['REQUEST_METHOD'] == 'POST')
     {
-        $description = $_POST['name'];
+        $description = $_POST['description'];
         $min = $_POST['min'];
         $max = $_POST['max'];
         $startAt = $_POST['startDate'];
         $endAt = $_POST['endDate'];
-        $activate = $_POST['actiavte'];
+        $activate = $_POST['activate'];
         $method = $_POST['method'];
         $value = $_POST['value'];
         $code = $_POST['code'];
 
         if($method == 0){
-            $value = $value. '%';
+            if($value > 100){
+                $value = 100;
+            }
+        }
+
+        if(checkExistence($code, $db)){
+            $_SESSION['message'] = 'Mã đã tồn tại';
+            header('Location: add_code_sale.php');
+            exit();
+        } else {
+            $stmt = $db->prepare('INSERT INTO codesale (code, startAt, endAt, value, min, max, description, deactivate, createAt, method) values (?,?,?,?,?,?,?,?,NOW(),?)');
+            $stmt->bind_param('sssdddsii', $code, $startAt, $endAt, $value, $min, $max, $description, $activate, $method);
+            $stmt->execute();
+            $insert = $stmt->insert_id;
+
+            if($insert)
+            {
+                $_SESSION['message'] = 'Thêm mã mới thành công';
+            }
+            else
+            {
+                $_SESSION['message'] = 'Thêm mã mới thất bại';
+            }
+            header('Location: add_code_sale.php');
         }
         
+    }
 
-        $stmt = $db->prepare('INSERT INTO codesale (code, startAt, endAt, value, min, max, description, deactivate, created_at) values (?,?,?,?,?,?,?,?,NOW())');
-        $stmt->bind_param('sssiiisi', $code, $startAt, $endAt, $value, $min, $max, $description, $activate);
+    function checkExistence($name,$db){
+        $stmt = $db->prepare('SELECT * FROM codesale WHERE code =?');
+        $stmt->bind_param('s', $name);
         $stmt->execute();
-
-        if($stmt->affected_rows > 0)
-        {
-            $_SESSION['message'] = 'Thêm mã mới thành công';
-        }
-        else
-        {
-            $_SESSION['message'] = 'Thêm mã mới thất bại';
-        }
+        $result = $stmt->get_result();
+        return $result->num_rows > 0;
     }
 
 ?>

@@ -37,7 +37,7 @@
 				<form action="" method="POST" class="forms-sample">
 					<div class="form-group">
 						<label for="exampleInputName1"><?=_CATEGORYNAME?></label>
-						<input type="text" class="form-control" id="exampleInputName1" placeholder="<?=_CATEGORYNAME?>" name="name">
+						<input type="text" class="form-control" id="exampleInputName1" placeholder="<?=_CATEGORYNAME?>" name="name" required>
 					</div>
                     
                 
@@ -58,20 +58,32 @@
     if(isset($_POST['submit']) && $_SERVER['REQUEST_METHOD'] == 'POST')
     {
         $name = $_POST['name'];
+        if(!checkExistence($name, $db)){
+            $stmt = $db->prepare('INSERT INTO categories (name_category) values (?)');
+            $stmt->bind_param('s', $name);
+            $stmt->execute();
 
-        $stmt = $db->prepare('INSERT INTO categories (name_category) values (?)');
-        $stmt->bind_param('s', $name);
+            if($stmt->affected_rows > 0)
+            {
+                $_SESSION['message'] = 'Thêm thể loại mới thành công';
+                header('location: category.php');
+            }
+            else
+            {
+                $_SESSION['message'] = 'Thêm thể loại mới thất bại';
+            }
+        } else {
+            $_SESSION['message'] = 'Thể loại đã tồn tại';
+        }
+        header('location: add_category.php');
+    }
+
+    function checkExistence($name, $db){
+        $stmt = $db->prepare('SELECT * FROM categories WHERE LOWER(name_category) =?');
+        $stmt->bind_param('s', strtolower($name));
         $stmt->execute();
-
-        if($stmt->affected_rows > 0)
-        {
-            $_SESSION['message'] = 'Thêm thể loại mới thành công';
-            header('location: category.php');
-        }
-        else
-        {
-            $_SESSION['message'] = 'Thêm thể loại mới thất bại';
-        }
+        $result = $stmt->get_result();
+        return $result->num_rows > 0;
     }
 
 ?>

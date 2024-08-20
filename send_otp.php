@@ -50,7 +50,8 @@
     
             $mail->isHTML(true);                                  
             $mail->Subject = 'Here is the subject';
-            $url = 'http://localhost:8080/reset_password.php?username='. $username;
+            $five_minutes = time() + (10 * 60);
+            $url = 'http://localhost:8080/reset_password.php?username='. $username. '&time='.$five_minutes;
             $mail->Body    = 'This is the link for reset your password <br>'.$url.'  </br>';
     
             $mail->send();

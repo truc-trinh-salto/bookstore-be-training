@@ -65,6 +65,7 @@
 						}
 					</script>
 						<form method='get' action='' id='form_lang'>
+                            <input type='hidden' name='code_id' value=<?=$code_id?>>
                             <input type='hidden' name='branch_id' value=<?=$branch_id?>>
                             <input type='hidden' name='order_id' value=<?=$order_id?>>
                             <input type='hidden' name='user_id' value=<?=$user_id?>>

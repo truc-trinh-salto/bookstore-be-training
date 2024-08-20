@@ -23,7 +23,7 @@
                     if(checkExistence($row[0])){
                         import_quantity($row[0], $row[6], $import_id);
                     } else {
-                        addMoreImport($row[0],$row[1],$row[2],$row[3],
+                        addMoreImport($row[1],$row[2],$row[3],
                                         $row[4],$row[5],$row[6], $import_id);
                     }
                 }
@@ -36,9 +36,13 @@
     header('Location: '.$_SERVER['HTTP_REFERER']);
 
     function import_quantity($book_id, $quantity, $import_id){
-        if($quantity == '' || $quantity == null){
+        $quantity = intval($quantity);
+
+        if($quantity == '' || $quantity == null || $quantity < 0){
+            var_dump($quantity);
             $quantity = 0;
         }
+
         $db = DBConfig::getDB();
         $stmt = $db->prepare('SELECT * FROM books WHERE book_id =?');
         $stmt->bind_param('i', $book_id);
@@ -90,13 +94,13 @@
         return $count > 0;
     }
 
-    function addMoreImport($book_id,$title,$description,$category,$price,$authors,$quantity, $import_id){
+    function addMoreImport($title,$description,$category,$price,$authors,$quantity, $import_id){
         $db = DBConfig::getDB();
         $category_id = checkCategoryExistence($category);
 
-        $stmt = $db->prepare('INSERT INTO books (book_id, title, description, category_id, price, stock, authors, created_at, hotItem) 
-                                VALUES (?,?,?,?,?,?,?, NOW(),0)');
-        $stmt->bind_param('issidis', $book_id, $title, $description, $category_id, $price, $quantity, $authors);
+        $stmt = $db->prepare('INSERT INTO books (title, description, category_id, price, stock, authors, created_at, hotItem) 
+                                VALUES (?,?,?,?,?,?, NOW(),0)');
+        $stmt->bind_param('ssidis', $title, $description, $category_id, $price, $quantity, $authors);
         $stmt->execute();
 
         $inserted_book_id = $db->insert_id;
@@ -109,6 +113,15 @@
             $stmt = $db->prepare('UPDATE import SET quantity = quantity + ? WHERE id =?');
             $stmt->bind_param('ii',$quantity, $import_id);
             $stmt->execute();
+
+            $stmt = $db->prepare('SELECT * FROM branch');
+            $stmt->execute();
+            $branches = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+            foreach($branches as $branch){
+                $stmt = $db->prepare('INSERT INTO branchstockitem (book_id, branch_id, status,branch_select) values (?,?,1,0)');
+                $stmt->bind_param('ii', $inserted_book_id, $branch['branch_id']);
+                $stmt->execute();
+            }
         }
     }
 

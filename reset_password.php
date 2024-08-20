@@ -12,74 +12,38 @@
 </head>
 <body>
 <style>
-    *{
-        margin:0;
-        padding: 0;
-    }
-
-    #page {
-        width: 100%;
-        height: 100vh;
-        background-image: url('1_1.png');
-        background-size: 100%;
-        background-repeat: no-repeat;
-    }
-
-    @media screen and (max-width: 768px){
-        #page {
-            background-size: auto;
-        }
-    }
-
-    html, body {
-        height: 100%;
-    }
-
-    body {
-    display: flex;
-    align-items: center;
-    padding-top: 40px;
-    padding-bottom: 40px;
-    }
-
-    .form-create {
-        width: 100%;
-        max-width: 500px;
-        padding: 15px;
-        margin: auto;
-        background-color: #edf5fb;
-        background-image: url('1_dk.png');
-        background-size:cover;
-        opacity: 0.9;
-        margin-top: 10vh;
-        }
 
 </style>
-    <div id="page justify-content-around">
-        <div class="container">
-            <form class="row g-2 justify-content-around form-create" action="change_password.php" method="post">
-              <h1 style="text-align: center; font-weight:550;" class ="h3 mb-3 fw-normal">RESET Mật khẩu</h1>
+        <div class="app">
+            <div class="container">
+                <div id="page" class="mt-4">
+                    <div class="row d-flex justify-content-center">
+                        <form class="row g-2 justify-content-around form-create" action="change_password.php" method="post">
+                        <h1 style="text-align: center; font-weight:550;" class ="h3 mb-3 fw-normal">RESET Mật khẩu</h1>
 
-                <div class="col-md-12">
-                    <label for="pwd" class="pb-2">Mật khẩu:</label>
-                    <input type="password" class="form-control" id="pwd" placeholder="Enter password" name="pwd" required>
+                            <div class="col-md-12">
+                                <label for="pwd" class="pb-2">Mật khẩu:</label>
+                                <input type="password" class="form-control" id="pwd" placeholder="Enter password" name="pwd" required>
+                            </div>
+
+                            <div class="col-md-12">
+                                <label for="pwd" class="pb-2">Nhập lại mật khẩu:</label>
+                                <input type="password" class="form-control" id="pwd" placeholder="Enter password" name="pwd2" required>
+                            </div>
+
+                            <input type="hidden" name="username" value="<?= $_GET['username']?>">
+
+                            <div class="col-12">
+                            <button class="btn btn-success" name="btn" type="submit">Reset</button>
+                            </div>
+
+                            <p class="my-4">Bạn đã có tài khoản? <a style="font-weight:bold" href="index.php">Đăng nhập</a> </p>
+                        </form>
+                    </div>
                 </div>
+            </div>
+        </div>
 
-                <div class="col-md-12">
-                    <label for="pwd" class="pb-2">Nhập lại mật khẩu:</label>
-                    <input type="password" class="form-control" id="pwd" placeholder="Enter password" name="pwd2" required>
-                </div>
-
-                <input type="hidden" name="username" value="<?= $_GET['username']?>">
-
-                <div class="col-12">
-                  <button class="btn btn-success" name="btn" type="submit">Reset</button>
-                </div>
-
-                <p class="my-4">Bạn đã có tài khoản? <a style="font-weight:bold" href="index.php">Đăng nhập</a> </p>
-              </form>
-    </div>
-    </div>
     
 </body>
 </html>

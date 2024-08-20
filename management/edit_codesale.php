@@ -15,7 +15,7 @@
     $stmt->bind_param('i', $code_id);
     $stmt->execute();
 
-    $code = $stmt->get_result()->fetch_assoc();
+    $codesale = $stmt->get_result()->fetch_assoc();
 
 
 ?>
@@ -54,28 +54,28 @@
 
 					<div class="form-group">
 						<label for="exampleInputName1"><?=_DESCRIPTION?></label>
-						<input type="text" class="form-control" id="exampleInputName1" placeholder="<?=_DESCRIPTION?>" name="description" value="<?php echo $code['description']?>">
+						<input type="text" class="form-control" id="exampleInputName1" placeholder="<?=_DESCRIPTION?>" name="description" value="<?php echo $codesale['description']?>" required>
 					</div>
 
                     <div class="form-group">
 						<label for="exampleInputDescription1"><?=_CODE?></label>
-						<input type="text" class="form-control" id="exampleInputDescription1" placeholder="<?=_CODE?>" name="code" value="<?php echo $code['code']?>">
+						<input type="text" class="form-control" id="exampleInputDescription1" placeholder="<?=_CODE?>" name="code" value="<?php echo $codesale['code']?>" required>
 					</div>
 
 
                     <div class="form-group">
 						<label for="exampleInputAuthor1"><?=_MIN?></label>
-						<input type="number" class="form-control" id="exampleInputAuthor1" placeholder="<?=_MIN?>" name="min" value="<?php echo $code['min']?>">
+						<input type="number" class="form-control" id="exampleInputAuthor1" placeholder="<?=_MIN?>" name="min" value="<?php echo $codesale['min']?>" required>
 					</div>
 
                     <div class="form-group">
 						<label for="exampleInputHot"><?=_METHOD?></label>
 						<select class="form-control" id="exampleInputHot" name="method" id="method" onchange="handleSelectChange(event)">
-							<option value="1" <?php if(!str_contains($code['value'], '%')){
+							<option value="1" <?php if($codesale['method'] == 1){
                                                         echo 'selected';
                                                     // str_replace('%', '', $codesale['value']);
                                                 }?>><?=_PRICE?></option>
-							<option value="0" <?php if(str_contains($code['value'], '%')){
+							<option value="0" <?php if($codesale['method'] == 0){
                                                         echo 'selected';
                                                     // str_replace('%', '', $codesale['value']);
                                                 }?>><?=_PERCENT?></option>
@@ -84,36 +84,31 @@
 
                     <div class="form-group">
 						<label for="exampleInputDescription1"><?=_VALUE?></label>
-						<input type="number" class="form-control" id="exampleInputDescription1" placeholder="Giá trị" name="value" value="<?php if(str_contains($code['value'], '%')){
-                                                                                                                                                $value_tmp = $code['value'];
-                                                                                                                                                str_replace('%', '', $value_temp);
-                                                                                                                                                echo $value_tmp;
-                                                                                                                                            } else {
-                                                                                                                                                echo $code['value'];
-                                                                                                                                            }
-                                                                                                                                                ?>">
+						<input type="number" class="form-control" id="value-discount" placeholder="Giá trị" name="value" min="0" value="<?php echo $codesale['value'] ?>" <?php if($codesale['method'] == 0){
+                            echo "max='100'";
+                        }?> required>
 					</div>
 
-                    <div class="form-group" style="display: none;" id="max">
+                    <div class="form-group" style="display: <?php echo $codesale['method'] == 0 ? 'block' : 'none'?>;" id="max">
 						<label for="exampleInputDescription1"><?=_MAX?></label>
-						<input type="number" class="form-control" id="exampleInputDescription1" placeholder="<?=_MAX?>" name="max" value="<?php echo $code['max']?>">
+						<input type="number" class="form-control" id="exampleInputDescription1" placeholder="<?=_MAX?>" name="max" value="<?php echo $codesale['max']?>">
 					</div>
 
                     <div class="form-group">
 						<label for="startDate"><?=_STARTAT?></label>
-						<input type="datetime-local" class="form-control" id="startDate" placeholder="Quantity" name="startDate" value="<?php echo date('Y-m-d H:i:s',strtotime($code["startAt"])) ?>">
+						<input type="datetime-local" class="form-control" id="startDate" placeholder="Quantity" name="startDate" value="<?php echo date('Y-m-d H:i:s',strtotime($codesale["startAt"])) ?>">
 					</div>
 
                     <div class="form-group">
 						<label for="endDate"><?=_ENDAT?></label>
-						<input type="datetime-local" class="form-control" id="endDate" placeholder="Quantity" name="endDate" value="<?php echo date('Y-m-d H:i:s',strtotime($code["endAt"])) ?>">
+						<input type="datetime-local" class="form-control" id="endDate" placeholder="Quantity" name="endDate" value="<?php echo date('Y-m-d H:i:s',strtotime($codesale["endAt"])) ?>">
 					</div>
 
 					<div class="form-group">
 						<label for="exampleInputHot"><?=_ACTIVATE?></label>
-						<select class="form-control" id="exampleInputHot" name="activate" value="<?php echo $code['deactivate']?>">
-							<option value="1" <?php if($code['deactivate'] == 1) echo 'selected'?>><?=_YES?></option>
-							<option value="0" <?php if($code['deactivate'] == 0) echo 'selected'?>><?=_NO?></option>
+						<select class="form-control" id="exampleInputHot" name="activate" value="<?php echo $codesale['deactivate']?>">
+							<option value="1" <?php if($codesale['deactivate'] == 1) echo 'selected'?>><?=_YES?></option>
+							<option value="0" <?php if($codesale['deactivate'] == 0) echo 'selected'?>><?=_NO?></option>
 						</select>
 					</div>
 
@@ -137,8 +132,10 @@
         var value = selectElement.value;
         if(value == 0){
             document.getElementById('max').style.display = 'block';
+            $("#value-discount").attr("max",100);
         } else {
             document.getElementById('max').style.display = 'none';
+            $("#value-discount").removeAttr("max");
         }
     }
 </script>
@@ -157,24 +154,38 @@
         $code = $_POST['code'];
         echo $activate;
         if($method == 0){
-            $value = $value. '%';
+           if($value > 100){
+                $value = 100;
+           }
+        }
+        if(checkExistence($code,$codesale['id'],$db)){
+            $_SESSION['message'] = "Code của mã này đã tồn tại";
+            header("refresh: 0");
+        } else {
+            $stmt = $db->prepare('UPDATE codesale SET code = ?, startAt = ?, endAt = ?, value = ?, min = ?, max = ?, description = ?, deactivate = ?, method=? where id = ?');
+            $stmt->bind_param('sssiiisiii', $code, $startAt, $endAt, $value, $min, $max, $description, $activate,$method, $code_id);
+            $stmt->execute();
+
+            if($stmt->affected_rows > 0)
+            {
+                $_SESSION['message'] = 'Cập nhật mã thành công';
+                header("refresh: 0");
+            }
+            else
+            {
+                $_SESSION['message'] = 'Cập nhật mã thất bại';
+                header("refresh: 0");
+            }
         }
         
+    }
 
-        $stmt = $db->prepare('UPDATE codesale SET code = ?, startAt = ?, endAt = ?, value = ?, min = ?, max = ?, description = ?, deactivate = ? where id = ?');
-        $stmt->bind_param('sssiiisii', $code, $startAt, $endAt, $value, $min, $max, $description, $activate, $code_id);
+    function checkExistence($name,$code,$db){
+        $stmt = $db->prepare('SELECT * FROM codesale WHERE code =? and id != ?');
+        $stmt->bind_param('si', $name,$code);
         $stmt->execute();
-
-        if($stmt->affected_rows > 0)
-        {
-            $_SESSION['message'] = 'Cập nhật mã thành công';
-            header("refresh: 0");
-        }
-        else
-        {
-            $_SESSION['message'] = 'Cập nhậ mã thất bại';
-            header("refresh: 0");
-        }
+        $result = $stmt->get_result();
+        return $result->num_rows > 0;
     }
 
 ?>

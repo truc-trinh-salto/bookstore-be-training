@@ -19,7 +19,7 @@
       $stmt->execute();
 
       $user_code = $stmt->get_result()->fetch_assoc();
-      if($codesale['endAt'] > date('Y-m-d') || $codesale['deactivate'] == 0) {
+      if($codesale['endAt'] < date('Y-m-d') || $codesale['deactivate'] == 0) {
         $message = 'Mã này đã hết hiệu lực';
       } else if($codesale['min'] > $total){
         $message = 'Đơn hàng của bạn phải tối thiểu '. $codesale['min']. 'đ để nhận mã giảm giá';
@@ -28,9 +28,12 @@
       } else {
         $messaege = ''.$codesale['code'].'
                     '.$codesale['description'].'';
-        if(str_contains($codesale['value'], '%')){
-            str_replace('%', '', $codesale['value']);
-            $total = $total - ($total * (float)$codesale['value'] / 100);
+        if($codesale['method'] == 0){
+            $value_discount = ($total * (float)$codesale['value'] / 100);
+            if($value_discount > $codesale['max'] && $codesale['max'] != null & $codesale['max'] != ''){
+              $value_discount = $codesale['max'];
+            }
+            $total = $total - $value_discount;
         } else {
             $total = $total - (float)$codesale['value'];
         }

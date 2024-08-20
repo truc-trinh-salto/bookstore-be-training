@@ -43,10 +43,21 @@
 
         $page_first = ($page - 1) * $limit;
 
+        $stmt = $db->prepare('SELECT MIN(id) as min_id FROM import 
+                                    where YEAR(import) = YEAR(?) and MONTH(import) = MONTH(?) 
+                                    ');
+        $stmt->bind_param('ss',$dateTo,$dateTo);
+        $stmt->execute();
+        $import_min = $stmt->get_result()->fetch_assoc();
+
+
 
         if(isset($_GET['search_keyword']) && $_GET['search_keyword'] != null) {
             $search_keyword = $_GET['search_keyword'];
             $search = "%$search_keyword%";
+
+            
+
             $stmt = $db->prepare('SELECT b.title,b.image, b.book_id, b.description, b.category_id, b.price, 
                                         b.created_at, b.updated_at, b.sale, b.hotItem, b.stock, b.authors, c.name_category, 
                                         tt.total, s.after_stock
@@ -63,16 +74,22 @@
                                                     GROUP BY od.book_id) as tt
                                         ON tt.book_id = b.book_id
 
-                                        LEFT JOIN (SELECT ii.book_id, ii.after_stock as after_stock
+                                        LEFT JOIN (SELECT ii.book_id, ii.stock + si.sum_quantity as after_stock
                                                     FROM import_item as ii
-                                                    LEFT JOIN import as i
-                                                    ON i.id = ii.import_id
-                                                    WHERE YEAR(i.import) = YEAR(?) and MONTH(i.import) = MONTH(?)) as s
+                                                    LEFT JOIN (SELECT ii2.book_id, SUM(ii2.quantity) as sum_quantity
+                                                                FROM import_item as ii2
+                                                                LEFT JOIN import as i2
+                                                                ON i2.id = ii2.import_id
+                                                                WHERE YEAR(i2.import) = YEAR(?) and MONTH(i2.import) = MONTH(?)
+                                                                GROUP BY ii2.book_id) as si
+                                                    on si.book_id = ii.book_id
+                                                    WHERE ii.import_id = ?
+                                                    ) as s
                                         ON s.book_id = b.book_id
 
-                                        WHERE b.title LIKE ? OR b.authors LIKE ? OR b.description LIKE ? OR c.name_category LIKE ?
+                                        WHERE b.title LIKE ? OR b.authors LIKE ? OR b.description LIKE ? OR c.name_category LIKE ? 
                                         ORDER BY total DESC LIMIT ?,?');
-            $stmt->bind_param("ssssssssii",$dateFrom,$dateTo,$dateFrom,$dateFrom,$search, $search, $search, $search, $page_first,$limit);
+            $stmt->bind_param("ssssissssii",$dateFrom,$dateTo,$dateFrom,$dateFrom,$import_min['min_id'],$search, $search, $search, $search, $page_first,$limit);
             
         } else {
             $stmt = $db->prepare('SELECT b.title,b.image, b.book_id, b.description, b.category_id, b.price, 
@@ -91,14 +108,20 @@
                                                     GROUP BY od.book_id) as tt
                                         ON tt.book_id = b.book_id
 
-                                        LEFT JOIN (SELECT ii.book_id, ii.after_stock as after_stock
+                                        LEFT JOIN (SELECT ii.book_id, ii.stock + si.sum_quantity as after_stock
                                                     FROM import_item as ii
-                                                    LEFT JOIN import as i
-                                                    ON i.id = ii.import_id
-                                                    WHERE YEAR(i.import) = YEAR(?) and MONTH(i.import) = MONTH(?)) as s
+                                                    LEFT JOIN (SELECT ii2.book_id, SUM(ii2.quantity) as sum_quantity
+                                                                FROM import_item as ii2
+                                                                LEFT JOIN import as i2
+                                                                ON i2.id = ii2.import_id
+                                                                WHERE YEAR(i2.import) = YEAR(?) and MONTH(i2.import) = MONTH(?)
+                                                                GROUP BY ii2.book_id) as si
+                                                    on si.book_id = ii.book_id
+                                                    WHERE ii.import_id = ?
+                                                    ) as s
                                         ON s.book_id = b.book_id
                                         ORDER BY total DESC LIMIT ?,?');
-            $stmt->bind_param('ssssii',$dateFrom,$dateTo,$dateFrom,$dateFrom,$page_first,$limit);
+            $stmt->bind_param('ssssiii',$dateFrom,$dateTo,$dateFrom,$dateFrom,$import_min['min_id'],$page_first,$limit);
         }
         $stmt->execute();
         $books = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);

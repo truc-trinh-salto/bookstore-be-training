@@ -53,8 +53,7 @@
                 $stmt->execute();
                 $codesale = $stmt->get_result()->fetch_assoc();
 
-                if(str_contains($codesale['value'], '%')){
-                    str_replace('%', '', $codesale['value']);
+                if($codesale['method'] == 0){
                     $total = $total - ($total * (float)$codesale['value'] / 100);
                 } else {
                     $total = $total - (float)$codesale['value'];

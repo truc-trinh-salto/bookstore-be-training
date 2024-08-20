@@ -46,11 +46,17 @@
                         unset($_SESSION['message']);
                     }
 			?>
-				<form action="" method="POST" class="forms-sample">
-					<div class="form-group">
+				<form action="" method="POST" class="forms-sample" enctype="multipart/form-data">
+					<!-- <div class="form-group">
 						<label for="exampleInputImageUrl"><?=_PHOTO?></label>
 						<input type="text" class="form-control" id="exampleInputImageUrl" placeholder="<?=_PHOTO?>" name="image" value="<?php echo $branch['image'] ?>">
-					</div>
+					</div> -->
+                    <div class="text-center">
+                        <img src="<?php echo '../'.$branch['image'] ?: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3cD47c9xUZyKlO3j3z9vdBHV0P2BIwfkeWg&s'?>" class="avatar img-circle img-thumbnail" alt="avatar" height="300" width="300">
+                        <h6><?=_PHOTO?></h6>
+                        <input type="file" class="text-center center-block file-upload" name="branch-image">
+                    </div>
+
 					<div class="form-group">
 						<label for="exampleInputName1"><?=_BRANCHNAME?></label>
 						<input type="text" class="form-control" id="exampleInputName1" placeholder="<?=_BRANCHNAME?>" name="name" value="<?php echo $branch['title']?>" required>
@@ -77,44 +83,131 @@
 </body>
 </html>
 
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function() {
+
+    
+    var readURL = function(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('.avatar').attr('src', e.target.result);
+            }
+            
+            reader.readAsDataURL(input.files[0]);
+            
+        }
+    }
+
+
+    $(".file-upload").on('change', function(){
+        readURL(this);
+    });
+    });
+
+    if ( window.history.replaceState ) {
+        window.history.replaceState( null, null, window.location.href );
+    }
+</script>
+
 <?php
     if(isset($_POST['submit']) && $_SERVER['REQUEST_METHOD'] == 'POST')
     {
-        $image = $_POST['image'];
+        // $image = $_POST['branch-image'];
         $name = $_POST['name'];
         $address = $_POST['address'];
         $hotline = $_POST['hotline'];
-        // $hotItem = $_POST['hotItem'];
-        // $categoryId = $_POST['category'];
-        // $authors = $_POST['authors'];
-        // $description = $_POST['description'];
-        // echo $image;
-        // echo $name;
-        // echo $address;
-        // echo $hotline;
-        // echo $quantity;
-        // echo $price;
-        // echo $hotItem;
-        // echo $categoryId;
-        // echo $authors;
-        // echo $description;
+
+        if(!checkExistence($name,$branch_id, $db)){
+            if(isset($_FILES["branch-image"]["name"])){
+                $target_dir = "public/assets/img/";
+                $target_file = $target_dir . basename($_FILES["branch-image"]["name"]);
         
+                echo $target_file;
+                $uploadOk = 1;
+                $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+        
+                // Kiểm tra file có phải là hình ảnh thật hay không
+                $check = getimagesize($_FILES["branch-image"]["tmp_name"]);
+                if($check !== false) {
+                    $uploadOk = 1;
+                } else {
+                    $_SESSION['message'] = "File is not an image.";
+                    $uploadOk = 0;
+                }
+        
+                // Kiểm tra nếu file đã tồn tại
+                if (file_exists($target_file)) {
+                    // echo "Sorry, file already exists.";
+                    // $uploadOk = 0;
+                } else {
+                    move_uploaded_file($_FILES["branch-image"]["tmp_name"], $target_dir);
+                }
+        
+                // Giới hạn kích thước file
+                if ($_FILES["branch-image"]["size"] > 500000) {
+                    $_SESSION['message'] = "Sorry, your file is too large.";
+                    $uploadOk = 0;
+                }
+        
+                // Giới hạn loại file
+                if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif" ) {
+                    $_SESSION['message'] = "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+                    $uploadOk = 0;
+                }
+        
+                // Kiểm tra nếu $uploadOk là 0 do có lỗi
+                if ($uploadOk == 0) {
+                    $_SESSION['message'] .= "<br>Add Product failed, please try again.";
+                    header("Location: edit_store.php?branch_id=".$branch_id);
+                    exit();
+                // Nếu mọi thứ đều ổn, thử upload file
+                } else {
+                    // echo 'test';
+                    // $_SESSION['message'] = $target_file;
+                    updateBranch($name, $address, $hotline, $target_file, $branch_id, $db);
+                    header("Location: edit_store.php?branch_id=".$branch_id);
+                    exit();
+                }
+            } else {
+                // $_SESSION['message'] = 'test';
+                updateBranch($name, $address, $hotline, $branch['image'], $branch_id, $db);
+                header("Location: edit_store.php?branch_id=".$branch_id);
+                exit();
+            }
+        } else {
+            $_SESSION['message'] = 'Tên chi nhánh đã tồn tại';
+            header("Location: edit_store.php?branch_id=".$branch_id);
+            exit();
+        }
+        
+    }
 
-        $stmt = $db->prepare('UPDATE branch set title = ?, address =?, hotline =?, image =? WHERE branch_id =?');
-        $stmt->bind_param('ssssi', $name, $address, $hotline, $image, $branch_id);
+    function checkExistence($name,$branch_id,$db){
+        $stmt = $db->prepare('SELECT * FROM branch WHERE LOWER(title) =? and branch_id != ?');
+        $stmt->bind_param('si', strtolower($name),$branch_id);
         $stmt->execute();
-        // echo 'Thêm mới thành công';
+        $result = $stmt->get_result();
+        return $result->num_rows > 0;
+    }
 
-        if($stmt->affected_rows > 0)
-        {
+    function updateBranch($name, $address, $hotline, $branch_image, $branch_id, $db){
+        if($branch_image == '' || $branch_image == null){
+            $branch_image = 'public/assets/img/default.png';
+        }
+        $stmt = $db->prepare('UPDATE branch set title = ?, address =?, hotline =?, image =? WHERE branch_id =?');
+        $stmt->bind_param('ssssi', $name, $address, $hotline, $branch_image, $branch_id);
+        $stmt->execute();
+        if($stmt->affected_rows > 0){
             $_SESSION['message'] = 'Cập nhật chi nhánh mới thành công';
-            header("refresh: 0;");
-        }
-        else
-        {
+            return true;
+        } else {
             $_SESSION['message'] = 'Cập nhật chi nhánh mới thất bại';
-            header("refresh: 0;");
+            return false;
         }
+
     }
 
 ?>

@@ -11,41 +11,44 @@
 
         if(!empty($_FILES['fileimport']['name']) && in_array($_FILES['fileimport']['type'], $excelMimes)){ 
             if(is_uploaded_file($_FILES['fileimport']['tmp_name'])){
-                // echo 'test';
                 $reader = new Xlsx(); 
                 $spreadsheet = $reader->load($_FILES['fileimport']['tmp_name']); 
                 $worksheet = $spreadsheet->getActiveSheet();  
                 $worksheet_arr = $worksheet->toArray(); 
                 unset($worksheet_arr[0]);
                 foreach($worksheet_arr as $row){
-                    if(checkExistence($row[0])){
-                        updateBook($row[0],$row[1],$row[2],$row[3],
-                            $row[4],$row[5],$row[6],$row[7]);
-                    } else {
-                        addBook($row[0],$row[1],$row[2],$row[3],
-                                        $row[4],$row[5],$row[6],$row[7]);
+                    if($row[0] != null || $row[0] != ''){
+
+                        if(checkExistence($row[0])){
+                            updateBook($row[0],$row[1],$row[2],$row[3],
+                                $row[4],$row[5],$row[6],$row[7]);
+                        } else {
+                            echo 'test';
+                            addBook($row[0],$row[1],$row[2],$row[3],
+                                            $row[4],$row[5],$row[6],$row[7]);
+                        }
                     }
                 }
 
                 $_SESSION['message'] = 'Nhập dữ liệu thành công';
-                header('Location: '.$_SERVER['HTTP_REFERER']);
+                // header('Location: '.$_SERVER['HTTP_REFERER']);
             } else {
                 $_SESSION['message'] = 'Nhập dữ liệu thất bại';
-                header('Location: '.$_SERVER['HTTP_REFERER']);
+                // header('Location: '.$_SERVER['HTTP_REFERER']);
             }
         } else {
             $_SESSION['message'] = 'Nhập dữ liệu thất bại';
-            header('Location: '.$_SERVER['HTTP_REFERER']);
+            // header('Location: '.$_SERVER['HTTP_REFERER']);
         }
 
     } else {
         $_SESSION['message'] = 'Nhập dữ liệu thất bại';
-        header('Location: '.$_SERVER['HTTP_REFERER']);
+        // header('Location: '.$_SERVER['HTTP_REFERER']);
     }
 
     function checkExistence($name){
-        $stmt = DBConfig::getDB()->prepare('SELECT * FROM books WHERE name =?');
-        $stmt->bind_param('s', $name);
+        $stmt = DBConfig::getDB()->prepare('SELECT * FROM books WHERE LOWER(title) =?');
+        $stmt->bind_param('s', strtolower($name));
         $stmt->execute();
 
         $count = $stmt->get_result()->num_rows;
@@ -54,8 +57,8 @@
     }
 
     function getBook($name){
-        $stmt = DBConfig::getDB()->prepare('SELECT * FROM books WHERE name =?');
-        $stmt->bind_param('s', $name);
+        $stmt = DBConfig::getDB()->prepare('SELECT * FROM books WHERE LOWER(title) =?');
+        $stmt->bind_param('s', strtolower($name));
         $stmt->execute();
 
         $book = $stmt->get_result()->fetch_assoc();
@@ -66,41 +69,67 @@
     function addBook($title,$description,$category,$price,$authors,$quantity,$hotItem,$sale){
         $db = DBConfig::getDB();
         $category_id = checkCategoryExistence($category);
-        if($quantity == '' || $quantity == null || $quantity < 0 || !is_int($quantity)){
+        echo $category_id;
+        $quantity = intval($quantity);
+        $price = floatval($price);
+        $hotItem = intval($hotItem);
+        $sale = floatval($sale);
+
+        if($quantity == '' || $quantity == null || $quantity < 0){
+            var_dump($quantity);
             $quantity = 0;
         }
-        if($price =='' || $price < 1000.0 || $price == null || !is_float($price)) {
+        if($price == '' || $price < 1000.0 || $price == null) {
             $price = 1000.0;
         }
 
-        if($hotItem == '' || $hotItem == null || $hotItem > 1 || $hotItem <0 || !is_float($hotItem)){
+        if($hotItem == '' || $hotItem == null || $hotItem > 1 || $hotItem <0){
             $hotItem = 0;
         }
 
-        if($sale == '' || $sale == null || $sale < 0.0 ||!is_float($sale) || $sale > 100.0){
+        if($sale == '' || $sale == null || $sale < 0.0 || $sale > 100.0){
             $sale = 0.0;
         }
 
         $stmt = $db->prepare('INSERT INTO books (title, description, category_id, price, stock, authors, created_at, hotItem, sale) 
-                                VALUES (?,?,?,?,?,?,?, NOW(),?,?)');
+                                VALUES (?,?,?,?,?,?, NOW(),?,?)');
         $stmt->bind_param('ssidisid', $title, $description, $category_id, $price, $quantity, $authors, $hotItem, $sale);
         $stmt->execute();
+
+        $book_id = $stmt->insert_id;
+
+        $stmt = $db->prepare('SELECT * FROM branch');
+        $stmt->execute();
+        $branches = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        foreach($branches as $branch){
+            $stmt = $db->prepare('INSERT INTO branchstockitem (book_id, branch_id, status,branch_select) values (?,?,1,0)');
+            $stmt->bind_param('ii', $book_id, $branch['branch_id']);
+            $stmt->execute();
+        }
+
+        
     }
 
     function updateBook($title,$description,$category,$price,$authors,$quantity,$hotItem,$sale){
         $book = getBook($title);
-        if($quantity == '' || $quantity == null || $quantity < 0 || !is_int($quantity)){
+        $quantity = intval($quantity);
+        $price = floatval($price);
+        $hotItem = intval($hotItem);
+        $sale = floatval($sale);
+
+        if($quantity == '' || $quantity == null || $quantity < 0){
+            var_dump($quantity);
             $quantity = 0;
         }
-        if($price =='' || $price < 1000.0 || $price == null || !is_float($price)) {
+        if($price == '' || $price < 1000.0 || $price == null) {
             $price = 1000.0;
         }
 
-        if($hotItem == '' || $hotItem == null || $hotItem > 1 || $hotItem <0 || !is_float($hotItem)){
+        if($hotItem == '' || $hotItem == null || $hotItem > 1 || $hotItem <0){
             $hotItem = 0;
         }
 
-        if($sale == '' || $sale == null || $sale < 0.0 ||!is_float($sale) || $sale > 100.0){
+        if($sale == '' || $sale == null || $sale < 0.0 || $sale > 100.0){
             $sale = 0.0;
         }
         $db = DBConfig::getDB();

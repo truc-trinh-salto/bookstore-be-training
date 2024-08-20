@@ -249,10 +249,19 @@
 
     function addBook($image, $name, $quantity, $price, $hotItem, $categoryId, $authors, $description,$db){
         $stmt = $db->prepare('INSERT INTO books (image, title, stock, price, hotItem, category_id, authors, description, created_at) values (?,?,?,?,?,?,?,?,NOW())');
-                        $stmt->bind_param('ssidiiss', $image, $name, $quantity, $price, $hotItem, $categoryId, $authors, $description);
-                        $stmt->execute();
-                
-                        $book_id = $stmt->insert_id;
+        $stmt->bind_param('ssidiiss', $image, $name, $quantity, $price, $hotItem, $categoryId, $authors, $description);
+        $stmt->execute();
+
+        $book_id = $stmt->insert_id;
+
+        $stmt = $db->prepare('SELECT * FROM branch');
+        $stmt->execute();
+        $branches = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        foreach($branches as $branch){
+            $stmt = $db->prepare('INSERT INTO branchstockitem (book_id, branch_id, status,branch_select) values (?,?,1,0)');
+            $stmt->bind_param('ii', $book_id, $branch['branch_id']);
+            $stmt->execute();
+        }
         return $book_id;
     }
     

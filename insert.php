@@ -41,6 +41,10 @@
     //             $stmt->bind_param('ii', $new_stock, $book['book_id']);
     //             $stmt->execute();
     //         }
+
+    $a = '33b';
+    $a = intval($a);
+    var_dump($a);
     function addBookBranch(){
             $db = DBConfig::getDB();
             $stmt = $db->prepare('SELECT * FROM import_item WHERE import_id =?');

@@ -12,6 +12,7 @@
     if(isset($_SESSION['lang'])){
             include "public/language/".$_SESSION['lang'].".php";
     }else{
+            $_SESSION['lang'] = 'en';
             include "public/language/en.php";
     }
 

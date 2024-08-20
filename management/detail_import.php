@@ -112,6 +112,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <form class="form-inline nav-item" method="GET" action="">
+                        <input type="hidden" name="import_id" value="<?php echo $import_id ?>">
                         <input class="form-control mr-sm-2" type="search" placeholder="<?=_SEARCH?>" aria-label="Search" name="search_keyword">
                         <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><?=_SEARCH?></button>
                     </form>

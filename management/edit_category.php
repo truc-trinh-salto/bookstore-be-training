@@ -47,7 +47,7 @@
 				<form action="" method="POST" class="forms-sample">
 					<div class="form-group">
 						<label for="exampleInputName1"><?=_CATEGORYNAME?></label>
-						<input type="text" class="form-control" id="exampleInputName1" placeholder="Product Name" name="name" value="<?php echo $category['name_category'] ?>">
+						<input type="text" class="form-control" id="exampleInputName1" placeholder="Product Name" name="name" value="<?php echo $category['name_category'] ?>" required>
 					</div>
                     
 
@@ -67,21 +67,33 @@
 <?php
     if(isset($_POST['submit']) && $_SERVER['REQUEST_METHOD'] == 'POST')
     {
-        $name = $_POST['name'];
+        if(!checkExistence($_POST['name'], $db)){
+            $name = $_POST['name'];
 
-        $stmt = $db->prepare('UPDATE categories set name_category =? WHERE category_id=?');
-        $stmt->bind_param('ss', $name, $category_id);
+            $stmt = $db->prepare('UPDATE categories set name_category =? WHERE category_id=?');
+            $stmt->bind_param('ss', $name, $category_id);
+            $stmt->execute();
+
+            if($stmt->affected_rows > 0)
+            {
+                $_SESSION['message'] = 'Cập nhật thành công';
+            }
+            else
+            {
+                $_SESSION['message'] = 'Cập nhật thất bại';
+            }
+        } else {
+            $_SESSION['message'] = 'Tên thể loại đã tồn tại';
+        }
+        header("refresh: 0");
+    }
+
+    function checkExistence($name, $db){
+        $stmt = $db->prepare('SELECT * FROM categories WHERE LOWER(name_category) =?');
+        $stmt->bind_param('s', strtolower($name));
         $stmt->execute();
-
-        if($stmt->affected_rows > 0)
-        {
-            $_SESSION['message'] = 'Cập nhật thành công';
-            header("refresh: 0");
-        }
-        else
-        {
-            $_SESSION['message'] = 'Cập nhật thất bại';
-        }
+        $result = $stmt->get_result();
+        return $result->num_rows > 0;
     }
 
 ?>

@@ -39,11 +39,16 @@
                         unset($_SESSION['message']);
                     }
 			?>
-				<form action="" method="POST" class="forms-sample">
-					<div class="form-group">
+				<form action="" method="POST" class="forms-sample" enctype="multipart/form-data">
+					<!-- <div class="form-group">
 						<label for="exampleInputImageUrl"><?=_PHOTO?></label>
 						<input type="text" class="form-control" id="exampleInputImageUrl" placeholder="<?=_PHOTO?>" name="image">
-					</div>
+					</div> -->
+                    <div class="text-center">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3cD47c9xUZyKlO3j3z9vdBHV0P2BIwfkeWg&s" class="avatar img-circle img-thumbnail" alt="avatar" height="300" width="300">
+                        <h6><?=_UPLOADGALLERY?></h6>
+                        <input type="file" class="text-center center-block file-upload" name="book-image">
+                    </div>
 					<div class="form-group">
 						<label for="exampleInputName1"><?=_BRANCHNAME?></label>
 						<input type="text" class="form-control" id="exampleInputName1" placeholder="<?=_BRANCHNAME?>" name="name" required>
@@ -69,56 +74,136 @@
     
 </body>
 </html>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function() {
+
+    
+    var readURL = function(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('.avatar').attr('src', e.target.result);
+            }
+            
+            reader.readAsDataURL(input.files[0]);
+            
+        }
+    }
+
+
+    $(".file-upload").on('change', function(){
+        readURL(this);
+    });
+    });
+
+    if ( window.history.replaceState ) {
+        window.history.replaceState( null, null, window.location.href );
+    }
+</script>
 
 <?php
     if(isset($_POST['submit']) && $_SERVER['REQUEST_METHOD'] == 'POST')
     {
-        $image = $_POST['image'];
+        // $image = $_POST['book-image'];
         $name = $_POST['name'];
         $address = $_POST['address'];
         $hotline = $_POST['hotline'];
-        // $hotItem = $_POST['hotItem'];
-        // $categoryId = $_POST['category'];
-        // $authors = $_POST['authors'];
-        // $description = $_POST['description'];
-        echo $image;
-        echo $name;
-        echo $address;
-        echo $hotline;
-        // echo $quantity;
-        // echo $price;
-        // echo $hotItem;
-        // echo $categoryId;
-        // echo $authors;
-        // echo $description;
-        
 
+
+        if(!checkExistence($name,$db)){
+            if(isset($_FILES["book-image"]["name"])){
+                $target_dir = "public/assets/img/";
+                $target_file = $target_dir . basename($_FILES["book-image"]["name"]);
+        
+                echo $target_file;
+                $uploadOk = 1;
+                $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+        
+                // Kiểm tra file có phải là hình ảnh thật hay không
+                $check = getimagesize($_FILES["book-image"]["tmp_name"]);
+                if($check !== false) {
+                    $uploadOk = 1;
+                } else {
+                    $_SESSION['message'] = "File is not an image.";
+                    $uploadOk = 0;
+                }
+        
+                // Kiểm tra nếu file đã tồn tại
+                if (file_exists($target_file)) {
+                    // echo "Sorry, file already exists.";
+                    // $uploadOk = 0;
+                } else {
+                    move_uploaded_file($_FILES["book-image"]["tmp_name"], $target_dir);
+                }
+        
+                // Giới hạn kích thước file
+                if ($_FILES["image"]["size"] > 500000) {
+                    $_SESSION['message'] = "Sorry, your file is too large.";
+                    $uploadOk = 0;
+                }
+        
+                // Giới hạn loại file
+                if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif" ) {
+                    $_SESSION['message'] = "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+                    $uploadOk = 0;
+                }
+        
+                // Kiểm tra nếu $uploadOk là 0 do có lỗi
+                if ($uploadOk == 0) {
+                    $_SESSION['message'] .= "<br>Add Product failed, please try again.";
+                    header("Location: add_store.php");
+                    exit();
+                // Nếu mọi thứ đều ổn, thử upload file
+                } else {
+                    addBranch($name, $address, $hotline, $target_file, $db);
+                }
+            } else {
+                    addBranch($name, $address, $hotline, $target_file, $db);
+            }
+        } else {
+            $_SESSION['message'] = 'Tên chi nhánh đã tồn tại';
+        }
+        header("Location: add_store.php");
+        exit(); 
+    }
+
+    function checkExistence($name,$db){
+        $stmt = $db->prepare('SELECT * FROM branch WHERE LOWER(title) =?');
+        $stmt->bind_param('s', strtolower($name));
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->num_rows > 0;
+    }
+
+    function addBranch($name, $address, $hotline, $image, $db){
+        if($image == '' || $image == null) {
+            $image = 'public/assets/img/default.png';
+        }
         $stmt = $db->prepare('INSERT INTO branch (title, address, hotline, image) values (?,?,?,?)');
         $stmt->bind_param('ssss', $name, $address, $hotline, $image);
         $stmt->execute();
         $branch_id = $stmt->insert_id;
-
-        echo 'Thêm mới thành công';
-
         if($stmt->affected_rows > 0)
         {
             $stmt = $db->prepare('SELECT * FROM books');
             $stmt->execute();
             $books = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
             foreach($books as $book){
                 $stmt = $db->prepare('INSERT INTO branchstockitem (book_id, branch_id,status,branch_select) values (?,?,1,0)');
                 $stmt->bind_param('ii', $book['book_id'], $branch_id);
                 $stmt->execute();
             }
             $_SESSION['message'] = 'Thêm chi nhánh mới thành công';
-            header("refresh: 0;");
+            return true;
         }
         else
         {
             $_SESSION['message'] = 'Thêm chi nhánh mới thất bại';
-            header("refresh: 0;");
+            return true;
         }
+
     }
 
 ?>
