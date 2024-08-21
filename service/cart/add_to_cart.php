@@ -51,7 +51,7 @@
 
             $content .= '<div class="row mt-4">
                             <div class="col-6">
-                                <img width="70" height="70" src="' . $image_cart['address'] . '">
+                                <img width="70" height="70" src="../../' . $image_cart['address'] . '">
                             </div>
                             <div class="col-6">
                                 <a href="">' . $cart['title'] . '</a>
@@ -95,7 +95,7 @@
 
             $content .= '<div class="row mt-4">
                             <div class="col-6">
-                                <img width="70" height="70" src="' . $image_cart['address'] . '">
+                                <img width="70" height="70" src="../../' . $image_cart['address'] . '">
                             </div>
                             <div class="col-6">
                                 <a href="">' . $cart['title'] . '</a>

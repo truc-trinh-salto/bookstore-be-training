@@ -19,7 +19,7 @@
       $stmt->execute();
 
       $user_code = $stmt->get_result()->fetch_assoc();
-      if($codesale['endAt'] < date('Y-m-d') || $codesale['deactivate'] == 0) {
+      if($codesale['endAt'] > date('Y-m-d') || $codesale['deactivate'] == 0) {
         $message = 'Mã này đã hết hiệu lực';
       } else if($codesale['min'] > $total){
         $message = 'Đơn hàng của bạn phải tối thiểu '. $codesale['min']. 'đ để nhận mã giảm giá';
