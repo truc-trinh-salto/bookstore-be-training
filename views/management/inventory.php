@@ -86,11 +86,7 @@
                         unset($_SESSION['message']);
                     }
 			?>
-                <!-- <div class="row mt-2">
-                        <div class="col-md-12 d-flex justify-content-start">
-                            <a href="product.php" class="btn btn-success">Quay lại</a>
-                        </div>
-                </div> -->
+                
             <div class="row">
                 <div class="col-md-6 d-flex justify-content-start">
                             <a href="product.php" class="btn btn-success"><?=_BACK?></a>

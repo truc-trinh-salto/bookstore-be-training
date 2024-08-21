@@ -15,10 +15,7 @@
     }
 
     $db = DBConfig::getDB();
-    // $stmt = $db->prepare('SELECT * FROM categories');
-    // $stmt->execute();
-    // $result = $stmt->get_result();
-    // $categories = $result->fetch_all(MYSQLI_ASSOC);
+    
 ?>
 
 <DOCTYPE html>
@@ -52,10 +49,7 @@
                     }
 			?>
 				<form action="" method="POST" class="forms-sample" enctype="multipart/form-data">
-					<!-- <div class="form-group">
-						<label for="exampleInputImageUrl"><?=_PHOTO?></label>
-						<input type="text" class="form-control" id="exampleInputImageUrl" placeholder="<?=_PHOTO?>" name="image">
-					</div> -->
+
                     <div class="text-center">
                         <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3cD47c9xUZyKlO3j3z9vdBHV0P2BIwfkeWg&s" class="avatar img-circle img-thumbnail" alt="avatar" height="300" width="300">
                         <h6><?=_UPLOADGALLERY?></h6>

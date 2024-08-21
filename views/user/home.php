@@ -378,12 +378,8 @@
                 method: 'POST',
                 data: {book_id: productId, quantity: quantity},
                 success: function (response) {
-                    // const cartCount = JSON.parse(response).count;
-                        // document.querySelector('.badge').textContent = cartCount;
-                        // alert(JSON.parse(response).message);
                         $('.display-cart').remove();
                         $('.display-count-cart').remove();
-                        alert(response);
                         $('#show_cart').append(response);
                 },
                 error: function (error) {
@@ -400,7 +396,6 @@
         const lastID = $('.load-more').attr('lastID');
         const distance = $(document).height() - $(window).height();
         if (((distance - $(window).scrollTop()) < 1) && lastID != 0) {
-            // alert($('.books-show').scrollTop());
             isLoading = true;
             $.ajax({
                 url: '../../service/book/getData.php',

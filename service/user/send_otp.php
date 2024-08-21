@@ -50,15 +50,15 @@
     
             $mail->isHTML(true);                                  
             $mail->Subject = 'Here is the subject';
-            $five_minutes = time() + (10 * 60);
-            $url = 'http://localhost:8080/views/user/reset_password.php?username='. $username. '&time='.$five_minutes;
+            $five_minutes_later = date("Y-m-d H:i:s");
+            $url = 'http://localhost:8080/views/user/reset_password.php?username='. urlencode($username). '&time='.$five_minutes_later;
             $mail->Body    = 'This is the link for reset your password <br>'.$url.'  </br>';
     
             $mail->send();
             
             $_SESSION['message'] = "OTP has been sent to your email. Please check your inbox.";
 
-            header("Location: forgot_password.php");
+            header("Location: ../../views/user/forgot_password.php");
     
     
         } catch (Exception $e){

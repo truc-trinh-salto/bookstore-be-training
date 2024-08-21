@@ -69,7 +69,7 @@
 			}
  
 			?>
-            <form class="row g-2 justify-content-around form-create" action="send_otp.php" method="post">
+            <form class="row g-2 justify-content-around form-create" action="../../service/user/send_otp.php" method="post">
               <h1 style="text-align: center; font-weight:550;" class ="h3 mb-3 fw-normal">Quên mật khẩu</h1>
 
                 <div class="col-md-12">

@@ -60,10 +60,7 @@
                     }
 			?>
 				<form action="" method="POST" class="forms-sample" enctype="multipart/form-data">
-					<!-- <div class="form-group">
-						<label for="exampleInputImageUrl"><?=_PHOTO?></label>
-						<input type="text" class="form-control" id="exampleInputImageUrl" placeholder="<?=_PHOTO?>" name="image" value="<?php echo $branch['image'] ?>">
-					</div> -->
+
                     <div class="text-center">
                         <img src="<?php echo '../../../'.$branch['image'] ?: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3cD47c9xUZyKlO3j3z9vdBHV0P2BIwfkeWg&s'?>" class="avatar img-circle img-thumbnail" alt="avatar" height="300" width="300">
                         <h6><?=_PHOTO?></h6>

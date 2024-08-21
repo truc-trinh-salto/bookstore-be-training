@@ -4,6 +4,6 @@
     // if(isset($_SERVER['HTTP_REFERER'])) {
     //     header('Location: '. $_SERVER['HTTP_REFERER']);
     // }
-    header('Location: home.php');
+    header('Location: views/user/home.php');
     exit();
 ?>

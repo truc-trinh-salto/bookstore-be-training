@@ -120,6 +120,13 @@
                     <a href="category.php" class="btn btn-info"><?=_CATEGORY?></a>
                 </div>
 
+                <!-- <div class="col-md-2 d-flex justify-content-end">
+                        <form class="form-inline nav-item col-md-6 justify-content-center" method="GET" action="../../service/management/export_product.php">
+                            <input class="form-control mr-sm-2" type="hidden" name="date_select" value="<?php echo $date?>">
+                            <button class="btn btn-info my-2 my-sm-0" type="submit"><?=_EXPORT?></button>
+                        </form>
+                </div> -->
+
             </div>
                     <div class="d-flex justify-content-center">
                         <nav aria-label="Page navigation example">
@@ -140,19 +147,28 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <form class="form-inline d-flex justify-content-start" method="GET" action="">
                                 <input class="form-control mr-sm-2" type="search" placeholder="<?=_SEARCH?>" aria-label="Search" name="search_keyword">
                                 <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><?=_SEARCH?></button>
                             </form>
                         </div>
+
+                        <div class="col-md-3 d-flex justify-content-start">
+                        <form class="form-inline nav-item col-md-6 justify-content-center" method="GET" action="../../service/management/export_product.php">
+                            <input class="form-control mr-sm-2" type="hidden" name="date_select" value="<?php echo $date?>">
+                            <button class="btn btn-info my-2 my-sm-0" type="submit"><?=_EXPORT?></button>
+                        </form>
+                        </div>
                         
-                        <div class="col-md-6 d-flex justify-content-end">
+                        <div class="col-md-5 d-flex justify-content-end">
                                 <form action="../../service/book/add_update_multi_product.php" method="POST" enctype="multipart/form-data">
                                     <input type="file" class="text-center center-block file-upload" name="fileimport">
                                     <button class="btn btn-outline-success" type="submit" name="submit-import"><?=_MAKEIMPORT?></button>
                                 </form>
                         </div>
+
+                        
 
                     <table class="table">
                         <thead>

@@ -244,10 +244,6 @@
 						</form>
 					</li>
                     
-                    <!-- <li class="nav-item">
-                        <a class ="nav-link"href="view_cart.php"><span class="badge"><?php echo count($_SESSION['cart']); ?></span> Cart <span class="glyphicon glyphicon-shopping-cart"></span></a>
-                    </li> -->
-                    
                 </ul>
             </div>
         </div>
@@ -329,7 +325,7 @@
 
                                             $image_current = $stmt->get_result()->fetch_assoc();
                                         ?>
-                                <img class="card-img-top" id="display-image" width="500" height="500" src="<?php echo '../../'.$image_current['address']?:'https://tse4.mm.bing.net/th?id=OIP.ZiwfBrifIO4lV_Q-gIC7VQHaKx&pid=Api&P=0&h=180'?>" alt="">
+                                <img class="card-img-top" id="display-image" width="500" height="500" src="<?php echo $image_current['address']?'../../'.$image_current['address']:'https://tse4.mm.bing.net/th?id=OIP.ZiwfBrifIO4lV_Q-gIC7VQHaKx&pid=Api&P=0&h=180'?>" alt="">
                             </a>
                         </div>
 
@@ -392,26 +388,10 @@
                                             </form>
                                             <?php foreach($comments as $comment):?>
                                             <div class="comment-widgets mt-4">
-                                                    <!-- <div class="d-flex flex-row comment-row m-t-0">
-                                                        <div class="p-2">
-                                                            <img src="
-                                                        <?php echo '../../'.$comment['image'] ?: 'http://ssl.gstatic.com/accounts/ui/avatar_2x.png'; ?>
-                                                        " alt="user" width="50" class="rounded-circle"></div>
-                                                        <div class="comment-text w-100 ">
-                                                            <h6 class="font-medium"><?php echo $comment['fullname'] ?></h6> <span class="m-b-15 d-block"><?php echo $comment['text']?></span>
-                                                            <div class="comment-footer"> <span class="text-muted float-right"><?php echo $comment['createdAt'] ?></span> 
-                                                                <button type="button" data-reply-id="<?php echo $comment['comment_id'] ?>" class="btn btn-cyan btn-sm btn-reply">Edit</button> 
-                                                                <button type="button" class="btn btn-success btn-sm">Publish</button> 
-                                                                <button type="button" class="btn btn-danger btn-sm">Delete</button>
-                                                            </div>
-                                                        </div>
-                                                    </div>  -->
-
-
 
                                                     <div class="d-flex flex-start comment-widgets mt-4">
                                                         <img class="rounded-circle shadow-1-strong me-3"
-                                                            src="<?php echo '../../'.$comment['image'] ?: 'http://ssl.gstatic.com/accounts/ui/avatar_2x.png'; ?>" alt="avatar" width="50"
+                                                            src="<?php echo $comment['image'] ?'../../'.$comment['image']: 'http://ssl.gstatic.com/accounts/ui/avatar_2x.png'; ?>" alt="avatar" width="50"
                                                             height="50" />
                                                         <div class="flex-grow-1 flex-shrink-1">
                                                             <div>
@@ -434,7 +414,7 @@
                                                             <div class="flex-start mt-4" id="replyComment-<?php echo $comment['comment_id'] ?>" style="display: none;">
                                                                     <a class="me-3" href="#">
                                                                         <img class="rounded-circle shadow-1-strong"
-                                                                        src="<?php echo '../../'.$comment['image'] ?: 'http://ssl.gstatic.com/accounts/ui/avatar_2x.png'; ?>" alt="avatar"
+                                                                        src="<?php $comment['image'] ?'../../'.$comment['image']: 'http://ssl.gstatic.com/accounts/ui/avatar_2x.png'; ?>" alt="avatar"
                                                                         width="50" height="50" />
                                                                     </a>
                                                                     <div class="flex-grow-1 flex-shrink-1">
@@ -472,7 +452,7 @@
                                                         <div class="d-flex flex-start mt-4">
                                                             <a class="me-3" href="#">
                                                             <img class="rounded-circle shadow-1-strong"
-                                                                src="<?php echo '../../'.$reply['image'] ?: 'http://ssl.gstatic.com/accounts/ui/avatar_2x.png'; ?>" alt="avatar"
+                                                                src="<?php echo $reply['image'] ?'../../'.$reply['image']: 'http://ssl.gstatic.com/accounts/ui/avatar_2x.png'; ?>" alt="avatar"
                                                                 width="50" height="50" />
                                                             </a>
                                                             <div class="flex-grow-1 flex-shrink-1">
@@ -534,23 +514,8 @@
 
                                         <div class="tab-pane" id="tabs-3" role="tabpanel">
                                             <div class="row mt-4">
-                                                                        <!-- <ul class="list-unstyled"> -->
                                             <?php foreach($books_same_type as $book_same_type):?>
                                                 <?php if($book_same_type['category_id'] == $book['category_id']) {?>
-                                                    <!-- <li class="d-inline">
-                                                        <a href="detail_product.php?book_id=<?php echo $book_same_type['book_id']?>">
-                                                            <img width="70" height="70" src="<?php 
-                                                            if($book_same_type['image']){
-                                                                echo $book_same_type['image'];
-                                                            } else {
-                                                                echo 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3cD47c9xUZyKlO3j3z9vdBHV0P2BIwfkeWg&s';
-                                                            }?>
-                                                            " alt="<?php $book_same_type['book_id']?>">
-                                                        </a>
-                                                        <a href="detail_product.php?book_id=<?php echo $book_same_type['book_id']?>">
-                                                            <?php echo $book_same_type['title']?>
-                                                        </a>
-                                                    </li> -->
 
                                                     <div class="col-md-2 col-lg-2">
                                                         <div class="card card-course-item">
@@ -562,7 +527,7 @@
                                                                         $image_same = $stmt->get_result()->fetch_assoc();
                                                                     ?>
                                                                 <a href="">
-                                                                    <img class="card-img-top" width="50" height="100" src="<?php echo '../../'.$image_same['address']?:'https://tse4.mm.bing.net/th?id=OIP.ZiwfBrifIO4lV_Q-gIC7VQHaKx&pid=Api&P=0&h=180' ?>" alt="">
+                                                                    <img class="card-img-top" width="50" height="100" src="<?php echo $image_same['address']?'../../'.$image_same['address']:'https://tse4.mm.bing.net/th?id=OIP.ZiwfBrifIO4lV_Q-gIC7VQHaKx&pid=Api&P=0&h=180' ?>" alt="">
                                                                 </a>
                                                                 
                                                                 <div class="card-body">
@@ -656,12 +621,8 @@
                     method: 'POST',
                     data: {book_id: productId, quantity: quantity},
                     success: function (response) {
-                        // const cartCount = JSON.parse(response).count;
-                        // document.querySelector('.badge').textContent = cartCount;
-                        // alert(JSON.parse(response).message);
                         $('.display-cart').remove();
                         $('.display-count-cart').remove();
-                        alert(response);
                         $('#show_cart').append(response);
                     },
                     error: function (error) {

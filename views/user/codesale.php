@@ -84,35 +84,7 @@
     
 </body>
 </html>
-<!-- <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
 
-        const addToCartButtons = document.querySelectorAll('.btn-add-to-cart');
-        addToCartButtons.forEach(button => {
-            button.addEventListener('click', function (event) {
-                event.preventDefault();
-                const productId = this.dataset.bookId;
-                $.ajax({
-                    url: 'add_to_cart.php',
-                    method: 'POST',
-                    data: {book_id: productId,},
-                    success: function (response) {
-                        const cartCount = JSON.parse(response).count;
-                        document.querySelector('.badge').textContent = cartCount;
-                        // alert(JSON.parse(response).message);
-                    },
-                    error: function (error) {
-                        console.error(error);
-                    }
-                });
-            });
-        });
-
-        // Hàm để thêm sản phẩm vào giỏ hàng
-        
-    });
-</script> -->
 <?php
 
 ?>

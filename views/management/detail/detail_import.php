@@ -129,11 +129,19 @@
                         <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><?=_SEARCH?></button>
                     </form>
                 </div>
-                <div class="col-md-6 justify-content-right">
+                <div class="col-md-3 justify-content-right">
                     <form class="form-inline nav-item" method="POST" action="<?php echo $import['status'] == 0? 'make_import.php':'' ?>">
                         <input type="hidden" name="import_id" value="<?php echo $import_id?>">
                         <button class="btn btn-success my-2 my-sm-0 font-weight-bold" type="submit" <?php echo $import['status'] == 0? '':'disabled=disabled' ?>><?php echo $import['status'] == 0? _SAVE: _ACCEPT?></button>
                     </form>
+                </div>
+
+                <div class="col-md-3 d-flex justify-content-end">
+                        <form class="form-inline nav-item col-md-6 justify-content-center" method="POST" action="../../../service/management/export_inventory.php">
+                            <input class="form-control mr-sm-2" type="hidden" name="date_select" value="<?php echo $date?>">
+                            <input type="hidden" name="import_id" value="<?php echo $import_id ?>">
+                            <button class="btn btn-info my-2 my-sm-0" type="submit"><?=_EXPORT?></button>
+                        </form>
                 </div>
             </div>
 
@@ -264,28 +272,6 @@
                 }
 
                 const quantity = quantityInput.value;
-                // const productId = this.dataset.bookId;
-                // document.querySelector(`span[id="quantity-${productId}"]`).style.display = 'none';
-                // document.querySelector(`input[name="edit-quantity-${productId}"]`).style.display = 'block';
-                // alert(quantity)
-
-                // $.ajax({
-                //     // url: 'add_to_cart.php',
-                //     // method: 'POST',
-                //     // data: {book_id: productId, quantity: quantity},
-                //     // success: function (response) {
-                //     //     // const cartCount = JSON.parse(response).count;
-                //     //     // document.querySelector('.badge').textContent = cartCount;
-                //     //     // alert(JSON.parse(response).message);
-                //     //     $('.display-cart').remove();
-                //     //     $('.display-count-cart').remove();
-                //     //     alert(response);
-                //     //     $('#show_cart').append(response);
-                //     // },
-                //     // error: function (error) {
-                //     //     console.error(error);
-                //     // }
-                // });
             });
         });
 

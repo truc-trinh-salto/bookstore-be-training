@@ -329,12 +329,8 @@
                     method: 'POST',
                     data: {book_id: productId, quantity: quantity},
                     success: function (response) {
-                        // const cartCount = JSON.parse(response).count;
-                        // document.querySelector('.badge').textContent = cartCount;
-                        // alert(JSON.parse(response).message);
                         $('.display-cart').remove();
                         $('.display-count-cart').remove();
-                        alert(response);
                         $('#show_cart').append(response);
                     },
                     error: function (error) {

@@ -120,11 +120,7 @@
 						if(!empty($_SESSION['cart'])){
 						//connection
 						$conn = DBConfig::getDB();
-						//create array of initail qty which is 1
- 						
- 						// if(!isset($_SESSION['qty_array'])){
- 						// 	$_SESSION['qty_array'] = array_fill(0, count($_SESSION['cart']), 1);
- 						// }
+					
 						$sql = "SELECT * FROM books WHERE book_id IN (".implode(',',$_SESSION['cart']).")";
 						$query = $conn->query($sql);
 							while($row = $query->fetch_assoc()){

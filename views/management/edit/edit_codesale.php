@@ -84,11 +84,11 @@
 						<select class="form-control" id="exampleInputHot" name="method" id="method" onchange="handleSelectChange(event)">
 							<option value="1" <?php if($codesale['method'] == 1){
                                                         echo 'selected';
-                                                    // str_replace('%', '', $codesale['value']);
+                                                    
                                                 }?>><?=_PRICE?></option>
 							<option value="0" <?php if($codesale['method'] == 0){
                                                         echo 'selected';
-                                                    // str_replace('%', '', $codesale['value']);
+                                                    
                                                 }?>><?=_PERCENT?></option>
 						</select>
 					</div>

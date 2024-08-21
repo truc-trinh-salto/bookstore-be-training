@@ -63,10 +63,6 @@
 
     $page_first = ($page - 1) * $limit;
 
-    // $stmt = $db->prepare("SELECT * FROM books WHERE category_id =? LIMIT ?,?");
-    // $stmt->bind_param("iii", $category_id, $page_first, $limit);
-    // $stmt->execute();
-
     if(isset($_GET['minprice']) && isset($_GET['maxprice'])) {
         $minprice = $_GET['minprice'];
         $maxprice = $_GET['maxprice'];
@@ -233,10 +229,6 @@
                         </div>
                         <?php endif;?>
                     </li>
-                    <!-- <li class="nav-item">
-                        <a class ="nav-link"href="view_cart.php"><span class="badge"><?php echo count($_SESSION['cart']); ?></span> Cart <span class="glyphicon glyphicon-shopping-cart"></span></a>
-                    </li> -->
-                    
                 </ul>
             </div>
         </div>
@@ -342,12 +334,8 @@
                     method: 'POST',
                     data: {book_id: productId, quantity: quantity},
                     success: function (response) {
-                        // const cartCount = JSON.parse(response).count;
-                        // document.querySelector('.badge').textContent = cartCount;
-                        // alert(JSON.parse(response).message);
                         $('.display-cart').remove();
                         $('.display-count-cart').remove();
-                        alert(response);
                         $('#show_cart').append(response);
                     },
                     error: function (error) {

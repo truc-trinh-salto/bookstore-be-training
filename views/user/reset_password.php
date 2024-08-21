@@ -1,3 +1,8 @@
+<?php
+    session_start();
+    echo $_GET['time'];
+?>
+
 <DOCTYPE html>
 <html lang="en">
 <head>
