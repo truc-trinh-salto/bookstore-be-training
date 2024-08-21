@@ -591,7 +591,6 @@
                                             <?php endforeach;?>
                                             <!-- </ul> -->
                                             </div>
-                                            
                                         </div>
 
 
@@ -607,6 +606,7 @@
                                                         <th scope="col"><?=_DETAIL ?></th>
                                                     </tr>
                                                 </thead>
+                                                <tbody>
                                                     <?php foreach($branchs as $branch):?> 
                                                         <tr>
                                                             <th scope="row"><?= $index ?></th>
