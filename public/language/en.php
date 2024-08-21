@@ -178,6 +178,9 @@ define("_VALIDSTATE","Please provide a valid state");
 define("_VALIDZIP","Zip code required");
 define("_VALIDEMAIL","Please enter a valid email address for shipping updates");
 
+define("_SALE","Sale off");
+
+
 
 
 

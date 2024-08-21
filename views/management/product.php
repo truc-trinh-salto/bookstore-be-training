@@ -48,7 +48,7 @@
     $page_first = ($page - 1) * $limit;
 
 
-    if(isset($_GET['search_keyword'])) {
+    if(isset($_GET['search_keyword']) && $_GET['search_keyword'] != null) {
         $search_keyword = $_GET['search_keyword'];
         $search = "%$search_keyword%";
         $stmt = $db->prepare('SELECT b.title,b.image, b.book_id, b.description, b.category_id, b.price, 
@@ -107,17 +107,21 @@
                 <div class="col-md-3 d-flex justify-content-start">
                     <a href="hot_item.php" class="btn btn-info"><?=_HOTITEM?></a>
                 </div>
+
                 <div class="col-md-3 d-flex justify-content-start">
                     <a href="inventory.php" class="btn btn-info"><?=_IMPORT?></a>
                 </div>
+
                 <div class="col-md-3 d-flex justify-content-end">
                     <a href="add/add_product.php" class="btn btn-info"><?=_ADDPRODUCT?></a>
                 </div>
+
                 <div class="col-md-3 d-flex justify-content-end">
                     <a href="category.php" class="btn btn-info"><?=_CATEGORY?></a>
                 </div>
+
             </div>
-            <div class="d-flex justify-content-center">
+                    <div class="d-flex justify-content-center">
                         <nav aria-label="Page navigation example">
                                 <ul class="pagination">
                                     <?php if($page - 1 == 0):?>
@@ -132,7 +136,7 @@
                                         <li class="page-item"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php endif;?>
                                 </ul>
-                            </nav>
+                        </nav>
                     </div>
 
                     <div class="row">
@@ -142,6 +146,7 @@
                                 <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><?=_SEARCH?></button>
                             </form>
                         </div>
+                        
                         <div class="col-md-6 d-flex justify-content-end">
                                 <form action="../../service/book/add_update_multi_product.php" method="POST" enctype="multipart/form-data">
                                     <input type="file" class="text-center center-block file-upload" name="fileimport">
@@ -159,7 +164,8 @@
                                 <th scope="col"><?=_QUANTITY?></th>
                                 <th scope="col"><?=_CATEGORY?></th>
                                 <th scope="col"><?=_PRICE?></th>
-                                <th scope="col"><?=_SHOWHOME?></th>
+                                <!-- <th scope="col"><?=_SHOWHOME?></th> -->
+                                <th scope="col"><?=_SALE?></th>
                                 <th scope="col" class="text-center"><?=_ACTION?></th>
                             </tr>
                         </thead>
@@ -191,32 +197,30 @@
                                         <?php if($book['sale']): ?>
                                             <div class="row">
                                                 <del class="col-md-12"><?php echo number_format($book['price'],2) ?></del>
-                                                <span class="col-md-12 text-danger">-<?php echo $book['sale'] ?>%</span>
+                                                <!-- <span class="col-md-12 text-danger">-<?php echo $book['sale'] ?>%</span> -->
                                                 <span class="col-md-12 text-success"><?php echo number_format($book['price'] - $book['sale']*$book['price'] / 100,2)?></span>
                                             </div>
                                         <?php else:?>
                                             <span><?php echo number_format($book['price'],2) ?></span>
                                         <?php endif;?>
                                     </td>
-                                    <td><?php
+                                    <!-- <td><?php
                                             if($book['hotItem'] == 1){
                                                 echo _YES;
                                             } else {
                                                 echo _NO;
                                             }
                                         ?>
+                                    </td> -->
+                                    <td>
+                                        <?php echo ($book['sale'] != null && $book['sale'] > 0) ? "<span class='text-danger font-weight-bold'>-".$book['sale'].'%</span>':"<span class='text-info font-weight-bold'>0</span>"?>
                                     </td>
                                     <td>
                                         <div class="row">
                                             <a href="edit/edit_product.php?book_id=<?php echo $book['book_id']?>" class="btn btn-primary btn-sm col-md-6"><?=_EDIT?></a>
                                             <a href="../../service/book/delete_product.php?book_id=<?php echo $book['book_id']?>" class="btn btn-danger btn-sm col-md-6"><?=_DELETE?></a>
                                             <a href="gallery_image.php?book_id=<?php echo $book['book_id']?>" class="btn btn-info btn-sm col-md-12 mt-2"><?=_GALLERY?></a>
-
-
                                         </div>
-                                        <!-- <a href="edit_product.php?book_id=<?php echo $book['book_id']?>" class="btn btn-primary btn-sm col-xs-12">Chỉnh sửa</a>
-                                        <a href="delete_product.php?book_id=<?php echo $book['book_id']?>" class="btn btn-danger btn-sm">Xoá</a>
-                                        <a href="delete_product.php?book_id=<?php echo $book['book_id']?>" class="btn btn-info btn-sm">Mục hình ảnh</a> -->
                                     </td>
                                     
                                 <?php $index ++?>
@@ -224,8 +228,7 @@
                             <?php endforeach;?>
                         </tbody>
                         </table>
-                </>
-            </div>
+                    </div>
         </div>
     </div>
     

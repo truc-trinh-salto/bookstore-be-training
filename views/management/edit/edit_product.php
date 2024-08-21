@@ -160,6 +160,11 @@
                             <label for="exampleInputPrice"><?=_PRICE?></label>
                             <input type="number" class="form-control" id="exampleInputPrice" name="price" min="1000" step="any" value="<?php echo $book['price']?>" required>
                         </div>
+
+                        <div class="form-group">
+                            <label for="exampleInputQuantity"><?=_SALE?></label>
+                            <input type="number" class="form-control" id="exampleInputQuantity" placeholder="<?=_SALE?>" name="sale" min="0" value="<?php echo $book['sale']?:'0'?>" max="100">
+                        </div>
                         <button type="submit" name="submit" class="btn btn-success mr-2"><?=_SAVE?></button>
                         <a href="../product.php" class="btn btn-danger mr-2"><?=_CANCEL?></a>
                     </form>
@@ -264,6 +269,7 @@
         $categoryId = $_POST['category'];
         $authors = $_POST['authors'];
         $description = $_POST['description'];
+        $sale = $_POST['sale'];
 
         if(checkExistenceBook($name, $db, $book_id)){
             $_SESSION['message'] = "PRODUCT'S NAME : ".$name." EXISTED";
@@ -274,11 +280,14 @@
         } else if($price && $price < 1000){
             $_SESSION['message'] .= "</br>PRICE CANNOT BE NEGATIVE";
             $isValid = false;
+        } else if ($sale && $sale > 100 && $sale <0){
+            $_SESSION['message'] .= "</br>SALE CANNOT BE LESS THAN 0 OR MORE THAN 100";
+            $isValid = false;
         }
 
         if($isValid){
-            $stmt = $db->prepare('UPDATE books SET title=?, stock =? , price =?, hotItem=?, category_id=?, authors=?, description=?, updated_at=NOW() WHERE book_id=?');
-            $stmt->bind_param('sidiissi', $name, $quantity, $price, $hotItem, $categoryId, $authors, $description,$book_id);
+            $stmt = $db->prepare('UPDATE books SET title=?, stock =? , price =?, hotItem=?, category_id=?, authors=?, description=?, updated_at=NOW(), sale=? WHERE book_id=?');
+            $stmt->bind_param('sidiissdi', $name, $quantity, $price, $hotItem, $categoryId, $authors, $description,$sale,$book_id);
             $stmt->execute();
 
             if($stmt->affected_rows > 0 && $image != '' && $image != null){

@@ -20,11 +20,13 @@
                 $worksheet_arr = $worksheet->toArray(); 
                 unset($worksheet_arr[0]);
                 foreach($worksheet_arr as $row){
-                    if(checkExistence($row[0])){
-                        import_quantity($row[0], $row[6], $import_id);
-                    } else {
-                        addMoreImport($row[1],$row[2],$row[3],
-                                        $row[4],$row[5],$row[6], $import_id);
+                    if($row[0] != null && $row[0] != ''){
+                        if(checkExistence($row[0])){
+                            import_quantity($row[0], $row[6], $import_id);
+                        } else {
+                            addMoreImport($row[1],$row[2],$row[3],
+                                            $row[4],$row[5],$row[6], $import_id);
+                        }
                     }
                 }
                 header('Location: '.$_SERVER['HTTP_REFERER']);

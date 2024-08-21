@@ -149,7 +149,7 @@
                                 <th scope="col"><?=_QUANTITY?></th>
                                 <th scope="col"><?=_CATEGORY?></th>
                                 <th scope="col"><?=_PRICE?></th>
-                                <th scope="col"><?=_SHOWHOME?></th>
+                                <th scope="col"><?=_SALE?></th>
                                 <th scope="col" class="text-center"><?=_ACTION?></th>
                             </tr>
                         </thead>
@@ -173,19 +173,22 @@
                                     <td><?php if($book['sale']): ?>
                                             <div class="row">
                                                 <del class="col-md-12"><?php echo number_format($book['price'],2) ?></del>
-                                                <span class="col-md-12 text-danger">-<?php echo $book['sale'] ?>%</span>
+                                                <!-- <span class="col-md-12 text-danger">-<?php echo $book['sale'] ?>%</span> -->
                                                 <span class="col-md-12 text-success"><?php echo number_format($book['price'] - $book['sale']*$book['price'] / 100,2)?></span>
                                             </div>
                                         <?php else:?>
                                             <span><?php echo number_format($book['price'],2) ?></span>
                                         <?php endif;?></td>
-                                    <td><?php   
+                                    <!-- <td><?php   
                                             if($book['hotItem'] == 1){
                                                 echo 'Có';
                                             } else {
                                                 echo 'Không';
                                             }
                                         ?>
+                                    </td> -->
+                                    <td>
+                                        <?php echo ($book['sale'] != null && $book['sale'] > 0) ? "<span class='text-danger font-weight-bold'>-".$book['sale'].'%</span>':"<span class='text-info font-weight-bold'>0</span>"?>
                                     </td>
                                     <td>
                                         <a href="../edit/edit_product.php?book_id=<?php echo $book['book_id']?>" class="btn btn-primary btn-sm"><?=_EDIT?></a>
