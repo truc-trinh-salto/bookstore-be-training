@@ -104,7 +104,7 @@ if(isset($_POST['submit'])){
             if (isset($_SERVER["HTTP_REFERER"]) && str_contains('index.php',$_SERVER["HTTP_REFERER"])) {
                 header("Location: " . $back_tmp);
             } else {
-                header("Location: home.php");
+                header("Location: views/user/home.php");
             }
 
         } else {
