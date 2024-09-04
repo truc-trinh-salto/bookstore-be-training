@@ -208,7 +208,6 @@ class UserService {
                 return false;
             }
         } else {
-            header("Location: ".$_SERVER['HTTP_REFERER']);
             return false;
         }
     }
@@ -216,26 +215,27 @@ class UserService {
     function sendEmailForReset($email, $username) {
         $mail = new PHPMailer();
         try{
-            echo 'test';
-            $password = file_get_contents('../../secret.txt');
-            echo $password;
+            $contents = file_get_contents('secret.txt');
+            $contents = explode(",", $contents);
+
+            $password = $contents[0];
+            $emailHost = $contents[1];
             $mail->SMTPDebug = SMTP::DEBUG_SERVER; 
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
-            $mail->Username = 'trungtruc201563@gmail.com';
+            $mail->Username = $emailHost;
             $mail->Password = $password;
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port = 587;
     
-    
-            $mail->setFrom('trungtruc201563@gmail.com', 'Admin');
+            $mail->setFrom($emailHost, 'Admin');
             $mail->addAddress($email, 'Customer');
     
             $mail->isHTML(true);                                  
             $mail->Subject = 'Here is the subject';
             $five_minutes_later = date("Y-m-d H:i:s");
-            $url = 'http://localhost:8080/views/user/reset_password.php?username='. urlencode($username). '&time='.$five_minutes_later;
+            $url = 'http://localhost:8080/resetPassword?username='. urlencode($username). '&time='.$five_minutes_later;
             $mail->Body    = 'This is the link for reset your password <br>'.$url.'  </br>';
     
             $mail->send();

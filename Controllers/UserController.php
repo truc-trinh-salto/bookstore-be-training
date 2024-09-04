@@ -130,6 +130,7 @@ class UserController extends Controller {
     public function sendEmailForResetPassword(){
         $userName = $_POST['username'];
         UserService::getInstance()->sendEmailForResetPassword($userName);
+        
     }
 
     public function forgotPassword(){
