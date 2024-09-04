@@ -3,6 +3,7 @@
 namespace MVC\Models;
 use DBConfig;
 
+
 // require_once('../database.php');
 session_start();
 
@@ -382,23 +383,51 @@ Class Book {
         if(!$sale){
             $sale = 0;
         }
-        $stmt = $db->prepare('INSERT INTO books (title, stock, price, hotItem, category_id, authors, description, created_at, sale) values (?,?,?,?,?,?,?,NOW(),?)');
-        $stmt->bind_param('sidiissd', $name, $quantity, $price, $hotItem, $categoryId, $authors, $description, $sale);
-        $stmt->execute();
 
-        $book_id = $stmt->insert_id;
+        $db->begin_transaction();
 
-        $stmt = $db->prepare('SELECT * FROM branch');
-        $stmt->execute();
-        $branches = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
-        foreach($branches as $branch){
-            $stmt = $db->prepare('INSERT INTO branchstockitem (book_id, branch_id, status,branch_select) values (?,?,1,0)');
-            $stmt->bind_param('ii', $book_id, $branch['branch_id']);
+        try {
+            $stmt = $db->prepare('INSERT INTO books (title, stock, price, hotItem, category_id, authors, description, created_at, sale) values (?,?,?,?,?,?,?,NOW(),?)');
+            $stmt->bind_param('sidiissd', $name, $quantity, $price, $hotItem, $categoryId, $authors, $description, $sale);
             $stmt->execute();
+
+            $book_id = $stmt->insert_id;
+            
+            $stmt = $db->prepare('SELECT * FROM branch');
+            $stmt->execute();
+            $branches = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+            foreach($branches as $branch){
+                $stmt = $db->prepare('INSERT INTO branchstockitem (book_id, branch_id, status,branch_select) values (?,?,1,0)');
+                $stmt->bind_param('ii', $book_id, $branch['branch_id']);
+                $stmt->execute();
+            }
+
+            $db->commit();
+            return $book_id;
+
+        } catch (\Throwable $e) {
+            $db->rollback();
+            return null;
         }
+
+        // $stmt = $db->prepare('INSERT INTO books (title, stock, price, hotItem, category_id, authors, description, created_at, sale) values (?,?,?,?,?,?,?,NOW(),?)');
+        // $stmt->bind_param('sidiissd', $name, $quantity, $price, $hotItem, $categoryId, $authors, $description, $sale);
+        // $stmt->execute();
+
+        // $book_id = $stmt->insert_id;
+
+        // $stmt = $db->prepare('SELECT * FROM branch');
+        // $stmt->execute();
+        // $branches = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+        // foreach($branches as $branch){
+        //     $stmt = $db->prepare('INSERT INTO branchstockitem (book_id, branch_id, status,branch_select) values (?,?,1,0)');
+        //     $stmt->bind_param('ii', $book_id, $branch['branch_id']);
+        //     $stmt->execute();
+        // }
  
-        return $book_id;
+        // return $book_id;
     }
 
     public function updateBook($name,$quantity,$price,$hotItem,$categoryId,$authors,$description,$sale,$bookId){

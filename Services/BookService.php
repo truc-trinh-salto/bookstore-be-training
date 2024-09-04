@@ -348,7 +348,7 @@ class BookService {
             }
             
         } else {
-            
+            $_SESSION['message'] .= "</br>ADD PRODUCT FAILED";
         }
         
     }
