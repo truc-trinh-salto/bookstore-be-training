@@ -1,75 +1,53 @@
+<?php 
+    // require_once('database.php');
+    // $db = DBConfig::getDB();
+    session_start();
+
+    if(isset($_GET['lang']) && !empty($_GET['lang'])){
+        $_SESSION['lang'] = $_GET['lang'];
+        if(isset($_SESSION['lang']) && $_SESSION['lang'] != $_GET['lang']){
+         echo "<script type='text/javascript'> location.reload(); </script>";
+        }
+    }
+    if(isset($_SESSION['lang'])){
+            include "public/language/".$_SESSION['lang'].".php";
+    }else{
+            include "public/language/en.php";
+    }
+?>
+
 <DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
+<html>
+   <head>
+    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" href="images/icon.png" type="image/x-icon">
-    <title>Đăng ký</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.6.4.js" integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E=" crossorigin="anonymous"></script>
-</head>
-<body>
-<style>
-    *{
-        margin:0;
-        padding: 0;
-    }
-
-    #page {
-        width: 100%;
-        height: 100vh;
-        background-image: url('1_1.png');
-        background-size: 100%;
-        background-repeat: no-repeat;
-    }
-
-    @media screen and (max-width: 768px){
-        #page {
-            background-size: auto;
-        }
-    }
-
-    html, body {
-        height: 100%;
-    }
-
-    body {
-    display: flex;
-    align-items: center;
-    padding-top: 40px;
-    padding-bottom: 40px;
-    }
-
-    .form-create {
-        width: 100%;
-        max-width: 500px;
-        padding: 15px;
-        margin: auto;
-        background-color: #edf5fb;
-        background-image: url('1_dk.png');
-        background-size:cover;
-        opacity: 0.9;
-        margin-top: 10vh;
-        }
-
-</style>
-    <div id="page justify-content-around">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <title>Demo PHP MVC</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <div class="app">
+        <?php include 'views/user/partials/sub_header.php' ?>
         <div class="container">
-        <?php
-            session_start(); 
-			if(isset($_SESSION['message'])){
-				?>
-				<div class="alert alert-info text-center">
-					<?php echo $_SESSION['message']; ?>
-				</div>
-				<?php
-				unset($_SESSION['message']);
-			}
- 
-			?>
-            <form class="row g-2 justify-content-around form-create" action="../../service/user/send_otp.php" method="post">
+        
+        <div class="mt-4">
+            <?php 
+                    session_start();
+                    $back_server = $_SERVER['HTTP_REFERER'];
+                    if(isset($_SESSION['message'])){
+                        ?>
+                        <div class="alert alert-info text-center">
+                            <?php echo $_SESSION['message']; ?>
+                        </div>
+                        <?php
+                        unset($_SESSION['message']);
+                    }
+        
+            ?>
+            <div class="row justify-content-center">
+            <form class="row g-2 justify-content-around form-create" action="/user/sendMail" method="post">
               <h1 style="text-align: center; font-weight:550;" class ="h3 mb-3 fw-normal">Quên mật khẩu</h1>
 
                 <div class="col-md-12">
@@ -77,14 +55,16 @@
                     <input type="username" class="form-control" id="username" name="username" placeholder="Tên đăng nhập" required>
                 </div>
 
-                <div class="col-12">
+                <div class="col-md-12">
                   <button class="btn btn-success" name="btn" type="submit">Gửi OTP đến email</button>
                 </div>
 
-                <p class="my-4">Bạn đã có tài khoản? <a style="font-weight:bold" href="../../index.php">Đăng nhập</a> </p>
-              </form>
+                <p class="my-4">Bạn đã có tài khoản? <a style="font-weight:bold" class="btn btn-info" href="login">Đăng nhập</a> </p>
+            </form>
+            </div>
+            
+            </div>
         </div>
     </div>
-    
-</body>
+  </body>
 </html>

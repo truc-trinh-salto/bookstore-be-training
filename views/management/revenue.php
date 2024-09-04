@@ -1,58 +1,12 @@
 <?php
     session_start();
-    require_once('../../database.php');
 
-    $db = DBConfig::getDB();
     $from = $_GET['dateFrom'];
-    $to = $GET['dateTo'];
+    $to = $_GET['dateTo'];
 
-    $upper;
-    $lower;
 
     $limit = 6;
 
-    if(isset($_GET['dateFrom']) && isset($_GET['dateTo'])){
-        if(empty($_GET['dateFrom']) && empty($_GET['dateTo'])){
-            $timestamp = strtotime(date('Y-m-d'));
-            $dateFrom = date('Y-m-01 00:00:00', $timestamp);
-            $dateTo  = date('Y-m-t 23:59:59', $timestamp);
-        } else {
-            $dateFrom = $_GET['dateFrom']. ' 00:00:00';
-            $dateTo = $_GET['dateTo'] . ' 23:59:59';
-            $dateFrom = str_replace('/', '-', $dateFrom);
-            $dateTo = str_replace('/', '-', $dateTo);
-        }
-
-        $lower= date('Y-m-d H:i:s', strtotime($dateFrom));
-        $upper = date('Y-m-d H:i:s', strtotime($dateTo));
-
-        $stmt = $db->prepare('SELECT t.createdAt, t.address, t.receiver, t.order_id, t.total, o.user_id 
-        FROM transactions as t 
-        LEFT JOIN order_item as o ON t.order_id = o.id 
-        WHERE t.createdAt BETWEEN? AND ? 
-        ORDER BY t.createdAt ASC');
-        $stmt->bind_param('ss', $lower, $upper);
-    } else {
-        $timestamp = strtotime(date('Y-m-d'));
-        $dateFrom = date('Y-m-01 00:00:00', $timestamp);
-        $dateTo  = date('Y-m-t 23:59:59', $timestamp);
-
-        $lower= date('Y-m-d H:i:s', strtotime($dateFrom));
-        $upper = date('Y-m-d H:i:s', strtotime($dateTo));
-        
-
-        $stmt = $db->prepare('SELECT t.createdAt, t.address, t.receiver, t.order_id, t.total, o.user_id 
-        FROM transactions as t 
-        LEFT JOIN order_item as o ON t.order_id = o.id 
-        WHERE t.createdAt BETWEEN? AND ?
-        ORDER BY t.createdAt ASC');
-
-        $stmt->bind_param('ss', $lower, $upper);
-    }
-
-    $stmt->execute();
-    $number_result = $stmt->get_result()->num_rows;
-    $number_page = ceil($number_result / $limit);
 
     if(!isset($_GET['page'])){
         $page = 1;
@@ -62,28 +16,6 @@
 
     $page_first = ($page - 1) * $limit;
 
-    
-
-    if(isset($_GET['dateFrom']) && isset($_GET['dateTo'])){
-
-        $stmt = $db->prepare('SELECT t.createdAt, t.address, t.receiver, t.order_id, t.total, o.user_id 
-        FROM transactions as t 
-        LEFT JOIN order_item as o ON t.order_id = o.id 
-        WHERE t.createdAt BETWEEN? AND ? 
-        ORDER BY t.createdAt ASC LIMIT?,?');
-        $stmt->bind_param('ssii', $lower, $upper, $page_first, $limit);
-    } else {
-        $stmt = $db->prepare('SELECT t.createdAt, t.address, t.receiver, t.order_id, t.total, o.user_id 
-        FROM transactions as t 
-        LEFT JOIN order_item as o ON t.order_id = o.id 
-        WHERE t.createdAt BETWEEN? AND ?
-        ORDER BY t.createdAt ASC LIMIT?,?');
-        $stmt->bind_param('ssii',$lower,$upper, $page_first, $limit);
-    }
-
-    $stmt->execute();
-    
-    $transactions= $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
     $index = 1;
 
@@ -110,13 +42,13 @@
 </head>
 <body>
     <div class="app">
-    <?php include('partials/admin_header.php')?>
+    <?php include('views/management/partials/admin_header.php')?>
         <div class="container">
             <div class="mt-4">
                 <form class="row" method="GET">
                     <div class="form-group mb-4">
                         <div class="datepicker date input-group">
-                            <input type="datetime" placeholder="<?=_STARTREVENUE?>" class="form-control" id="fecha1" name="dateFrom">
+                            <input type="datetime" placeholder="<?=_STARTREVENUE?>" class="form-control" id="fecha1" name="dateFrom" value="<?php echo $from ?>">
                             <div class="input-group-append">
                                 <span class="input-group-text"><i class="fa fa-calendar"></i></span>
                             </div>
@@ -127,7 +59,7 @@
                     </div>
                     <div class="form-group mb-4">
                         <div class="datepicker date input-group">
-                            <input type="datetime" placeholder="<?=_ENDREVENUE?>" class="form-control" id="fecha2" name="dateTo">
+                            <input type="datetime" placeholder="<?=_ENDREVENUE?>" class="form-control" id="fecha2" name="dateTo" value="<?php echo $to ?>">
                             <div class="input-group-append">
                                 <span class="input-group-text"><i class="fa fa-calendar"></i></span>
                             </div>
@@ -142,15 +74,15 @@
                         <nav aria-label="Page navigation example">
                                 <ul class="pagination">
                                     <?php if($page - 1 == 0):?>
-                                        <li class="page-item disabled"><a class="page-link" href="revenue.php?&dateFrom=<?php echo $from ?>&dateTo=<?php echo $to ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="revenue?&dateFrom=<?php echo $from ?>&dateTo=<?php echo $to ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="revenue.php?&dateFrom=<?php echo $from ?>&dateTo=<?php echo $to ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
+                                        <li class="page-item"><a class="page-link" href="revenue?&dateFrom=<?php echo $from ?>&dateTo=<?php echo $to ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php endif;?>
-                                    <li class="page-item active"><a class="page-link" href="revenue.php?&dateFrom=<?php echo $from ?>&dateTo=<?php echo $to ?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
+                                    <li class="page-item active"><a class="page-link" href="revenue?&dateFrom=<?php echo $from ?>&dateTo=<?php echo $to ?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
                                     <?php if($page +1 > $number_page):?>
-                                        <li class="page-item disabled"><a class="page-link" href="revenue.php?&dateFrom=<?php echo $from ?>&dateTo=<?php echo $to ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="revenue?&dateFrom=<?php echo $from ?>&dateTo=<?php echo $to ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="revenue.php?&dateFrom=<?php echo $from ?>&dateTo=<?php echo $to ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
+                                        <li class="page-item"><a class="page-link" href="revenue?&dateFrom=<?php echo $from ?>&dateTo=<?php echo $to ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php endif;?>
                                 </ul>
                             </nav>
@@ -174,7 +106,7 @@
                                 <td><?= $transaction['createdAt'] ?></td>
                                 <td><?= $transaction['receiver']?></td>
                                 <td><?=  number_format($transaction['total'],2)?></td>
-                                <td><a class="btn btn-primary"href="detail/detail_transaction.php?order_id=<?php echo $transaction['order_id']?>"><?=_DETAIL?></a></td>
+                                <td><a class="btn btn-primary"href="detailTransaction?order_id=<?php echo $transaction['order_id']?>"><?=_DETAIL?></a></td>
                                 <?php $index ++?>
                             </tr>
                             <?php endforeach;?>

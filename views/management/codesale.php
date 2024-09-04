@@ -1,20 +1,5 @@
 <?php
     session_start();
-    require_once('../../database.php');
-    $db = DBConfig::getDB();
-    $codesales;
-    if(isset($_GET['search_keyword'])) {
-        $search_keyword = $_GET['search_keyword'];
-        $search = "%$search_keyword%";
-        $stmt = $db->prepare('SELECT * FROM codesale WHERE description LIKE ? OR code LIKE ?');
-        $stmt->bind_param("ss",$search, $search);
-        
-    } else {
-        $stmt = $db->prepare('SELECT * FROM codesale');
-    }
-    $stmt->execute();
-    $codesales = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
 
     $index = 1;
     $total = 0;
@@ -75,18 +60,17 @@
                                     <td><?= $codesale['startAt'] ?></td>
                                     <td><?= $codesale['endAt']?></td>
                                     <td>
-                                        <a href="edit/edit_codesale.php?code_id=<?php echo $codesale['id']?>" class="btn btn-primary btn-sm"><?=_EDIT?></a>
+                                        <a href="pageEditCodesale?code_id=<?php echo $codesale['id']?>" class="btn btn-primary btn-sm"><?=_EDIT?></a>
                                     </td>
                                     <td>
                                         <?php if($codesale['deactivate'] == 1):?>
-                                            <a href="../../service/codesale/activate_code.php?code_id=<?php echo $codesale['id']?>&action=out" class="btn btn-success btn-sm"><?=_CODEACTIVE?></a>
+                                            <a href="/codesale/activate?code_id=<?php echo $codesale['id']?>&action=out" class="btn btn-success btn-sm"><?=_CODEACTIVE?></a>
                                         <?php else: ?>
-                                             <a href="../../service/codesale/activate_code.php?code_id=<?php echo $codesale['id']?>&action=in" class="btn btn-danger btn-sm"><?=_CODENOTACTIVE?></a>
+                                             <a href="/codesale/activate?code_id=<?php echo $codesale['id']?>&action=in" class="btn btn-danger btn-sm"><?=_CODENOTACTIVE?></a>
                                         <?php endif;?>
                                     </td>
                                 
-                                    
-
+                                
                                 <?php $index ++?>
                                 </tr>   
                             <?php endforeach;?>

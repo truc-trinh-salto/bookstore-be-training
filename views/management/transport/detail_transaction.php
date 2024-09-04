@@ -1,6 +1,5 @@
 <?php
     session_start();
-    require_once('../../../database.php');
 
     if(isset($_GET['lang']) && !empty($_GET['lang'])){
         $_SESSION['lang'] = $_GET['lang'];
@@ -10,45 +9,12 @@
       }
   
       if(isset($_SESSION['lang'])){
-          include "../../../public/language/".$_SESSION['lang'].".php";
+        include "public/language/".$_SESSION['lang'].".php";
       }else{
-              include "../../../public/language/en.php";
+        include "public/language/en.php";
       }
 
-    $db = DBConfig::getDB();
-
-    if(isset($_GET['order_id'])){
-        $stmt = $db->prepare('SELECT o.book_id, o.quantity, o.price, o.total, o.order_id, b.title, b.authors
-                                FROM order_detail as o
-                                LEFT JOIN books as b ON o.book_id = b.book_id
-                                WHERE o.order_id = ?
-                                ORDER BY o.order_id ASC');
-
-        $stmt->bind_param("i", $_GET['order_id']);
-        $stmt->execute();
-        $order_details = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-    }
-
-
-    $stmt = $db->prepare('SELECT * FROM transactions WHERE order_id = ?');
-    $stmt->bind_param("i", $_GET['order_id']);
-    $stmt->execute();
-
-    $transaction = $stmt->get_result()->fetch_assoc();
-
-    if($transaction['codesale']){
-        $stmt = $db->prepare('SELECT * FROM codesale WHERE id = ?');
-        $stmt->bind_param("i", $transaction['codesale']);
-        $stmt->execute();
-
-        $codesale = $stmt->get_result()->fetch_assoc();
-    }
-
-    $stmt = $db->prepare('SELECT * FROM route where transport_id = ?');
-    $stmt->bind_param('i',$transaction['transport_id']);
-    $stmt->execute();
-
-    $routes = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $order_id = $_GET['order_id'];
     
     $index = 1;
     $total = 0;
@@ -67,7 +33,7 @@
   </head>
 <body>
     <div class="app">
-        <?php include('../partials/admin_header.php')?>
+        <?php include('views/management/partials/admin_header.php')?>
         <div class="container">
             <div class="col-md-12">
             <ul class="nav nav-pills">
@@ -85,11 +51,11 @@
                                 <thead>
                                     <tr>
                                         <th scope="col">#</th>
-                                        <th scope="col">Tên sách</th>
-                                        <th scope="col">Tác giả</th>
-                                        <th scope="col">Số lượng</th>
-                                        <th scope="col">Giá Tiền</th>
-                                        <th scope="col">Tổng tiền của sản phẩm</th>
+                                        <th scope="col"><?=_BOOKNAME?> </th>
+                                        <th scope="col"><?=_AUTHORS?> </th>
+                                        <th scope="col"><?=_QUANTITY?> </th>
+                                        <th scope="col"><?=_PRICE?> </th>
+                                        <th scope="col"><?=_TOTALPRICEBOOK?> </th>
                                     </tr>
                                 </thead>
                                     <?php foreach($order_details as $order_detail):?> 
@@ -106,17 +72,17 @@
                                         </tr>   
                                     <?php endforeach;?>
                                         <tr>
-                                            <td colspan="5" class="text-left font-weight-bold">Tổng tiền đơn hàng: </td>
+                                            <td colspan="5" class="text-left font-weight-bold"><?=_SUBTOTAL?>: </td>
                                             <td colspan="1" class="font-weight-bold"><?php echo number_format($total,2)?></td>
                                         </tr>
 
                                         <tr>
-                                            <td colspan="5" class="text-left font-weight-bold">Giảm giá: </td>
+                                            <td colspan="5" class="text-left font-weight-bold"><?=_DISCOUNT?>: </td>
                                             <td colspan="1" class="font-weight-bold text-danger"><?php echo number_format($total - $transaction['total'],2)?></td>
                                         </tr>
 
                                         <tr>
-                                            <td colspan="5" class="text-left font-weight-bold">Tổng tiền: </td>
+                                            <td colspan="5" class="text-left font-weight-bold"><?=_TOTAL?>: </td>
                                             <td colspan="1" class="font-weight-bold text-success"><?php echo number_format($transaction['total'],2)?></td>
                                         </tr>
                                 </tbody>
@@ -144,7 +110,7 @@
                             </thead>
                                 <?php $isShow = true; ?>
                                 <?php foreach($routes as $route):?> 
-                                    <form action="../../../service/transport/update_route.php" method="POST">
+                                    <form action="/route/updateRoute" method="POST">
                                         <tr>
                                             <th scope="row"><?= $index ?></th>
                                             <?php if($route['point'] == 0):?>

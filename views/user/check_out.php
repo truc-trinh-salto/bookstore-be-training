@@ -1,7 +1,5 @@
 <?php 
     session_start();
-    require_once('../../database.php');
-    $db = DBConfig::getDB();
     if(isset($_GET['lang']) && !empty($_GET['lang'])){
       $_SESSION['lang'] = $_GET['lang'];
       if(isset($_SESSION['lang']) && $_SESSION['lang'] != $_GET['lang']){
@@ -9,14 +7,10 @@
       }
   }
   if(isset($_SESSION['lang'])){
-          include "../../public/language/".$_SESSION['lang'].".php";
+          include "public/language/".$_SESSION['lang'].".php";
   }else{
-          include "../../public/language/en.php";
+          include "public/language/en.php";
   }
-
-  $stmt = $db->prepare('SELECT * FROM categories');
-  $stmt->execute();
-  $categories = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 ?>
 
 <html lang="en"><head>
@@ -56,23 +50,20 @@
 						$total = 0;
 						if(!empty($_SESSION['cart'])){
 						//connection
-						$conn = DBConfig::getDB();
 						//create array of initail qty which is 1
  						
  						if(!isset($_SESSION['qty_array'])){
  							$_SESSION['qty_array'] = array_fill(0, count($_SESSION['cart']), 1);
  						}
-						$sql = "SELECT * FROM books WHERE book_id IN (".implode(',',$_SESSION['cart']).")";
-						$query = $conn->query($sql);
-							while($row = $query->fetch_assoc()){
-                $index = array_search($row['book_id'], $_SESSION['cart']);
+							foreach($carts as $row){
+								$index = array_search($row['book_id'], $_SESSION['cart']);
+												?>
+								<?php if($row['sale'] != null && $row['sale'] != 0){
+										$price = $row['price'] * (1 - $row['sale']/100);
+									} else {
+										$price = $row['price'];
+									}
 								?>
-                <?php if($row['sale'] != null && $row['sale'] != 0){
-                        $price = $row['price'] * (1 - $row['sale']/100);
-                      } else {
-                        $price = $row['price'];
-                      }
-                ?>
 								<li class="list-group-item d-flex justify-content-between lh-condensed">
                                     <h6 class="my-0"><?php echo $row['title'] ?></h6>
                                     <div>
@@ -264,7 +255,7 @@
                 event.stopPropagation();
               }
               form.classList.add('was-validated');
-              form.action = '../../service/cart/confirm_checkout.php';
+              form.action = '/cart/confirmCheckOut';
             }, false);
           });
         }, false);
@@ -278,7 +269,7 @@
           const totalPrice =  <?php echo $total;?>;
           // alert(totalPrice);
           $.ajax({
-                    url: '../../service/cart/apply_coupon.php',
+                    url: '/cart/applyCoupon',
                     method: 'POST',
                     data: {code: code,total : totalPrice},
                     success: function (response) {
@@ -305,13 +296,6 @@
                     }
                 });
         });
-        
-        
     });
-
-      
-
-
-
-    </script>
+</script>
 </body></html>

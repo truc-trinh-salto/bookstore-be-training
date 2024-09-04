@@ -6,6 +6,10 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit2185d2f99bcd56787481d9357a5972d3
 {
+    public static $files = array (
+        '0ede80e7aa6ba556a46cd5b4c22bdc7d' => __DIR__ . '/../..' . '/database.php',
+    );
+
     public static $prefixLengthsPsr4 = array (
         'Z' => 
         array (
@@ -22,6 +26,7 @@ class ComposerStaticInit2185d2f99bcd56787481d9357a5972d3
         'M' => 
         array (
             'Matrix\\' => 7,
+            'MVC\\' => 4,
         ),
         'C' => 
         array (
@@ -40,8 +45,8 @@ class ComposerStaticInit2185d2f99bcd56787481d9357a5972d3
         ),
         'Psr\\Http\\Message\\' => 
         array (
-            0 => __DIR__ . '/..' . '/psr/http-message/src',
-            1 => __DIR__ . '/..' . '/psr/http-factory/src',
+            0 => __DIR__ . '/..' . '/psr/http-factory/src',
+            1 => __DIR__ . '/..' . '/psr/http-message/src',
         ),
         'Psr\\Http\\Client\\' => 
         array (
@@ -58,6 +63,10 @@ class ComposerStaticInit2185d2f99bcd56787481d9357a5972d3
         'Matrix\\' => 
         array (
             0 => __DIR__ . '/..' . '/markbaker/matrix/classes/src',
+        ),
+        'MVC\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/',
         ),
         'Complex\\' => 
         array (

@@ -179,6 +179,12 @@ define("_VALIDZIP","Zip code required");
 define("_VALIDEMAIL","Please enter a valid email address for shipping updates");
 
 define("_SALE","Sale off");
+define("_TRANSPORT","Transport");
+define("_FORGOTPASSWORD","Have you forgot your password");
+define("_FORGOT","Forgot password");
+
+
+
 
 
 

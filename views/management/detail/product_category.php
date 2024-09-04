@@ -1,6 +1,5 @@
 <?php
     session_start();
-    require_once('../../../database.php');
     if(isset($_GET['lang']) && !empty($_GET['lang'])){
         $_SESSION['lang'] = $_GET['lang'];
         if(isset($_SESSION['lang']) && $_SESSION['lang'] != $_GET['lang']){
@@ -9,81 +8,23 @@
     }
 
     if(isset($_SESSION['lang'])){
-        include "../../../public/language/".$_SESSION['lang'].".php";
+        include "public/language/".$_SESSION['lang'].".php";
     }else{
-            include "../../../public/language/en.php";
+        include "public/language/en.php";
     }
-    $db = DBConfig::getDB();
-    $books;
+
 
     $category_id = $_GET['category_id'];
 
 
     $limit = 6;
 
-    if(isset($_GET['search_keyword']) && $_GET['search_keyword']!= null) {
-        $search_keyword = $_GET['search_keyword'];
-        $search = "%$search_keyword%";
-        $stmt = $db->prepare('SELECT b.book_id, b.title,b.image, b.book_id, b.description, b.category_id, b.price, 
-                                    b.created_at, b.updated_at, b.sale, b.hotItem, b.stock, b.authors, c.name_category
-                                    FROM books as b 
-                                    LEFT JOIN categories as c 
-                                    ON b.category_id = c.category_id
-                                    WHERE (b.title LIKE ? OR b.authors LIKE ? OR b.description LIKE ? OR c.name_category LIKE ?) 
-                                    AND b.category_id =?
-                                    ORDER BY b.book_id ASC');
-        $stmt->bind_param("ssssi",$search, $search, $search, $search,$category_id);
-        
-    } else {
-        $stmt = $db->prepare("SELECT b.title,b.image, b.book_id, b.description, b.category_id, b.price, 
-                                    b.created_at, b.updated_at, b.sale, b.hotItem, b.stock, b.authors, c.name_category
-                                    FROM books as b 
-                                    LEFT JOIN categories as c 
-                                    ON b.category_id = c.category_id
-                                    WHERE b.category_id =? 
-                                    ORDER BY b.book_id ASC");
-        $stmt->bind_param('i',$category_id);
-    }
-
-
-
-    $stmt->execute();
-
-    $number_result  = $stmt->get_result()->num_rows;
-
-    $number_page = ceil($number_result/ $limit);
     
     if(!isset($_GET['page'])){
         $page = 1;
     } else {
         $page = $_GET['page'];
     }
-
-    $page_first = ($page - 1) * $limit;
-    if(isset($_GET['search_keyword']) && $_GET['search_keyword']!= null) {
-        $search_keyword = $_GET['search_keyword'];
-        $search = "%$search_keyword%";
-        $stmt = $db->prepare('SELECT b.book_id, b.title,b.image, b.book_id, b.description, b.category_id, b.price, 
-                                    b.created_at, b.updated_at, b.sale, b.hotItem, b.stock, b.authors, c.name_category
-                                    FROM books as b 
-                                    LEFT JOIN categories as c 
-                                    ON b.category_id = c.category_id
-                                    WHERE (b.title LIKE ? OR b.authors LIKE ? OR b.description LIKE ? OR c.name_category LIKE ?) 
-                                    AND b.category_id =?
-                                    ORDER BY b.book_id ASC LIMIT?,?');
-        $stmt->bind_param("ssssiii",$search, $search, $search, $search,$category_id,$page_first, $limit);
-    } else {
-        $stmt = $db->prepare('SELECT b.book_id, b.title,b.image, b.book_id, b.description, b.category_id, b.price, 
-                                    b.created_at, b.updated_at, b.sale, b.hotItem, b.stock, b.authors, c.name_category
-                                    FROM books as b 
-                                    LEFT JOIN categories as c 
-                                    ON b.category_id = c.category_id
-                                    WHERE b.category_id =? 
-                                    ORDER BY b.book_id ASC LIMIT?,?');
-        $stmt->bind_param('iii', $category_id,$page_first, $limit);
-    }
-    $stmt->execute();
-    $books = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
 
     $index = $page*$limit - $limit + 1;
@@ -103,7 +44,7 @@
   </head>
 <body>
     <div class="app">
-        <?php include('../partials/admin_header.php') ?>
+        <?php include('views/management/partials/admin_header.php') ?>
         <div class="container">
             <div class="mt-4">
             <?php 
@@ -125,15 +66,15 @@
                         <nav aria-label="Page navigation example">
                                 <ul class="pagination">
                                     <?php if($page - 1 == 0):?>
-                                        <li class="page-item disabled"><a class="page-link" href="product_category.php?category_id=<?php echo $category_id ?>&search_keyword=<?php $search_keyword?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="detailCategory?category_id=<?php echo $category_id ?>&search_keyword=<?php $search_keyword?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="product_category.php?category_id=<?php echo $category_id ?>&search_keyword=<?php $search_keyword?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
+                                        <li class="page-item"><a class="page-link" href="detailCategory?category_id=<?php echo $category_id ?>&search_keyword=<?php $search_keyword?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php endif;?>
-                                    <li class="page-item active"><a class="page-link" href="product_category.php?category_id=<?php echo $category_id ?>&search_keyword=<?php $search_keyword?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
+                                    <li class="page-item active"><a class="page-link" href="detailCategory?category_id=<?php echo $category_id ?>&search_keyword=<?php $search_keyword?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
                                     <?php if($page +1 > $number_page):?>
-                                        <li class="page-item disabled"><a class="page-link" href="product_category.php?category_id=<?php echo $category_id ?>&search_keyword=<?php $search_keyword?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="detailCategory?category_id=<?php echo $category_id ?>&search_keyword=<?php $search_keyword?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="product_category.php?category_id=<?php echo $category_id ?>&search_keyword=<?php $search_keyword?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
+                                        <li class="page-item"><a class="page-link" href="detailCategory?category_id=<?php echo $category_id ?>&search_keyword=<?php $search_keyword?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php endif;?>
                                 </ul>
                             </nav>
@@ -159,8 +100,8 @@
                                     <td>
                                         <img width="100" height="100" src="
                                         <?php 
-                                        if($book['image']){
-                                            echo $book['image'];
+                                        if($book['address']){
+                                            echo '../'.$book['address'];
                                         }else {
                                             echo 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3cD47c9xUZyKlO3j3z9vdBHV0P2BIwfkeWg&s';
                                         }?>
@@ -191,8 +132,8 @@
                                         <?php echo ($book['sale'] != null && $book['sale'] > 0) ? "<span class='text-danger font-weight-bold'>-".$book['sale'].'%</span>':"<span class='text-info font-weight-bold'>0</span>"?>
                                     </td>
                                     <td>
-                                        <a href="../edit/edit_product.php?book_id=<?php echo $book['book_id']?>" class="btn btn-primary btn-sm"><?=_EDIT?></a>
-                                        <a href="../../../service/book/delete_product.php?book_id=<?php echo $book['book_id']?>" class="btn btn-danger btn-sm"><?=_DELETE?></a>
+                                        <a href="pageEditProduct?book_id=<?php echo $book['book_id']?>" class="btn btn-primary btn-sm"><?=_EDIT?></a>
+                                        <a href="/product/deleteProduct?book_id=<?php echo $book['book_id']?>" class="btn btn-danger btn-sm"><?=_DELETE?></a>
                                     </td>
                                     
 

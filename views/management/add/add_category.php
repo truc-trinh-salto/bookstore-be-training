@@ -1,6 +1,5 @@
 <?php
     session_start();
-    require_once('../../../database.php');
 
     if(isset($_GET['lang']) && !empty($_GET['lang'])){
         $_SESSION['lang'] = $_GET['lang'];
@@ -10,12 +9,11 @@
     }
 
     if(isset($_SESSION['lang'])){
-        include "../../../public/language/".$_SESSION['lang'].".php";
+        include "public/language/".$_SESSION['lang'].".php";
     }else{
-            include "../../../public/language/en.php";
+        include "public/language/en.php";
     }
     
-    $db = DBConfig::getDB();
 ?>
 
 <DOCTYPE html>
@@ -31,7 +29,7 @@
   </head>
 <body>
     <div class="app">
-        <?php include('../partials/admin_header.php') ?>
+        <?php include('views/management/partials/admin_header.php') ?>
         <div class="container">
         <section layout:fragment="content">
 	<div class="col-md-12 grid-margin stretch-card">
@@ -48,7 +46,7 @@
                         unset($_SESSION['message']);
                     }
 			?>
-				<form action="" method="POST" class="forms-sample">
+				<form action="/category/addCategory" method="POST" class="forms-sample">
 					<div class="form-group">
 						<label for="exampleInputName1"><?=_CATEGORYNAME?></label>
 						<input type="text" class="form-control" id="exampleInputName1" placeholder="<?=_CATEGORYNAME?>" name="name" required>
@@ -67,37 +65,3 @@
     
 </body>
 </html>
-
-<?php
-    if(isset($_POST['submit']) && $_SERVER['REQUEST_METHOD'] == 'POST')
-    {
-        $name = $_POST['name'];
-        if(!checkExistence($name, $db)){
-            $stmt = $db->prepare('INSERT INTO categories (name_category) values (?)');
-            $stmt->bind_param('s', $name);
-            $stmt->execute();
-
-            if($stmt->affected_rows > 0)
-            {
-                $_SESSION['message'] = 'Thêm thể loại mới thành công';
-                header('location: category.php');
-            }
-            else
-            {
-                $_SESSION['message'] = 'Thêm thể loại mới thất bại';
-            }
-        } else {
-            $_SESSION['message'] = 'Thể loại đã tồn tại';
-        }
-        header('location: add_category.php');
-    }
-
-    function checkExistence($name, $db){
-        $stmt = $db->prepare('SELECT * FROM categories WHERE LOWER(name_category) =?');
-        $stmt->bind_param('s', strtolower($name));
-        $stmt->execute();
-        $result = $stmt->get_result();
-        return $result->num_rows > 0;
-    }
-
-?>

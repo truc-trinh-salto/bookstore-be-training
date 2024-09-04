@@ -1,6 +1,5 @@
 <?php
     session_start();
-    require_once('../../../database.php');
 
     if(isset($_GET['lang']) && !empty($_GET['lang'])){
         $_SESSION['lang'] = $_GET['lang'];
@@ -10,26 +9,17 @@
     }
 
     if(isset($_SESSION['lang'])){
-        include "../../../public/language/".$_SESSION['lang'].".php";
+        include "public/language/".$_SESSION['lang'].".php";
     }else{
-            include "../../../public/language/en.php";
+        include "public/language/en.php";
     }
+
+    $page = $_GET['page'] ?: 1;
+
+    $limit = 6;
 
     $user_id = $_GET['user_id'];
 
-    $db = DBConfig::getDB();
-
-    $stmt = $db->prepare('SELECT t.createdAt, t.address, t.receiver, t.order_id, t.total, o.user_id, tr.status 
-                            FROM transactions as t 
-                            LEFT JOIN order_item as o ON t.order_id = o.id 
-                            LEFT JOIN transport as tr ON t.transport_id = tr.id 
-                            WHERE o.user_id = ? ORDER BY t.createdAt DESC');
-    $stmt->bind_param("i", $_GET['user_id']);
-    $stmt->execute();
-    
-    $transactions= $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
-    
     $index = 1;
 ?>
 
@@ -46,9 +36,27 @@
   </head>
 <body>
     <div class="app">
-    <?php include('../partials/admin_header.php') ?>
+    <?php include('views/management/partials/admin_header.php') ?>
         <div class="container">
             <div class="mt-4">
+                <div class="d-flex justify-content-center">
+                        <nav aria-label="Page navigation example">
+                                <ul class="pagination">
+                                    <?php if($page - 1 == 0):?>
+                                        <li class="page-item disabled"><a class="page-link" href="transactionUser?user_id=<?php echo $user_id ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
+                                    <?php else:?>
+                                        <li class="page-item"><a class="page-link" href="transactionUser?user_id=<?php echo $user_id ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
+                                    <?php endif;?>
+                                    <li class="page-item active"><a class="page-link" href="transactionUser?user_id=<?php echo $user_id ?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
+                                    <?php if($page +1 > $number_page):?>
+                                        <li class="page-item disabled"><a class="page-link" href="transactionUser?user_id=<?php echo $user_id ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
+                                    <?php else:?>
+                                        <li class="page-item"><a class="page-link" href="transactionUser?user_id=<?php echo $user_id ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
+                                    <?php endif;?>
+                                </ul>
+                            </nav>
+                    </div>
+
                 <div class="row">
                     <table class="table">
                         <thead>
@@ -72,7 +80,7 @@
                                                                 ? '<span class="text-warning font-weight-bold">'._PENDING.'</span>' 
                                                                 : '<span class="text-success font-weight-bold">'._SUCCESS.'</span>' ?>
                                 </td>
-                                <td><a class="btn btn-info"href="detail_transaction.php?order_id=<?php echo $transaction['order_id']?>"><?=_DETAIL?></a></td>
+                                <td><a class="btn btn-info"href="detailTransaction?order_id=<?php echo $transaction['order_id']?>"><?=_DETAIL?></a></td>
                                 <?php $index ++?>
                             </tr>
                             <?php endforeach;?>

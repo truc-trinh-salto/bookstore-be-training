@@ -1,7 +1,5 @@
 <?php
-    require_once('../../database.php');
 	session_start();
-	$db = DBConfig::getDB();
 	if(isset($_GET['lang']) && !empty($_GET['lang'])){
         $_SESSION['lang'] = $_GET['lang'];
         if(isset($_SESSION['lang']) && $_SESSION['lang'] != $_GET['lang']){
@@ -9,14 +7,14 @@
         }
        }
        if(isset($_SESSION['lang'])){
-            include "../../public/language/".$_SESSION['lang'].".php";
+            include "public/language/".$_SESSION['lang'].".php";
        }else{
-            include "../../public/language/en.php";
+            include "public/language/en.php";
        }
 
-	$stmt = $db->prepare('SELECT * FROM categories');
-    $stmt->execute();
-    $categories = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    //    var_dump($_SESSION['cart']);
+    //    var_dump($_SESSION['qty_array']);
+
 
 ?>
 <!DOCTYPE html>
@@ -32,7 +30,7 @@
 <div class="container">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="home.php">Book Store</a>
+            <a class="navbar-brand" href="/">Book Store</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -43,7 +41,7 @@
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?= _CATEGORY?></a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <?php foreach($categories as $category):?>
-                                <a class="dropdown-item" href="category.php?category_id=<?php echo $category['category_id'];?>"><?php echo $category['name_category'];?></a>
+                                <a class="dropdown-item" href="category?category_id=<?php echo $category['category_id'];?>"><?php echo $category['name_category'];?></a>
                             <?php endforeach;?>    
                         </div>
                     </li>
@@ -58,19 +56,19 @@
                             ?>
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <?php if($_SESSION['user_id']): ?>
-                                <a class="dropdown-item" href="history.php"><?= _HISTORY?></a>
-                                <a class="dropdown-item" href="profile.php"><?= _PROFILE?></a>
-                                <a class="dropdown-item" href="codesale.php"><?= _CODESALE?></a>
-                                <a class="dropdown-item" href="store_system.php"><?= _SYSTEM?></a>
-                                <?php else:?>
-                                <a class="dropdown-item" href="../../index.php"><?=_LOGIN ?></a>
-                                <?php endif; ?>
-                                <a class="dropdown-item" href="../../logout.php"><?=_LOGOUT ?></a>
+							<?php if($_SESSION['user_id']): ?>
+                            <a class="dropdown-item" href="history"><?= _HISTORY?></a>
+                            <a class="dropdown-item" href="profile"><?= _PROFILE?></a>
+                            <a class="dropdown-item" href="codesale"><?= _CODESALE?></a>
+                            <a class="dropdown-item" href="store_system"><?= _SYSTEM?></a>
+                            <?php else:?>
+                            <a class="dropdown-item" href="login"><?=_LOGIN ?></a>
+                            <?php endif; ?>
+                            <a class="dropdown-item" href="logout"><?=_LOGOUT ?></a>
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a class ="nav-link"href="view_cart.php"><span class="badge"><?php echo count($_SESSION['cart']); ?></span> Cart <span class="glyphicon glyphicon-shopping-cart"></span></a>
+                        <a class ="nav-link"href="/view_cart"><span class="badge"><?php echo count($_SESSION['cart']); ?></span> Cart <span class="glyphicon glyphicon-shopping-cart"></span></a>
                     </li>
 					<li class="nav-item nav-link">
 					<script>
@@ -104,7 +102,7 @@
 			}
  
 			?>
-			<form method="POST" action="save_cart.php">
+			<form method="POST" action="/cart/saveCart">
 			<table class="table table-bordered table-striped">
 				<thead>
 					<th></th>
@@ -118,17 +116,12 @@
 						//initialize total
 						$total = 0;
 						if(!empty($_SESSION['cart'])){
-						//connection
-						$conn = DBConfig::getDB();
-					
-						$sql = "SELECT * FROM books WHERE book_id IN (".implode(',',$_SESSION['cart']).")";
-						$query = $conn->query($sql);
-							while($row = $query->fetch_assoc()){
+							foreach($carts as $row){
 								$index = array_search($row['book_id'], $_SESSION['cart']);
 								?>
 								<tr>
 									<td>
-										<a href="../../service/cart/delete_cart.php?book_id=<?php echo $row['id']; ?>&index=<?php echo $index; ?>" class="btn btn-danger btn-sm"><span class="glyphicon glyphicon-trash"></span></a>
+										<a href="/cart/deleteCart?book_id=<?php echo $row['book_id']; ?>&index=<?php echo $index; ?>" class="btn btn-danger btn-sm"><span class="glyphicon glyphicon-trash"></span></a>
 									</td>
 									<td><?php echo $row['title']; ?></td>
 									<td>
@@ -177,10 +170,10 @@
 					</tr>
 				</tbody>
 			</table>
-			<a href="home.php" class="btn btn-primary"><span class="glyphicon glyphicon-arrow-left"></span> <?=_BACK?></a>
+			<a href="/" class="btn btn-primary"><span class="glyphicon glyphicon-arrow-left"></span> <?=_BACK?></a>
 			<button type="submit" class="btn btn-success" name="save"><?=_SAVE?></button>
-			<a href="clear_cart.php" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span><?=_CLEARCART?></a>
-			<a href="<?php echo $_SESSION['user_id'] ? 'check_out.php' : '../../index.php' ?>" class="btn btn-success"><span class="glyphicon glyphicon-check"></span><?=_CHECKOUT?></a>
+			<a href="/cart/clearCart" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span><?=_CLEARCART?></a>
+			<a href="<?php echo $_SESSION['user_id'] ? 'check_out' : 'login' ?>" class="btn btn-success"><span class="glyphicon glyphicon-check"></span><?=_CHECKOUT?></a>
 			</form>
 		</div>
 	</div>

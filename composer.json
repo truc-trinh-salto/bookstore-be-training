@@ -2,5 +2,15 @@
     "require": {
         "phpmailer/phpmailer": "^6.9",
         "phpoffice/phpspreadsheet": "^2.2"
+    },
+
+    "autoload": {
+        "files": [
+            "./database.php"
+        ],
+        "psr-4": {
+            "MVC\\": "./" 
+        }
     }
+    
 }

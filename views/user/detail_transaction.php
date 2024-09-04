@@ -1,6 +1,6 @@
 <?php
     session_start();
-    require_once('../../database.php');
+
     if(isset($_GET['lang']) && !empty($_GET['lang'])){
         $_SESSION['lang'] = $_GET['lang'];
         if(isset($_SESSION['lang']) && $_SESSION['lang'] != $_GET['lang']){
@@ -8,50 +8,10 @@
         }
     }
     if(isset($_SESSION['lang'])){
-            include "../../public/language/".$_SESSION['lang'].".php";
+            include "public/language/".$_SESSION['lang'].".php";
     }else{
-            include "../../public/language/en.php";
+            include "public/language/en.php";
     }
-
-    $db = DBConfig::getDB();
-
-    if(isset($_GET['order_id'])){
-        $order_id = $_GET['order_id'];
-        $stmt = $db->prepare('SELECT o.book_id, o.quantity, o.price, o.total, o.order_id, b.title, b.authors
-                                FROM order_detail as o
-                                LEFT JOIN books as b ON o.book_id = b.book_id
-                                WHERE o.order_id = ?
-                                ORDER BY o.order_id ASC');
-
-        $stmt->bind_param("i", $_GET['order_id']);
-        $stmt->execute();
-        $order_details = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-    }
-
-    $stmt = $db->prepare('SELECT * FROM transactions WHERE order_id = ?');
-    $stmt->bind_param("i", $_GET['order_id']);
-    $stmt->execute();
-
-    $transaction = $stmt->get_result()->fetch_assoc();
-
-    if($transaction['codesale']){
-        $stmt = $db->prepare('SELECT * FROM codesale WHERE id = ?');
-        $stmt->bind_param("i", $transaction['codesale']);
-        $stmt->execute();
-
-        $codesale = $stmt->get_result()->fetch_assoc();
-    }
-
-    $stmt = $db->prepare('SELECT * FROM route where transport_id = ?');
-    $stmt->bind_param('i',$transaction['transport_id']);
-    $stmt->execute();
-
-    $routes = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
-    $stmt = $db->prepare('SELECT * FROM categories');
-    $stmt->execute();
-    $categories = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
 
     $index = 1;
     $total = 0;
@@ -76,7 +36,7 @@
       rel="stylesheet"
       href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
     />
-    <link rel="stylesheet" type="text/css" href="main.css" />
+    <link rel="stylesheet" type="text/css" href="/views/user/main.css" />
     <link
       href="https://fonts.googleapis.com/css?family=Poppins"
       rel="stylesheet"

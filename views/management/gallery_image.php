@@ -1,35 +1,16 @@
 <?php
     session_start();
-    require_once('../../database.php');
-    $db = DBConfig::getDB();
-    $images;
 
     $book_id = $_GET['book_id'];
 
     $limit = 6;
-
-    $stmt = $db->prepare('SELECT * FROM gallery_image where book_id = ?');
-    $stmt->bind_param('i', $book_id);
-    $stmt->execute();
-
-    $number_result = $stmt->get_result()->num_rows;
-    $number_page = ceil($number_result / $limit);
 
     if(!isset($_GET['page'])){
         $page = 1;
     } else {
         $page = $_GET['page'];
     }
-
-    $page_first = ($page - 1) * $limit;
-
-
-
-
-    $stmt = $db->prepare('SELECT * FROM gallery_image where book_id = ? LIMIT ?,?');
-    $stmt->bind_param("iii",$book_id, $page_first, $limit);
-    $stmt->execute();
-    $images = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    
     $index = 1;
 ?>
 
@@ -46,7 +27,7 @@
   </head>
 <body>
     <div class="app">
-        <?php include('partials/admin_header.php') ?>
+        <?php include('views/management/partials/admin_header.php') ?>
         <div class="container">
             <div class="mt-4">
             <?php 
@@ -59,7 +40,7 @@
                         unset($_SESSION['message']);
                     }
 			?>
-                    <form action="../../service/gallery/add_gallery.php" method="POST" enctype="multipart/form-data">
+                    <form action="/gallery/addGalleryImage" method="POST" enctype="multipart/form-data">
                         <div class="text-center">
                                 <img src="http://ssl.gstatic.com/accounts/ui/avatar_2x.png" class="avatar img-circle img-thumbnail" alt="avatar" height="300" width="300">
                                 <h6><?=_UPLOADGALLERY?></h6>
@@ -78,15 +59,15 @@
                         <nav aria-label="Page navigation example">
                                 <ul class="pagination">
                                     <?php if($page - 1 == 0):?>
-                                        <li class="page-item disabled"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="gallery_image?book_id=<?php echo $book_id ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
+                                        <li class="page-item"><a class="page-link" href="gallery_image?book_id=<?php echo $book_id ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php endif;?>
-                                    <li class="page-item active"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
+                                    <li class="page-item active"><a class="page-link" href="gallery_image?book_id=<?php echo $book_id ?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
                                     <?php if($page +1 > $number_page):?>
-                                        <li class="page-item disabled"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="gallery_image?book_id=<?php echo $book_id ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
+                                        <li class="page-item"><a class="page-link" href="gallery_image?book_id=<?php echo $book_id ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php endif;?>
                                 </ul>
                             </nav>
@@ -105,16 +86,16 @@
                                 <tr>
                                     <th scope="row"><?= $index ?></th>
                                     <td>
-                                        <img src="../../<?php echo $image['address']  ?>" alt="<?php $image['image_id'] ?>" width="100" height="100">
+                                        <img src="../<?php echo $image['address']  ?>" alt="<?php $image['image_id'] ?>" width="100" height="100">
                                     </td>
                                     <td>
                                         <?php if($image['isShow'] == 0): ?>
-                                            <a href="../../service/gallery/default_gallery.php?image_id=<?= $image['image_id']?>&book_id=<?= $book_id?>" class="btn btn-success"><?=_CHOOSE?></a>
+                                            <a href="/gallery/defaultGalleryImage?image_id=<?= $image['image_id']?>&book_id=<?= $book_id?>" class="btn btn-success"><?=_CHOOSE?></a>
                                         <?php else: ?>
-                                            <a href="../../service/gallery/default_gallery.php?image_id=<?= $image['image_id']?>&book_id=<?= $book_id?>" class="btn btn-danger"><?=_CANCEL?></a>
+                                            <a href="/gallery/defaultGalleryImage?image_id=<?= $image['image_id']?>&book_id=<?= $book_id?>" class="btn btn-danger"><?=_CANCEL?></a>
                                         <?php endif; ?>
                                     <td>
-                                        <a href="../../service/gallery/delete_gallery.php?image_id=<?php echo $image['image_id']?>" class="btn btn-danger"><?=_DELETE?></a>
+                                        <a href="/gallery/deleteGalleryImage?image_id=<?php echo $image['image_id']?>" class="btn btn-danger"><?=_DELETE?></a>
                                     </td>
                     
 

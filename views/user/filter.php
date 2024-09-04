@@ -1,8 +1,4 @@
 <?php
-    require_once('../../database.php');
-    // error_reporting(1);
-    $db = DBConfig::getDB();
-
     session_start();
     if(isset($_GET['lang']) && !empty($_GET['lang'])){
         $_SESSION['lang'] = $_GET['lang'];
@@ -11,93 +7,18 @@
         }
        }
        if(isset($_SESSION['lang'])){
-            include "../../public/language/".$_SESSION['lang'].".php";
+            include "public/language/".$_SESSION['lang'].".php";
        }else{
-            include "../../public/language/en.php";
+            include "public/language/en.php";
        }
     $books;
 
     $keyword = $_GET['search_keyword'];
     $search = "%$keyword%";
 
-
-    if(isset($_GET['minprice']) && isset($_GET['maxprice'])) {
-        $minprice = $_GET['minprice'];
-        $maxprice = $_GET['maxprice'];
-        if ($minprice == null && $maxprice == null) {
-            $stmt = $db->prepare('SELECT * FROM books WHERE title LIKE ? OR authors LIKE ? OR description LIKE ?');
-            $stmt->bind_param("sss", $search, $search, $search);
-        } else if($minprice == null) {
-            $stmt = $db->prepare('SELECT * FROM books 
-                                    WHERE (title LIKE ? OR authors LIKE ? OR description LIKE ?)
-                                    AND price <= ?');
-            $stmt->bind_param('sssd', $search, $search, $search,$maxprice);
-        } else if ($maxprice == null) {
-            $stmt = $db->prepare('SELECT * FROM books WHERE (title LIKE ? OR authors LIKE ? OR description LIKE ?) AND price >=?');
-            $stmt->bind_param('sssd', $search, $search, $search, $minprice);
-        } else {
-            $stmt = $db->prepare('SELECT * FROM books
-                                    WHERE (title LIKE ? OR authors LIKE ? OR description LIKE ?)
-                                    AND price >=? AND price <=?');
-            $stmt->bind_param('sssdd', $search, $search, $search,$minprice, $maxprice); 
-        }
-    } else {
-        $stmt = $db->prepare("SELECT * FROM books where title LIKE ? OR authors LIKE ? OR description LIKE ? ");
-        $stmt->bind_param("sss", $search, $search , $search);
-    }
-
-    $limit = 6;
-
-    $stmt->execute();
-
-    $number_result  = $stmt->get_result()->num_rows;
-
-    $number_page = ceil($number_result/ $limit);
-    
-    if(!isset($_GET['page'])){
-        $page = 1;
-    } else {
-        $page = $_GET['page'];
-    }
-
-    $page_first = ($page - 1) * $limit;
-
-    if(isset($_GET['minprice']) && isset($_GET['maxprice'])) {
-        $minprice = $_GET['minprice'];
-        $maxprice = $_GET['maxprice'];
-        if ($minprice == null && $maxprice == null) {
-            $stmt = $db->prepare('SELECT * FROM books WHERE title LIKE ? OR authors LIKE ? OR description LIKE ? LIMIT ?,?');
-            $stmt->bind_param("sssii", $search, $search, $search, $page_first, $limit);
-        } else if($minprice == null) {
-            $stmt = $db->prepare('SELECT * FROM books 
-                                    WHERE (title LIKE ? OR authors LIKE ? OR description LIKE ?)
-                                    AND price <= ? LIMIT ?,?');
-            $stmt->bind_param('sssdii', $search, $search, $search,$maxprice, $page_first, $limit);
-        } else if ($maxprice == null) {
-            $stmt = $db->prepare('SELECT * FROM books WHERE (title LIKE ? OR authors LIKE ? OR description LIKE ?) AND price >=? LIMIT ?,?');
-            $stmt->bind_param('sssdii', $search, $search, $search, $minprice, $page_first, $limit);
-        } else {
-            $stmt = $db->prepare('SELECT * FROM books
-                                    WHERE (title LIKE ? OR authors LIKE ? OR description LIKE ?)
-                                    AND price >=? AND price <=? LIMIT ?,?');
-            $stmt->bind_param('sssddii', $search, $search, $search,$minprice, $maxprice, $page_first, $limit);  
-        }
-    } else {
-        $stmt = $db->prepare("SELECT * FROM books where title LIKE ? OR authors LIKE ? OR description LIKE ? LIMIT ?,?");
-        $stmt->bind_param("sssii", $search, $search , $search, $page_first, $limit);
-    }
-
-    $stmt->execute();
-    $books = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
-    if(!isset($_SESSION['cart'])) {
-        $_SESSION['cart'] = array();
-        $_SESSION['qty_array'] = array();
-    }
-
-    $stmt = $db->prepare('SELECT * FROM categories');
-    $stmt->execute();
-    $categories = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $page = $_GET['page'] ?: 1;
+    $minprice = $_GET['minprice'] ?: null;
+    $maxprice = $_GET['maxprice'] ?: null;
 
 ?>
 
@@ -121,11 +42,11 @@
     <div class="app">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="home.php">Book Store</a>
+            <a class="navbar-brand" href="/">Book Store</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <form class="form-inline nav-item" method="GET" action="filter.php">
+            <form class="form-inline nav-item" method="GET" action="">
                     <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search_keyword">
                     <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><?= _SEARCH ?></button>
             </form>
@@ -161,7 +82,7 @@
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?= _CATEGORY?></a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <?php foreach($categories as $category):?>
-                                <a class="dropdown-item" href="category.php?category_id=<?php echo $category['category_id'];?>"><?php echo $category['name_category'];?></a>
+                                <a class="dropdown-item" href="category?category_id=<?php echo $category['category_id'];?>"><?php echo $category['name_category'];?></a>
                             <?php endforeach;?>    
                         </div>
                     </li>
@@ -176,39 +97,27 @@
                             ?>
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <?php if($_SESSION['user_id']): ?>
-                                <a class="dropdown-item" href="history.php"><?= _HISTORY?></a>
-                                <a class="dropdown-item" href="profile.php"><?= _PROFILE?></a>
-                                <a class="dropdown-item" href="codesale.php"><?= _CODESALE?></a>
-                                <a class="dropdown-item" href="store_system.php"><?= _SYSTEM?></a>
-                                <?php else:?>
-                                <a class="dropdown-item" href="../../index.php"><?=_LOGIN ?></a>
-                                <?php endif; ?>
-                                <a class="dropdown-item" href="../../logout.php"><?=_LOGOUT ?></a>
+                        <?php if($_SESSION['user_id']): ?>
+                            <a class="dropdown-item" href="history"><?= _HISTORY?></a>
+                            <a class="dropdown-item" href="profile"><?= _PROFILE?></a>
+                            <a class="dropdown-item" href="codesale"><?= _CODESALE?></a>
+                            <a class="dropdown-item" href="store_system"><?= _SYSTEM?></a>
+                            <?php else:?>
+                            <a class="dropdown-item" href="login"><?=_LOGIN ?></a>
+                            <?php endif; ?>
+                            <a class="dropdown-item" href="logout"><?=_LOGOUT ?></a>
                         </div>
                     </li>
                     <li class="nav-item dropdown" id="show_cart">
-                        <a class="nav-link dropdown-toggle display-count-cart" href="view_cart.php" id="navbarDropdown" aria-haspopup="true" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle display-count-cart" href="view_cart" id="navbarDropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="badge"><?php echo count($_SESSION['cart']); ?></span> Cart <span class="glyphicon glyphicon-shopping-cart"></span> 
                         </a>
                         <?php if(count($_SESSION['cart']) >0 ): ?>
                         <div class="dropdown-menu display-cart"aria-labelledby="navbarDropdown">
-                            <?php
-                                $stmt = $db->prepare("SELECT * FROM books WHERE book_id IN (".implode(',',$_SESSION['cart']).")");
-                                $stmt->execute();
-                                $book_cart = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-                            ?>
                             <?php foreach($book_cart as $cart):?>
                                 <div class="row mt-4">
                                     <div class="col-6">
-                                        <?php 
-                                            $stmt = $db->prepare('SELECT * FROM gallery_image WHERE book_id =? and isShow = 1');
-                                            $stmt->bind_param('i', $cart['book_id']);
-                                            $stmt->execute();
-
-                                            $image_cart = $stmt->get_result()->fetch_assoc();
-                                        ?>
-                                        <img width="70" height="70" src="<?php echo '../../'. $image_cart['address'];?>">
+                                        <img width="70" height="70" src="<?php echo $cart['address']?:'https://tse4.mm.bing.net/th?id=OIP.ZiwfBrifIO4lV_Q-gIC7VQHaKx&pid=Api&P=0&h=180';?>">
                                     </div>
                                     <div class="col-6">
                                         <a href=""><?php echo $cart['title'] ?></a>
@@ -243,6 +152,7 @@
                     <input type="hidden" name="minprice" value="<?= $minprice ?>">
                     <input type="hidden" name="maxprice" value="<?= $maxprice ?>">
                     <input type="hidden" name="search_keyword" value="<?= $keyword?>">
+                    <input type="hidden" name="page" value="<?php echo $page?>">
                     <?=_SELECTLANGUAGES?>: <select name='lang' onchange='changeLang();' >
                     <option value='en' <?php if(isset($_SESSION['lang']) && $_SESSION['lang'] == 'en'){ echo "selected"; } ?> >English</option>
                     <option value='vi' <?php if(isset($_SESSION['lang']) && $_SESSION['lang'] == 'vi'){ echo "selected"; } ?> >Vietnamese</option>
@@ -255,15 +165,15 @@
             <nav aria-label="Page navigation example">
                     <ul class="pagination">
                         <?php if($page - 1 == 0):?>
-                            <li class="page-item disabled"><a class="page-link" href="filter.php?search_keyword=<?php echo $keyword?>&minprice=<?php echo $minprice?>&maxprice=<?php echo $maxprice?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
+                            <li class="page-item disabled"><a class="page-link" href="filter?search_keyword=<?php echo $keyword?>&minprice=<?php echo $minprice?>&maxprice=<?php echo $maxprice?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                         <?php else:?>
-                            <li class="page-item"><a class="page-link" href="filter.php?search_keyword=<?php echo $keyword?>&minprice=<?php echo $minprice?>&maxprice=<?php echo $maxprice?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
+                            <li class="page-item"><a class="page-link" href="filter?search_keyword=<?php echo $keyword?>&minprice=<?php echo $minprice?>&maxprice=<?php echo $maxprice?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                         <?php endif;?>
-                        <li class="page-item active"><a class="page-link" href="filter.php?search_keyword=<?php echo $keyword?>&minprice=<?php echo $minprice?>&maxprice=<?php echo $maxprice?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
+                        <li class="page-item active"><a class="page-link" href="filter?search_keyword=<?php echo $keyword?>&minprice=<?php echo $minprice?>&maxprice=<?php echo $maxprice?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
                         <?php if($page +1 > $number_page):?>
-                            <li class="page-item disabled"><a class="page-link" href="filter.php?search_keyword=<?php echo $keyword?>&minprice=<?php echo $minprice?>&maxprice=<?php echo $maxprice?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
+                            <li class="page-item disabled"><a class="page-link" href="filter?search_keyword=<?php echo $keyword?>&minprice=<?php echo $minprice?>&maxprice=<?php echo $maxprice?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                         <?php else:?>
-                            <li class="page-item"><a class="page-link" href="filter.php?search_keyword=<?php echo $keyword?>&minprice=<?php echo $minprice?>&maxprice=<?php echo $maxprice?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
+                            <li class="page-item"><a class="page-link" href="filter?search_keyword=<?php echo $keyword?>&minprice=<?php echo $minprice?>&maxprice=<?php echo $maxprice?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                         <?php endif;?>
                     </ul>
                 </nav>
@@ -275,19 +185,12 @@
                     <?php foreach($books as $book):?> 
                         <div class="col-sm-6 col-lg-3">
                         <div class="card card-course-item">
-                                    <?php 
-                                        $stmt = $db->prepare('SELECT * FROM gallery_image WHERE book_id =? and isShow = 1');
-                                        $stmt->bind_param('i', $book['book_id']);
-                                        $stmt->execute();
-
-                                        $image = $stmt->get_result()->fetch_assoc();
-                                    ?>
-                                <a href="detail_product.php?book_id<?php echo $book['book_id']?>">
-                                    <img class="card-img-top" width="150" height="200" src="<?php echo $image['address']?'../../'.$image['address']: 'https://tse4.mm.bing.net/th?id=OIP.ZiwfBrifIO4lV_Q-gIC7VQHaKx&pid=Api&P=0&h=180'?>" alt="">
+                                <a href="detail_product?book_id<?php echo $book['book_id']?>">
+                                    <img class="card-img-top" width="150" height="200" src="<?php echo $book['address']?$book['address']: 'https://tse4.mm.bing.net/th?id=OIP.ZiwfBrifIO4lV_Q-gIC7VQHaKx&pid=Api&P=0&h=180'?>" alt="">
                                 </a>
                                 
                                 <div class="card-body">
-                                    <a href="detail_product.php?book_id<?php echo $book['book_id']?>">
+                                    <a href="detail_product?book_id<?php echo $book['book_id']?>">
                                         <h5 class="card-title"><?= $book['title']?></h5>
                                     </a>
                                     <p class="card-text" ><?=_AUTHORS?>: <?= $book['authors']?></p>
@@ -317,28 +220,27 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
 
-        const addToCartButtons = document.querySelectorAll('.btn-add-to-cart');
-        addToCartButtons.forEach(button => {
-            button.addEventListener('click', function (event) {
-                event.preventDefault();
-                const productId = this.dataset.bookId;
-                const quantity = 1;
-                
-                $.ajax({
-                    url: '../../service/cart/add_to_cart.php',
-                    method: 'POST',
-                    data: {book_id: productId, quantity: quantity},
-                    success: function (response) {
-                        $('.display-cart').remove();
-                        $('.display-count-cart').remove();
-                        $('#show_cart').append(response);
-                    },
-                    error: function (error) {
-                        console.error(error);
-                    }
-                });
-            });
+    document.body.addEventListener('click', function(event) {
+    if (event.target.classList.contains('btn-add-to-cart')) {
+        event.preventDefault();
+        const productId = event.target.dataset.bookId;
+        const quantity = 1;
+
+        $.ajax({
+            url: '/cart/addtocart',
+            method: 'POST',
+            data: {book_id: productId, quantity: quantity},
+            success: function (response) {
+                    $('.display-cart').remove();
+                    $('.display-count-cart').remove();
+                    $('#show_cart').append(response);
+            },
+            error: function (error) {
+                console.error(error);
+            }
         });
+    }
+    });
 
     });
 </script>

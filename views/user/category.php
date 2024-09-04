@@ -1,101 +1,27 @@
 <?php
-    require_once('../../database.php');
-    $db = DBConfig::getDB();
+    // use DBConfig;
+    
+    // $db = DBConfig::getDB();
     session_start();
 
-    if(isset($_GET['lang']) && !empty($_GET['lang'])){
+    if(isset($_GET['lang']) && !empty($_GET['lang'])) {
         $_SESSION['lang'] = $_GET['lang'];
-        if(isset($_SESSION['lang']) && $_SESSION['lang'] != $_GET['lang']){
-         echo "<script type='text/javascript'> location.reload(); </script>";
+        if (isset($_SESSION['lang']) && $_SESSION['lang'] != $_GET['lang']) {
+            echo "<script type='text/javascript'> location.reload(); </script>";
         }
-       }
-       if(isset($_SESSION['lang'])){
-            include "../../public/language/".$_SESSION['lang'].".php";
-       }else{
-            include "../../public/language/en.php";
-       }
-
-    $category_id = $_GET['category_id'];
-    $name= $_GET['name'];
-
-    $stmt = $db->prepare('SELECT * FROM categories where category_id = ?');
-    $stmt->bind_param('i',$category_id);
-    $stmt->execute();
-
-    $current_cate = $stmt->get_result()->fetch_assoc();
-
-    $books;
-
-    $limit = 6;
-
-    if(isset($_GET['minprice']) && isset($_GET['maxprice'])) {
-        $minprice = $_GET['minprice'];
-        $maxprice = $_GET['maxprice'];
-        if ($minprice == null && $maxprice == null) {
-            $stmt = $db->prepare('SELECT * FROM books where category_id = ?');
-            $stmt->bind_param("i", $category_id);
-        } else if($minprice == null) {
-            $stmt = $db->prepare('SELECT * FROM books WHERE category_id = ? AND price <=?');
-            $stmt->bind_param('id', $category_id,$maxprice);
-        } else if ($maxprice == null) {
-            $stmt = $db->prepare('SELECT * FROM books WHERE category_id = ? AND price >=?');
-            $stmt->bind_param('id', $category_id, $minprice);
-        } else {
-            $stmt = $db->prepare('SELECT * FROM books WHERE category_id = ? AND price >=? AND price <=?');
-            $stmt->bind_param('idd',$category_id, $minprice, $maxprice); 
-        }
-    } else {
-        $stmt = $db->prepare('SELECT * FROM books where category_id = ?');
-        $stmt->bind_param("i", $category_id);
     }
 
-    $stmt->execute();
-
-    $number_result  = $stmt->get_result()->num_rows;
-
-    $number_page = ceil($number_result/ $limit);
+    if (isset($_SESSION['lang'])) {
+        include "public/language/" . $_SESSION['lang'] . ".php";
+    } else {
+        $_SESSION['lang'] = 'en';
+        include "public/language/en.php";
+    }
     
-    if(!isset($_GET['page'])){
-        $page = 1;
-    } else {
-        $page = $_GET['page'];
-    }
-
-    $page_first = ($page - 1) * $limit;
-
-    if(isset($_GET['minprice']) && isset($_GET['maxprice'])) {
-        $minprice = $_GET['minprice'];
-        $maxprice = $_GET['maxprice'];
-        if ($minprice == null && $maxprice == null) {
-            $stmt = $db->prepare('SELECT * FROM books where category_id = ? LIMIT ?,?');
-            $stmt->bind_param("iii", $category_id, $page_first, $limit);
-        } else if($minprice == null) {
-            $stmt = $db->prepare('SELECT * FROM books WHERE category_id = ? AND price <=? LIMIT ?,?');
-            $stmt->bind_param('idii', $category_id,$maxprice,$page_first, $limit);
-        } else if ($maxprice == null) {
-            $stmt = $db->prepare('SELECT * FROM books WHERE category_id = ? AND price >=? LIMIT ?,?');
-            $stmt->bind_param('idii', $category_id, $minprice,$page_first, $limit);
-        } else {
-            $stmt = $db->prepare('SELECT * FROM books WHERE category_id = ? AND price >=? AND price <=? LIMIT ?,?');
-            $stmt->bind_param('iddii',$category_id, $minprice, $maxprice,$page_first, $limit); 
-        }
-    } else {
-        $stmt = $db->prepare('SELECT * FROM books where category_id = ? LIMIT ?,?');
-        $stmt->bind_param("iii", $category_id, $page_first, $limit);
-    }
-
-    $stmt->execute();
-    $books = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
-
-    if(!isset($_SESSION['cart'])) {
-        $_SESSION['cart'] = array();
-        $_SESSION['qty_array'] = array();
-    }
-
-    $stmt = $db->prepare('SELECT * FROM categories');
-    $stmt->execute();
-    $categories = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $page = $_GET['page'] ?: 1;
+    $category_id = $_GET['category_id'] ?: null;
+    $minprice = $_GET['minprice'] ?: null;
+    $maxprice = $_GET['maxprice'] ?: null;
 
 ?>
 
@@ -119,15 +45,15 @@
     <div class="app">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="home.php">Book Store</a>
+            <a class="navbar-brand" href="/">Book Store</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <form class="form-inline nav-item" method="GET" action="filter.php">
+            <form class="form-inline nav-item" method="GET" action="/filter">
                     <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search_keyword">
                     <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><?= _SEARCH?></button>
             </form>
-            <form action="" class="form-inline nav-item" method="GET">
+            <form action="/category" class="form-inline nav-item" method="GET">
                 <input type="hidden" name="category_id" value="<?= $category_id?>">
                 <input type="hidden" name="name" value="<?= $name?>">
                     <div class="form-group mr-sm-2">
@@ -161,7 +87,7 @@
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?= _CATEGORY?></a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <?php foreach($categories as $category):?>
-                                <a class="dropdown-item" href="category.php?category_id=<?php echo $category['category_id'];?>"><?php echo $category['name_category'];?></a>
+                                <a class="dropdown-item" href="category?category_id=<?php echo $category['category_id'];?>"><?php echo $category['name_category'];?></a>
                             <?php endforeach;?>    
                         </div>
                     </li>
@@ -176,41 +102,28 @@
                             ?>
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <?php if($_SESSION['user_id']): ?>
-                            <a class="dropdown-item" href="history.php"><?= _HISTORY?></a>
-                            <a class="dropdown-item" href="profile.php"><?= _PROFILE?></a>
-                            <a class="dropdown-item" href="codesale.php"><?= _CODESALE?></a>
-                            <a class="dropdown-item" href="store_system.php"><?= _SYSTEM?></a>
+                            <?php if($_SESSION['user_id']): ?>
+                            <a class="dropdown-item" href="history"><?= _HISTORY?></a>
+                            <a class="dropdown-item" href="profile"><?= _PROFILE?></a>
+                            <a class="dropdown-item" href="codesale"><?= _CODESALE?></a>
+                            <a class="dropdown-item" href="store_system"><?= _SYSTEM?></a>
                             <?php else:?>
-                            <a class="dropdown-item" href="../../index.php"><?=_LOGIN ?></a>
+                            <a class="dropdown-item" href="login"><?=_LOGIN ?></a>
                             <?php endif; ?>
-                            <a class="dropdown-item" href="../../logout.php"><?=_LOGOUT ?></a>
-                        </a>
+                            <a class="dropdown-item" href="logout"><?=_LOGOUT ?></a>
                         </div>
                     </li>
 
                     <li class="nav-item dropdown" id="show_cart">
-                        <a class="nav-link dropdown-toggle display-count-cart" href="view_cart.php" id="navbarDropdown" aria-haspopup="true" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle display-count-cart" href="view_cart" id="navbarDropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="badge"><?php echo count($_SESSION['cart']); ?></span> Cart <span class="glyphicon glyphicon-shopping-cart"></span> 
                         </a>
                         <?php if(count($_SESSION['cart']) >0 ): ?>
                         <div class="dropdown-menu display-cart"aria-labelledby="navbarDropdown">
-                            <?php
-                                $stmt = $db->prepare("SELECT * FROM books WHERE book_id IN (".implode(',',$_SESSION['cart']).")");
-                                $stmt->execute();
-                                $book_cart = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-                            ?>
                             <?php foreach($book_cart as $cart):?>
                                 <div class="row mt-4">
                                     <div class="col-6">
-                                        <?php 
-                                            $stmt = $db->prepare('SELECT * FROM gallery_image WHERE book_id =? and isShow = 1');
-                                            $stmt->bind_param('i', $cart['book_id']);
-                                            $stmt->execute();
-
-                                            $image_cart = $stmt->get_result()->fetch_assoc();
-                                        ?>
-                                        <img width="70" height="70" src="<?php echo '../../'. $image_cart['address'];?>">
+                                        <img width="70" height="70" src="<?php echo $cart['address'];?>">
                                     </div>
                                     <div class="col-6">
                                         <a href=""><?php echo $cart['title'] ?></a>
@@ -243,26 +156,29 @@
                 <form method='GET' action='' id='form_lang' >
                     <input type="hidden" name="category_id" value="<?= $category_id?>">
                     <input type="hidden" name="name" value="<?= $name?>">
+                    <input type="hidden" name="minprice" value="<?php echo $minprice?>">
+                    <input type="hidden" name="maxprice" value="<?php echo $maxprice?>">
+                    <input type="hidden" name="page" value="<?= $page?>">
                     <?=_SELECTLANGUAGES?>: <select name='lang' onchange='changeLang();' >
                     <option value='en' <?php if(isset($_SESSION['lang']) && $_SESSION['lang'] == 'en'){ echo "selected"; } ?> >English</option>
                     <option value='vi' <?php if(isset($_SESSION['lang']) && $_SESSION['lang'] == 'vi'){ echo "selected"; } ?> >Vietnamese</option>
                     </select>
                 </form>
             </div>
-            <h3 class="text-center"><?= _CATEGORY?>: <?php echo $current_cate['name_category'] ?></h3>
+            <h3 class="text-center"><?= _CATEGORY?>: <?= $current_cate['name_category'] ?></h3>
             <div class="d-flex justify-content-center">
             <nav aria-label="Page navigation example">
                     <ul class="pagination">
                         <?php if($page - 1 == 0):?>
-                            <li class="page-item disabled"><a class="page-link" href="category.php?category_id=<?php echo $category_id?>&minprice=<?php echo $minprice?>&maxprice=<?php echo $maxprice ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
+                            <li class="page-item disabled"><a class="page-link" href="/category?category_id=<?php echo $category_id?>&minprice=<?php echo $minprice?>&maxprice=<?php echo $maxprice ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                         <?php else:?>
-                            <li class="page-item"><a class="page-link" href="category.php?category_id=<?php echo $category_id?>&minprice=<?php echo $minprice?>&maxprice=<?php echo $maxprice ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
+                            <li class="page-item"><a class="page-link" href="/category?category_id=<?php echo $category_id?>&minprice=<?php echo $minprice?>&maxprice=<?php echo $maxprice ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                         <?php endif;?>
-                        <li class="page-item active"><a class="page-link" href="category.php?category_id=<?php echo $category_id?>&minprice=<?php echo $minprice?>&maxprice=<?php echo $maxprice ?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
+                        <li class="page-item active"><a class="page-link" href="/category?category_id=<?php echo $category_id?>&minprice=<?php echo $minprice?>&maxprice=<?php echo $maxprice ?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
                         <?php if($page +1 > $number_page):?>
-                            <li class="page-item disabled"><a class="page-link" href="category.php?category_id=<?php echo $category_id?>&minprice=<?php echo $minprice?>&maxprice=<?php echo $maxprice ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
+                            <li class="page-item disabled"><a class="page-link" href="/category?category_id=<?php echo $category_id?>&minprice=<?php echo $minprice?>&maxprice=<?php echo $maxprice ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                         <?php else:?>
-                            <li class="page-item"><a class="page-link" href="category.php?category_id=<?php echo $category_id?>&minprice=<?php echo $minprice?>&maxprice=<?php echo $maxprice ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
+                            <li class="page-item"><a class="page-link" href="/category?category_id=<?php echo $category_id?>&minprice=<?php echo $minprice?>&maxprice=<?php echo $maxprice ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                         <?php endif;?>
                     </ul>
                 </nav>
@@ -275,15 +191,8 @@
                     <?php foreach($books as $book):?> 
                     <div class="col-sm-6 col-lg-3">
                         <div class="card card-course-item">
-                                    <?php 
-                                        $stmt = $db->prepare('SELECT * FROM gallery_image WHERE book_id =? and isShow = 1');
-                                        $stmt->bind_param('i', $book['book_id']);
-                                        $stmt->execute();
-
-                                        $image = $stmt->get_result()->fetch_assoc();
-                                    ?>
                                 <a href="detail_product.php?book_id=<?php echo $book['book_id']?>">
-                                    <img class="card-img-top" width="150" height="200" src="<?php echo $image['address']?'../../'.$image['address']: 'https://tse4.mm.bing.net/th?id=OIP.ZiwfBrifIO4lV_Q-gIC7VQHaKx&pid=Api&P=0&h=180' ?>" alt="">
+                                    <img class="card-img-top" width="150" height="200" src="<?php echo $book['address']? $book['address']: 'https://tse4.mm.bing.net/th?id=OIP.ZiwfBrifIO4lV_Q-gIC7VQHaKx&pid=Api&P=0&h=180' ?>" alt="">
                                 </a>
                                 
                                 <div class="card-body">
@@ -307,11 +216,6 @@
                     </div>
                     <?php endforeach;}?>
                 </div>
-                <!-- <?php 
-                     for($page = 1; $page<= $number_page; $page++) {  
-                        echo '<a href = "category.php?category_id='.$category_id.'&page=' . $page . '">' . $page . ' </a>';  
-                        }  
-                    ?> -->
             </div>
         </div>
     </div>
@@ -322,28 +226,27 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
 
-        const addToCartButtons = document.querySelectorAll('.btn-add-to-cart');
-        addToCartButtons.forEach(button => {
-            button.addEventListener('click', function (event) {
-                event.preventDefault();
-                const productId = this.dataset.bookId;
-                const quantity = 1;
-                
-                $.ajax({
-                    url: '../../service/cart/add-to-cart.php',
-                    method: 'POST',
-                    data: {book_id: productId, quantity: quantity},
-                    success: function (response) {
+        document.body.addEventListener('click', function(event) {
+        if (event.target.classList.contains('btn-add-to-cart')) {
+            event.preventDefault();
+            const productId = event.target.dataset.bookId;
+            const quantity = 1;
+
+            $.ajax({
+                url: '/cart/addtocart',
+                method: 'POST',
+                data: {book_id: productId, quantity: quantity},
+                success: function (response) {
                         $('.display-cart').remove();
                         $('.display-count-cart').remove();
                         $('#show_cart').append(response);
-                    },
-                    error: function (error) {
-                        console.error(error);
-                    }
-                });
+                },
+                error: function (error) {
+                    console.error(error);
+                }
             });
-        });
+        }
+    });
 
     });
 </script>

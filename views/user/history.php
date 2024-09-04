@@ -1,6 +1,5 @@
 <?php
     session_start();
-    require_once('../../database.php');
     
 
     if(isset($_GET['lang']) && !empty($_GET['lang'])){
@@ -10,25 +9,10 @@
         }
        }
        if(isset($_SESSION['lang'])){
-            include "../../public/language/".$_SESSION['lang'].".php";
+            include "public/language/".$_SESSION['lang'].".php";
        }else{
-            include "../../public/language/en.php";
+            include "public/language/en.php";
        }
-
-    $db = DBConfig::getDB();
-
-    $limit = 6;
-
-    $stmt = $db->prepare("SELECT t.createdAt, t.address, t.receiver, t.order_id, t.total, o.user_id 
-                            FROM transactions as t 
-                            LEFT JOIN order_item as o ON t.order_id = o.id 
-                            WHERE o.user_id = ? ORDER BY t.createdAt DESC");
-    $stmt->bind_param("i", $_SESSION['user_id']);
-    $stmt->execute();
-
-    $number_result  = $stmt->get_result()->num_rows;
-
-    $number_page = ceil($number_result/ $limit);
     
     if(!isset($_GET['page'])){
         $page = 1;
@@ -36,23 +20,8 @@
         $page = $_GET['page'];
     }
 
-    $page_first = ($page - 1) * $limit;
-
-    $stmt = $db->prepare('SELECT t.createdAt, t.address, t.receiver, t.order_id, t.total, o.user_id, tr.status 
-                            FROM transactions as t 
-                            LEFT JOIN order_item as o ON t.order_id = o.id 
-                            LEFT JOIN transport as tr ON t.transport_id = tr.id 
-                            WHERE o.user_id = ? ORDER BY tr.status, t.createdAt DESC LIMIT ?,?');
-    $stmt->bind_param("iii", $_SESSION['user_id'],$page_first,$limit);
-    $stmt->execute();
-    
-    $transactions= $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
     $index = 1;
 
-    $stmt = $db->prepare('SELECT * FROM categories');
-    $stmt->execute();
-    $categories = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 ?>
 
 <DOCTYPE html>
@@ -75,15 +44,15 @@
                         <nav aria-label="Page navigation example">
                                 <ul class="pagination">
                                     <?php if($page - 1 == 0):?>
-                                        <li class="page-item disabled"><a class="page-link" href="history.php?page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="history?page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="history.php?page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
+                                        <li class="page-item"><a class="page-link" href="history?page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php endif;?>
-                                    <li class="page-item active"><a class="page-link" href="history.php?page=<?php echo $page?>"><?php echo $page ?></a></li>
+                                    <li class="page-item active"><a class="page-link" href="history?page=<?php echo $page?>"><?php echo $page ?></a></li>
                                     <?php if($page +1 > $number_page):?>
-                                        <li class="page-item disabled"><a class="page-link" href="history.php?page=<?php echo $page +1?>"><?=_NEXT?></a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="history?page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="history.php?page=<?php echo $page +1?>"><?=_NEXT?></a></li>
+                                        <li class="page-item"><a class="page-link" href="history?page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php endif;?>
                                 </ul>
                             </nav>
@@ -112,7 +81,7 @@
                                                                 ? '<span class="text-warning font-weight-bold">'._PENDING.'</span>' 
                                                                 : '<span class="text-success font-weight-bold">'._SUCCESS.'</span>' ?>
                                 </td>
-                                <td><a href="detail_transaction.php?order_id=<?php echo $transaction['order_id']?>" class="btn btn-info"><?=_DETAIL?></a></td>
+                                <td><a href="detail_transaction?order_id=<?php echo $transaction['order_id']?>" class="btn btn-info"><?=_DETAIL?></a></td>
                                 <?php $index ++?>
                             </tr>
                             <?php endforeach;?>

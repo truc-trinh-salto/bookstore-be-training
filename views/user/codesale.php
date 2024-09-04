@@ -1,6 +1,4 @@
 <?php
-    require_once('../../database.php');
-    $db = DBConfig::getDB();
     session_start();
     if(isset($_GET['lang']) && !empty($_GET['lang'])){
         $_SESSION['lang'] = $_GET['lang'];
@@ -9,18 +7,11 @@
         }
        }
        if(isset($_SESSION['lang'])){
-            include "../../public/language/".$_SESSION['lang'].".php";
+            include "public/language/".$_SESSION['lang'].".php";
        }else{
-            include "../../public/language/en.php";
+            include "public/language/en.php";
        }
     
-    $stmt = $db->prepare('SELECT * FROM codesale where deactivate = 1');
-    $stmt->execute();
-    $codesales = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
-    $stmt = $db->prepare('SELECT * FROM categories');
-    $stmt->execute();
-    $categories = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 ?>
 
 <DOCTYPE html>

@@ -2,10 +2,11 @@
         .dropdown:hover>.dropdown-menu {
             display: block;
             }
-    </style>
+</style>
+
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="home.php">Book Store</a>
+            <a class="navbar-brand" href="/">Book Store</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -32,14 +33,14 @@
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <?php if($_SESSION['user_id']): ?>
-                                <a class="dropdown-item" href="history.php"><?= _HISTORY?></a>
-                                <a class="dropdown-item" href="profile.php"><?= _PROFILE?></a>
-                                <a class="dropdown-item" href="codesale.php"><?= _CODESALE?></a>
-                                <a class="dropdown-item" href="store_system.php"><?= _SYSTEM?></a>
+                                <a class="dropdown-item" href="/history"><?= _HISTORY?></a>
+                                <a class="dropdown-item" href="/profile"><?= _PROFILE?></a>
+                                <a class="dropdown-item" href="/codesale"><?= _CODESALE?></a>
+                                <a class="dropdown-item" href="/store_system"><?= _SYSTEM?></a>
                                 <?php else:?>
-                                <a class="dropdown-item" href="../../index.php"><?=_LOGIN ?></a>
+                                <a class="dropdown-item" href="/login"><?=_LOGIN ?></a>
                                 <?php endif; ?>
-                                <a class="dropdown-item" href="../../logout.php"><?=_LOGOUT ?></a>
+                                <a class="dropdown-item" href="/logout"><?=_LOGOUT ?></a>
                         </div>
                     </li>
 
@@ -49,22 +50,10 @@
                         </a>
                         <?php if(count($_SESSION['cart']) >0 ): ?>
                         <div class="dropdown-menu display-cart"aria-labelledby="navbarDropdown">
-                            <?php
-                                $stmt = $db->prepare("SELECT * FROM books WHERE book_id IN (".implode(',',$_SESSION['cart']).")");
-                                $stmt->execute();
-                                $book_cart = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-                            ?>
                             <?php foreach($book_cart as $cart):?>
                                 <div class="row mt-4">
                                     <div class="col-6">
-                                        <?php 
-                                            $stmt = $db->prepare('SELECT * FROM gallery_image WHERE book_id =? and isShow = 1');
-                                            $stmt->bind_param('i', $cart['book_id']);
-                                            $stmt->execute();
-
-                                            $image_cart = $stmt->get_result()->fetch_assoc();
-                                        ?>
-                                        <img width="70" height="70" src="<?php echo $image_cart['address'];?>">
+                                        <img width="70" height="70" src="<?php echo $cart['address'];?>">
                                     </div>
                                     <div class="col-6">
                                         <a href=""><?php echo $cart['title'] ?></a>
@@ -92,17 +81,13 @@
 						<form method='get' action='' id='form_lang'>
                             <input type='hidden' name='order_id' value=<?=$order_id?>>
                             <input type='hidden' name='book_id' value=<?=$book_id?>>
+                            <input type='hidden' name='username' value=<?=$username?>>
 							<?=_SELECTLANGUAGES?>: <select name='lang' class="text-info font-weight-bold" onchange='changeLang();' >
 							<option value='en' <?php if(isset($_SESSION['lang']) && $_SESSION['lang'] == 'en'){ echo "selected"; } ?> >English</option>
 							<option value='vi' <?php if(isset($_SESSION['lang']) && $_SESSION['lang'] == 'vi'){ echo "selected"; } ?> >Vietnamese</option>
 							</select>
 						</form>
 					</li>
-                    
-                    <!-- <li class="nav-item">
-                        <a class ="nav-link"href="view_cart.php"><span class="badge"><?php echo count($_SESSION['cart']); ?></span> Cart <span class="glyphicon glyphicon-shopping-cart"></span></a>
-                    </li> -->
-                    
                 </ul>
             </div>
         </div>

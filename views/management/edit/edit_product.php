@@ -1,6 +1,5 @@
 <?php
     session_start();
-    require_once('../../../database.php');
 
     if(isset($_GET['lang']) && !empty($_GET['lang'])){
         $_SESSION['lang'] = $_GET['lang'];
@@ -10,47 +9,12 @@
     }
 
     if(isset($_SESSION['lang'])){
-        include "../../../public/language/".$_SESSION['lang'].".php";
+        include "public/language/".$_SESSION['lang'].".php";
     }else{
-            include "../../../public/language/en.php";
+        include "public/language/en.php";
     }
 
-    $db = DBConfig::getDB();
-    $stmt = $db->prepare('SELECT * FROM categories');
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $categories = $result->fetch_all(MYSQLI_ASSOC);
-
     $book_id = $_GET['book_id'];
-
-    $book;
-    $stmt = $db->prepare('SELECT b.title, b.image, b.book_id, b.description, b.category_id, b.price, 
-                                    b.created_at, b.updated_at, b.sale, b.hotItem, b.stock, b.authors, c.name_category
-                                    FROM books as b 
-                                    LEFT JOIN categories as c 
-                                    ON b.category_id = c.category_id
-                                    WHERE b.book_id = ?
-                                    ORDER BY b.book_id ASC');
-    $stmt->bind_param("i", $book_id);
-    $stmt->execute();
-    $book = $stmt->get_result()->fetch_assoc();
-
-
-    $branchs;
-        
-    $stmt = $db->prepare('SELECT br.branch_id, br.title, br.address, br.hotline, br.image, brst.status, brst.branch_select FROM branch as br
-                            LEFT JOIN branchstockitem as brst
-                            ON br.branch_id = brst.branch_id
-                            WHERE brst.book_id = ?');
-    $stmt->bind_param('i', $book_id);
-    $stmt->execute();
-    $branchs = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
-    $stmt = $db->prepare('SELECT * FROM gallery_image where book_id =?');
-    $stmt->bind_param('i', $book_id);
-    $stmt->execute();
-
-    $images = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
     $selected_image;
 
@@ -78,7 +42,7 @@
   </head>
 <body>
     <div class="app">
-        <?php include('../partials/admin_header.php') ?>
+        <?php include('views/management/partials/admin_header.php') ?>
         <div class="container">
         <section layout:fragment="content">
     <div class="row">
@@ -96,10 +60,11 @@
                             unset($_SESSION['message']);
                         }
                     ?>
-                    <form action="" method="POST" class="forms-sample">
+                    <form action="/product/editProduct" method="POST" class="forms-sample">
+                        <input type="hidden" name="book_id" value="<?php echo $book_id ?>">
                         <div class="form-group">
                         <div class="text-center">
-                                <img src="../../../<?php echo $selected_image['address']?>" class="rounded" id="book_image" width="200" height="200" alt="">
+                                <img src="<?php echo $selected_image['address']?>" class="rounded" id="book_image" width="200" height="200" alt="">
                             </div>
                         </div>
 
@@ -108,7 +73,7 @@
                             <select class="form-control select-image" id="exampleInputCategory" name="image_id" onchange="handleSelectChange(event)">
                                 <?php $index = 0; ?>
                                 <?php foreach($images as $image):?>
-                                    <option value="<?php echo $image['image_id']?>" data-image="<?php echo '../'.$image['address'] ?>"
+                                    <option value="<?php echo $image['image_id']?>" data-image="<?php echo $image['address'] ?>"
                                     <?php 
                                         if($image['isShow'] == 1){
                                             echo ' selected="selected" ';
@@ -166,7 +131,7 @@
                             <input type="number" class="form-control" id="exampleInputQuantity" placeholder="<?=_SALE?>" name="sale" min="0" value="<?php echo $book['sale']?:'0'?>" max="100">
                         </div>
                         <button type="submit" name="submit" class="btn btn-success mr-2"><?=_SAVE?></button>
-                        <a href="../product.php" class="btn btn-danger mr-2"><?=_CANCEL?></a>
+                        <a href="product" class="btn btn-danger mr-2"><?=_CANCEL?></a>
                     </form>
                 </div>
             </div>
@@ -176,12 +141,12 @@
 
         <div class="col-md-5 grid-margin stretch-card">
             <div class="row-md-12">
-                <form action="../../../service/branch/edit_branch_select.php" method="POST">
+                <form action="/branch/selectWareHouse" method="POST">
                         <input type="hidden" name="book_id" value="<?php echo $book_id ?>">
                         <div class="form-group">
                             <label for="exampleInputCategory"><?=_WAREHOUSE?></label>
                             <select class="form-control" id="exampleInputCategory" name="branch_select">
-                                <?php foreach($branchs as $branch_select):?>
+                                <?php foreach($branches as $branch_select):?>
                                     <option value="<?php echo $branch_select['branch_id']?>"
                                     <?php 
                                         if($branch_select['branch_select'] == 1){
@@ -206,7 +171,7 @@
                                     <th scope="col"><?=_DETAIL?></th>
                                 </tr>
                             </thead>
-                                <?php foreach($branchs as $branch):?> 
+                                <?php foreach($branches as $branch):?> 
                                     <tr>
                                         <th scope="row"><?= $index ?></th>
                                         <td><?= $branch['title'] ?></td>
@@ -214,14 +179,14 @@
                                         <td><?= $branch['hotline'] ?></td>
                                         <td>
                                             <?php if($branch['status'] == 1): ?>
-                                                <a href="../../../service/branch/action_stock.php?book_id=<?php echo $book_id?>&branch_id=<?php echo $branch['branch_id']?>&action=out" class="btn btn-success btn-sm"><?=_INSTOCK?></a>
+                                                <a href="/branch/actionStock?book_id=<?php echo $book_id?>&branch_id=<?php echo $branch['branch_id']?>&action=out" class="btn btn-success btn-sm"><?=_INSTOCK?></a>
                                             <?php else: ?>
-                                                <a href="../../../service/branch/action_stock.php?book_id=<?php echo $book_id?>&branch_id=<?php echo $branch['branch_id']?>&action=in" class="btn btn-danger btn-sm"><?=_OUTSTOCK?></a>
+                                                <a href="/branch/actionStock?book_id=<?php echo $book_id?>&branch_id=<?php echo $branch['branch_id']?>&action=in" class="btn btn-danger btn-sm"><?=_OUTSTOCK?></a>
                                             <?php endif; ?>
                                             
 
                                             <?php if($branch['branch_select'] == 1):?>
-                                            <a href="" class="btn btn-info btn-sm"><?=_WAREHOUSE?></a>
+                                                <a href="" class="btn btn-info btn-sm"><?=_WAREHOUSE?></a>
                                             <?php endif; ?>
                                             
                                         </td>
@@ -256,75 +221,3 @@
         image.src = imageSrc;
     }
 </script>
-
-<?php
-    if(isset($_POST['submit']) && $_SERVER['REQUEST_METHOD'] == 'POST')
-    {   
-        $isValid = true;
-        $image = $_POST['image_id'];
-        $name = $_POST['name'];
-        $quantity = $_POST['quantity'];
-        $price = $_POST['price'];
-        $hotItem = $_POST['hotItem'];
-        $categoryId = $_POST['category'];
-        $authors = $_POST['authors'];
-        $description = $_POST['description'];
-        $sale = $_POST['sale'];
-
-        if(checkExistenceBook($name, $db, $book_id)){
-            $_SESSION['message'] = "PRODUCT'S NAME : ".$name." EXISTED";
-            $isValid = false;
-        } else if($quantity && $quantity < 0){
-            $_SESSION['message'] .= "</br>QUANTITY CANNOT BE NEGATIVE";
-            $isValid = false;
-        } else if($price && $price < 1000){
-            $_SESSION['message'] .= "</br>PRICE CANNOT BE NEGATIVE";
-            $isValid = false;
-        } else if ($sale && $sale > 100 && $sale <0){
-            $_SESSION['message'] .= "</br>SALE CANNOT BE LESS THAN 0 OR MORE THAN 100";
-            $isValid = false;
-        }
-
-        if($isValid){
-            $stmt = $db->prepare('UPDATE books SET title=?, stock =? , price =?, hotItem=?, category_id=?, authors=?, description=?, updated_at=NOW(), sale=? WHERE book_id=?');
-            $stmt->bind_param('sidiissdi', $name, $quantity, $price, $hotItem, $categoryId, $authors, $description,$sale,$book_id);
-            $stmt->execute();
-
-            if($stmt->affected_rows > 0 && $image != '' && $image != null){
-                $stmt = $db->prepare('UPDATE gallery_image SET isShow = 0 WHERE book_id=?');
-                $stmt->bind_param('i', $book_id);
-                $stmt->execute();
-
-                $stmt = $db->prepare('UPDATE gallery_image SET isShow = 1 WHERE image_id=?');
-                $stmt->bind_param('i', $image);
-                $stmt->execute();
-                $_SESSION['message'] = 'Cập nhật sản phẩm thành công';
-                header("Location: edit_product.php?book_id=".$book_id);
-                exit();
-            }
-            else if($stmt->affected_rows > 0)
-            {
-                $_SESSION['message'] = 'Cập nhật sản phẩm thành công';
-                header("Location: edit_product.php?book_id=".$book_id);
-                exit();
-            } else {
-                $_SESSION['message'] = 'Cập nhật sản thất bại';
-                header("Location: edit_product.php?book_id=".$book_id);
-                exit();
-            }
-        } else {
-            header("Location: edit_product.php?book_id=".$book_id);
-            exit();
-        }
-
-    }
-
-    function checkExistenceBook($name, $db, $book_id){
-        $stmt = $db->prepare("SELECT * FROM books WHERE title =? AND book_id !=?");
-        $stmt->bind_param("si", $name, $book_id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        return $result->fetch_assoc() > 0;
-    }
-
-?>

@@ -1,6 +1,6 @@
 <?php
     session_start();
-    require_once('../../../database.php');
+
     if(isset($_GET['lang']) && !empty($_GET['lang'])){
         $_SESSION['lang'] = $_GET['lang'];
         if(isset($_SESSION['lang']) && $_SESSION['lang'] != $_GET['lang']){
@@ -8,26 +8,12 @@
         }
     }
     if(isset($_SESSION['lang'])){
-            include "../../../public/language/".$_SESSION['lang'].".php";
+            include "public/language/".$_SESSION['lang'].".php";
     }else{
-            include "../../../public/language/en.php";
+            include "public/language/en.php";
     }
 
-    $db = DBConfig::getDB();
-    $stmt = $db->prepare('SELECT * FROM categories');
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $categories = $result->fetch_all(MYSQLI_ASSOC);
-
     $code_id = $_GET['code_id'];
-
-
-    $stmt = $db->prepare('SELECT * FROM codesale WHERE id = ?');
-    $stmt->bind_param('i', $code_id);
-    $stmt->execute();
-
-    $codesale = $stmt->get_result()->fetch_assoc();
-
 
 ?>
 
@@ -44,7 +30,7 @@
   </head>
 <body>
     <div class="app">
-        <?php include('../partials/admin_header.php') ?>
+        <?php include('views/management/partials/admin_header.php') ?>
         <div class="container">
         <section layout:fragment="content">
 	<div class="col-md-12 grid-margin stretch-card">
@@ -61,8 +47,8 @@
                         unset($_SESSION['message']);
                     }
 			?>
-				<form action="" method="POST" class="forms-sample">
-
+				<form action="/codesale/editCodesale" method="POST" class="forms-sample">
+                    <input type="hidden" name="code_id" value="<?php echo $code_id ?>">
 					<div class="form-group">
 						<label for="exampleInputName1"><?=_DESCRIPTION?></label>
 						<input type="text" class="form-control" id="exampleInputName1" placeholder="<?=_DESCRIPTION?>" name="description" value="<?php echo $codesale['description']?>" required>
@@ -150,53 +136,3 @@
         }
     }
 </script>
-
-<?php
-    if(isset($_POST['submit']) && $_SERVER['REQUEST_METHOD'] == 'POST')
-    {
-        $description = $_POST['description'];
-        $min = $_POST['min'];
-        $max = $_POST['max'];
-        $startAt = $_POST['startDate'];
-        $endAt = $_POST['endDate'];
-        $activate = $_POST['activate'];
-        $method = $_POST['method'];
-        $value = $_POST['value'];
-        $code = $_POST['code'];
-        echo $activate;
-        if($method == 0){
-           if($value > 100){
-                $value = 100;
-           }
-        }
-        if(checkExistence($code,$codesale['id'],$db)){
-            $_SESSION['message'] = "Code của mã này đã tồn tại";
-            header("refresh: 0");
-        } else {
-            $stmt = $db->prepare('UPDATE codesale SET code = ?, startAt = ?, endAt = ?, value = ?, min = ?, max = ?, description = ?, deactivate = ?, method=? where id = ?');
-            $stmt->bind_param('sssiiisiii', $code, $startAt, $endAt, $value, $min, $max, $description, $activate,$method, $code_id);
-            $stmt->execute();
-
-            if($stmt->affected_rows > 0)
-            {
-                $_SESSION['message'] = 'Cập nhật mã thành công';
-                header("refresh: 0");
-            }
-            else
-            {
-                $_SESSION['message'] = 'Cập nhật mã thất bại';
-                header("refresh: 0");
-            }
-        }
-        
-    }
-
-    function checkExistence($name,$code,$db){
-        $stmt = $db->prepare('SELECT * FROM codesale WHERE code =? and id != ?');
-        $stmt->bind_param('si', $name,$code);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        return $result->num_rows > 0;
-    }
-
-?>

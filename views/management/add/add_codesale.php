@@ -1,6 +1,5 @@
 <?php
     session_start();
-    require_once('../../../database.php');
 
     if(isset($_GET['lang']) && !empty($_GET['lang'])){
         $_SESSION['lang'] = $_GET['lang'];
@@ -9,16 +8,10 @@
         }
     }
     if(isset($_SESSION['lang'])){
-            include "../../../public/language/".$_SESSION['lang'].".php";
+            include "public/language/".$_SESSION['lang'].".php";
     }else{
-            include "../../../public/language/en.php";
+            include "public/language/en.php";
     }
-
-    $db = DBConfig::getDB();
-    $stmt = $db->prepare('SELECT * FROM categories');
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $categories = $result->fetch_all(MYSQLI_ASSOC);
 ?>
 
 <DOCTYPE html>
@@ -34,7 +27,7 @@
   </head>
 <body>
     <div class="app">
-        <?php include('../partials/admin_header.php') ?>
+        <?php include('views/management/partials/admin_header.php') ?>
         <div class="container">
         <section layout:fragment="content">
 	<div class="col-md-12 grid-margin stretch-card">
@@ -51,7 +44,7 @@
                         unset($_SESSION['message']);
                     }
 			?>
-				<form action="" method="POST" class="forms-sample">
+				<form action="/codesale/addCodesale" method="POST" class="forms-sample">
 
 					<div class="form-group">
 						<label for="exampleInputName1"><?=_DESCRIPTION?></label>
@@ -134,54 +127,3 @@
     }
 </script>
 
-<?php
-    if(isset($_POST['submit']) && $_SERVER['REQUEST_METHOD'] == 'POST')
-    {
-        $description = $_POST['description'];
-        $min = $_POST['min'];
-        $max = $_POST['max'];
-        $startAt = $_POST['startDate'];
-        $endAt = $_POST['endDate'];
-        $activate = $_POST['activate'];
-        $method = $_POST['method'];
-        $value = $_POST['value'];
-        $code = $_POST['code'];
-
-        if($method == 0){
-            if($value > 100){
-                $value = 100;
-            }
-        }
-
-        if(checkExistence($code, $db)){
-            $_SESSION['message'] = 'Mã đã tồn tại';
-            header('Location: add_code_sale.php');
-            exit();
-        } else {
-            $stmt = $db->prepare('INSERT INTO codesale (code, startAt, endAt, value, min, max, description, deactivate, createAt, method) values (?,?,?,?,?,?,?,?,NOW(),?)');
-            $stmt->bind_param('sssdddsii', $code, $startAt, $endAt, $value, $min, $max, $description, $activate, $method);
-            $stmt->execute();
-            $insert = $stmt->insert_id;
-
-            if($insert)
-            {
-                $_SESSION['message'] = 'Thêm mã mới thành công';
-            }
-            else
-            {
-                $_SESSION['message'] = 'Thêm mã mới thất bại';
-            }
-            header('Location: add_code_sale.php');
-        }
-        
-    }
-
-    function checkExistence($name,$db){
-        $stmt = $db->prepare('SELECT * FROM codesale WHERE code =?');
-        $stmt->bind_param('s', $name);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        return $result->num_rows > 0;
-    }
-
-?>

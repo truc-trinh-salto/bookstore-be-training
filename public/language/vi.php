@@ -178,6 +178,10 @@ define("_VALIDZIP","Vui lòng nhập mã bưu điện hợp lệ");
 define("_VALIDEMAIL","Vui lòng nhập email hợp lệ");
 
 define("_SALE","Giảm giá");
+define("_TRANSPORT","Vận chuyển");
+define("_FORGOTPASSWORD","Bạn đã quên mật khẩu");
+define("_FORGOT","Quên mật khẩu");
+
 
 
 

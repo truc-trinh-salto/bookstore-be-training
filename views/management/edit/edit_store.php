@@ -1,6 +1,5 @@
 <?php
     session_start();
-    require_once('../../../database.php');
 
     if(isset($_GET['lang']) && !empty($_GET['lang'])){
         $_SESSION['lang'] = $_GET['lang'];
@@ -10,23 +9,12 @@
     }
 
     if(isset($_SESSION['lang'])){
-        include "../../../public/language/".$_SESSION['lang'].".php";
+        include "public/language/".$_SESSION['lang'].".php";
     }else{
-            include "../../../public/language/en.php";
+        include "public/language/en.php";
     }
 
-    $db = DBConfig::getDB();
-
     $branch_id = $_GET['branch_id'];
-
-    $stmt = $db->prepare('SELECT * FROM branch WHERE branch_id =?');
-    $stmt->bind_param("i", $branch_id);
-    $stmt->execute();
-
-    $branch = $stmt->get_result()->fetch_assoc();
-
-
-
 ?>
 
 <DOCTYPE html>
@@ -42,7 +30,7 @@
   </head>
 <body>
     <div class="app">
-        <?php include('../partials/admin_header.php') ?>
+        <?php include('views/management/partials/admin_header.php') ?>
         <div class="container">
         <section layout:fragment="content">
 	<div class="col-md-12 grid-margin stretch-card">
@@ -59,10 +47,10 @@
                         unset($_SESSION['message']);
                     }
 			?>
-				<form action="" method="POST" class="forms-sample" enctype="multipart/form-data">
-
+				<form action="/branch/editBranch" method="POST" class="forms-sample" enctype="multipart/form-data">
+                    <input type="hidden" name="branch_id" value="<?php echo $branch_id ?>">
                     <div class="text-center">
-                        <img src="<?php echo '../../../'.$branch['image'] ?: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3cD47c9xUZyKlO3j3z9vdBHV0P2BIwfkeWg&s'?>" class="avatar img-circle img-thumbnail" alt="avatar" height="300" width="300">
+                        <img src="<?php echo '../'.$branch['image'] ?: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3cD47c9xUZyKlO3j3z9vdBHV0P2BIwfkeWg&s'?>" class="avatar img-circle img-thumbnail" alt="avatar" height="300" width="300">
                         <h6><?=_PHOTO?></h6>
                         <input type="file" class="text-center center-block file-upload" name="branch-image">
                     </div>
@@ -121,103 +109,3 @@
         window.history.replaceState( null, null, window.location.href );
     }
 </script>
-
-<?php
-    if(isset($_POST['submit']) && $_SERVER['REQUEST_METHOD'] == 'POST')
-    {
-        // $image = $_POST['branch-image'];
-        $name = $_POST['name'];
-        $address = $_POST['address'];
-        $hotline = $_POST['hotline'];
-
-        if(!checkExistence($name,$branch_id, $db)){
-            if(isset($_FILES["branch-image"]["name"])){
-                $target_dir = "public/assets/img/";
-                $target_file = $target_dir . basename($_FILES["branch-image"]["name"]);
-        
-                echo $target_file;
-                $uploadOk = 1;
-                $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
-        
-                // Kiểm tra file có phải là hình ảnh thật hay không
-                $check = getimagesize($_FILES["branch-image"]["tmp_name"]);
-                if($check !== false) {
-                    $uploadOk = 1;
-                } else {
-                    $_SESSION['message'] = "File is not an image.";
-                    $uploadOk = 0;
-                }
-        
-                // Kiểm tra nếu file đã tồn tại
-                if (file_exists($target_file)) {
-                    // echo "Sorry, file already exists.";
-                    // $uploadOk = 0;
-                } else {
-                    move_uploaded_file($_FILES["branch-image"]["tmp_name"], $target_dir);
-                }
-        
-                // Giới hạn kích thước file
-                if ($_FILES["branch-image"]["size"] > 500000) {
-                    $_SESSION['message'] = "Sorry, your file is too large.";
-                    $uploadOk = 0;
-                }
-        
-                // Giới hạn loại file
-                if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif" ) {
-                    $_SESSION['message'] = "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
-                    $uploadOk = 0;
-                }
-        
-                // Kiểm tra nếu $uploadOk là 0 do có lỗi
-                if ($uploadOk == 0) {
-                    $_SESSION['message'] .= "<br>Add Product failed, please try again.";
-                    header("Location: edit_store.php?branch_id=".$branch_id);
-                    exit();
-                // Nếu mọi thứ đều ổn, thử upload file
-                } else {
-                    // echo 'test';
-                    // $_SESSION['message'] = $target_file;
-                    updateBranch($name, $address, $hotline, $target_file, $branch_id, $db);
-                    header("Location: edit_store.php?branch_id=".$branch_id);
-                    exit();
-                }
-            } else {
-                // $_SESSION['message'] = 'test';
-                updateBranch($name, $address, $hotline, $branch['image'], $branch_id, $db);
-                header("Location: edit_store.php?branch_id=".$branch_id);
-                exit();
-            }
-        } else {
-            $_SESSION['message'] = 'Tên chi nhánh đã tồn tại';
-            header("Location: edit_store.php?branch_id=".$branch_id);
-            exit();
-        }
-        
-    }
-
-    function checkExistence($name,$branch_id,$db){
-        $stmt = $db->prepare('SELECT * FROM branch WHERE LOWER(title) =? and branch_id != ?');
-        $stmt->bind_param('si', strtolower($name),$branch_id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        return $result->num_rows > 0;
-    }
-
-    function updateBranch($name, $address, $hotline, $branch_image, $branch_id, $db){
-        if($branch_image == '' || $branch_image == null){
-            $branch_image = 'public/assets/img/default.png';
-        }
-        $stmt = $db->prepare('UPDATE branch set title = ?, address =?, hotline =?, image =? WHERE branch_id =?');
-        $stmt->bind_param('ssssi', $name, $address, $hotline, $branch_image, $branch_id);
-        $stmt->execute();
-        if($stmt->affected_rows > 0){
-            $_SESSION['message'] = 'Cập nhật chi nhánh mới thành công';
-            return true;
-        } else {
-            $_SESSION['message'] = 'Cập nhật chi nhánh mới thất bại';
-            return false;
-        }
-
-    }
-
-?>

@@ -1,19 +1,18 @@
 <?php
-    require_once('../../database.php');
-    $db = DBConfig::getDB();
     session_start();
 
-    if(isset($_GET['lang']) && !empty($_GET['lang'])){
+    if (isset($_GET['lang']) && !empty($_GET['lang'])) {
         $_SESSION['lang'] = $_GET['lang'];
-        if(isset($_SESSION['lang']) && $_SESSION['lang'] != $_GET['lang']){
-         echo "<script type='text/javascript'> location.reload(); </script>";
+        if (isset($_SESSION['lang']) && $_SESSION['lang'] != $_GET['lang']) {
+            echo "<script type='text/javascript'> location.reload(); </script>";
         }
     }
-    if(isset($_SESSION['lang'])){
-            include "../../public/language/".$_SESSION['lang'].".php";
-    }else{
-            $_SESSION['lang'] = 'en';
-            include "../../public/language/en.php";
+
+    if (isset($_SESSION['lang'])) {
+        include "public/language/" . $_SESSION['lang'] . ".php";
+    } else {
+        $_SESSION['lang'] = 'en';
+        include "public/language/en.php";
     }
 
     $category_last;
@@ -24,17 +23,6 @@
         $_SESSION['qty_array'] = array();
     }
 
-    $stmt = $db->prepare('SELECT c.category_id, c.name_category,b.total_books  FROM categories as c
-                                LEFT JOIN (SELECT COUNT(*) as total_books,category_id FROM books GROUP BY category_id) as b
-                                ON b.category_id = c.category_id  
-                                WHERE b.total_books > 0 
-                                limit 1');
-    $stmt->execute();
-    $categories = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
-    $stmt = $db->prepare('SELECT * FROM categories');
-    $stmt->execute();
-    $categories_nav = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
 ?>
 
@@ -58,11 +46,11 @@
     <div class="app">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="home.php">Book Store</a>
+            <a class="navbar-brand" href="/">Book Store</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <form class="form-inline nav-item" method="GET" action="filter.php">
+            <form class="form-inline nav-item" method="GET" action="/filter">
                     <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search_keyword">
                     <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><?= _SEARCH ?></button>
             </form>
@@ -97,7 +85,7 @@
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?= _CATEGORY ?></a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <?php foreach($categories_nav as $category):?>
-                                <a class="dropdown-item" href="category.php?category_id=<?php echo $category['category_id'];?>&name=<?php echo $category['name_category'];?>"><?php echo $category['name_category'];?></a>
+                                <a class="dropdown-item" href="/category?category_id=<?php echo $category['category_id'];?>&name=<?php echo $category['name_category'];?>"><?php echo $category['name_category'];?></a>
                             <?php endforeach;?>    
                         </div>
                     </li>
@@ -113,39 +101,40 @@
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <?php if($_SESSION['user_id']): ?>
-                            <a class="dropdown-item" href="history.php"><?= _HISTORY?></a>
-                            <a class="dropdown-item" href="profile.php"><?= _PROFILE?></a>
-                            <a class="dropdown-item" href="codesale.php"><?= _CODESALE?></a>
-                            <a class="dropdown-item" href="store_system.php"><?= _SYSTEM?></a>
+                            <a class="dropdown-item" href="history"><?= _HISTORY?></a>
+                            <a class="dropdown-item" href="profile"><?= _PROFILE?></a>
+                            <a class="dropdown-item" href="codesale"><?= _CODESALE?></a>
+                            <a class="dropdown-item" href="store_system"><?= _SYSTEM?></a>
                             <?php else:?>
-                            <a class="dropdown-item" href="../../index.php"><?=_LOGIN ?></a>
+                            <a class="dropdown-item" href="login"><?=_LOGIN ?></a>
                             <?php endif; ?>
-                            <a class="dropdown-item" href="../../logout.php"><?=_LOGOUT ?></a>
+                            <a class="dropdown-item" href="logout"><?=_LOGOUT ?></a>
                         </div>
                     </li>
 
                     <li class="nav-item dropdown" id="show_cart">
-                        <a class="nav-link dropdown-toggle display-count-cart" href="view_cart.php" id="navbarDropdown" aria-haspopup="true" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle display-count-cart" href="/view_cart" id="navbarDropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="badge"><?php echo count($_SESSION['cart']); ?></span> Cart <span class="glyphicon glyphicon-shopping-cart"></span> 
                         </a>
                         <?php if(count($_SESSION['cart']) >0 ): ?>
                         <div class="dropdown-menu display-cart"aria-labelledby="navbarDropdown">
                             <?php
-                                $stmt = $db->prepare("SELECT * FROM books WHERE book_id IN (".implode(',',$_SESSION['cart']).")");
-                                $stmt->execute();
-                                $book_cart = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+                                // $stmt = $db->prepare("SELECT * FROM books WHERE book_id IN (".implode(',',$_SESSION['cart']).")");
+                                // $stmt->execute();
+                                // $book_cart = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                             ?>
                             <?php foreach($book_cart as $cart):?>
+                                
                                 <div class="row mt-4">
                                     <div class="col-6">
                                     <?php 
-                                        $stmt = $db->prepare('SELECT * FROM gallery_image WHERE book_id =? and isShow = 1');
-                                        $stmt->bind_param('i', $cart['book_id']);
-                                        $stmt->execute();
+                                        // $stmt = $db->prepare('SELECT * FROM gallery_image WHERE book_id =? and isShow = 1');
+                                        // $stmt->bind_param('i', $cart['book_id']);
+                                        // $stmt->execute();
 
-                                        $image_cart = $stmt->get_result()->fetch_assoc();
+                                        // $image_cart = $stmt->get_result()->fetch_assoc();
                                     ?>
-                                        <img width="70" height="70" src="<?php  echo '../../'. $image_cart['address'];?>">
+                                        <img width="70" height="70" src="<?php  echo '../'. $cart['address'];?>">
                                     </div>
                                     <div class="col-6">
                                         <a href=""><?php echo $cart['title'] ?></a>
@@ -164,9 +153,6 @@
                         </div>
                         <?php endif;?>
                     </li>
-                    <!-- <li class="nav-item">
-                        <a class ="nav-link"href="view_cart.php"><span class="badge"><?php echo count($_SESSION['cart']); ?></span> Cart <span class="glyphicon glyphicon-shopping-cart"></span></a>
-                    </li> -->
                     
                 </ul>
             </div>
@@ -179,7 +165,7 @@
                 }
             </script>
             <div class="d-flex justify-content-end">
-                <form method='get' action='' id='form_lang' >
+                <form method='GET' action='' id='form_lang' >
                     <?=_SELECTLANGUAGES?>: <select name='lang' onchange='changeLang();' >
                     <option value='en' <?php if(isset($_SESSION['lang']) && $_SESSION['lang'] == 'en'){ echo "selected"; } ?> >English</option>
                     <option value='vi' <?php if(isset($_SESSION['lang']) && $_SESSION['lang'] == 'vi'){ echo "selected"; } ?> >Vietnamese</option>
@@ -198,43 +184,30 @@
 			}
 			?>
 
-            <div class="books-show" style="height: 900px;">
+            <div class="books-show">
             <?php foreach($categories as $category): ?>
                 <?php 
-                    $stmt = $db->prepare('SELECT count(*) as total FROM books WHERE category_id =?');
-                    $stmt->bind_param('i', $category['category_id']);
-                    $stmt->execute();
+                    // $stmt = $db->prepare('SELECT count(*) as total FROM books WHERE category_id =?');
+                    // $stmt->bind_param('i', $category['category_id']);
+                    // $stmt->execute();
 
-                    $total =$stmt->get_result()->fetch_assoc();
+                    // $total =$stmt->get_result()->fetch_assoc();
                     $category_last= $category['category_id'];
                     ?>
                 <div style="height:50px; width:50px;"></div>
                 <h3><?php echo $category['name_category'] ?> (<?php echo $total['total'] ?>)</h3>
 
                 <div class="row mt-4">
-                    <?php 
-                        $stmt = $db->prepare('SELECT * FROM books WHERE category_id =? LIMIT 8');
-                        $stmt->bind_param('i', $category['category_id']);
-                        $stmt->execute();
-
-                        $books=$stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-                    ?>
-                    <?php foreach($books as $book):?> 
+                    <?php foreach($category['books'] as $book):?> 
                     <div class="col-sm-6 col-lg-3">
                         <div class="card card-course-item">
                                 <a href="">
-                                    <?php 
-                                        $stmt = $db->prepare('SELECT * FROM gallery_image WHERE book_id =? and isShow = 1');
-                                        $stmt->bind_param('i', $book['book_id']);
-                                        $stmt->execute();
 
-                                        $image = $stmt->get_result()->fetch_assoc();
-                                    ?>
-                                    <img class="card-img-top" width="150" height="200" src="<?php echo $image['address']?'../../'.$image['address']:'https://tse4.mm.bing.net/th?id=OIP.ZiwfBrifIO4lV_Q-gIC7VQHaKx&pid=Api&P=0&h=180' ?>" alt="">
+                                    <img class="card-img-top" width="150" height="200" src="<?php echo $book['address']? '../'.$book['address']:'https://tse4.mm.bing.net/th?id=OIP.ZiwfBrifIO4lV_Q-gIC7VQHaKx&pid=Api&P=0&h=180' ?>" alt="">
                                 </a>
                                 
                                 <div class="card-body">
-                                    <a href="detail_product.php?book_id=<?php echo $book['book_id'] ?>">
+                                    <a href="detail_product?book_id=<?php echo $book['book_id'] ?>">
                                         <h5 class="card-title"><?= $book['title']?></h5>
                                     </a>
                                     <p class="card-text" ><?=_AUTHORS?>: <?= $book['authors']?></p>
@@ -277,74 +250,11 @@
 </html>
 <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 <script type="text/javascript">
-    // $(document).ready(function() {
-    //     let isLoading = false;
-    //     $(window).scroll(function() {
-    //         if(isLoading) return;
-    //         const lastID = $('.load-more').attr('lastID');
-    //         const distance = $(document).height() - $(window).height();
-    //         // alert(distance - $(window).scrollTop());
-    //         if(((distance - $(window).scrollTop()) < 1) && lastID != 0) {
-    //             // alert('Loading more...');
-    //             isLoading = true;
-    //             $.ajax({
-    //                 url: 'getData.php',
-    //                 type: 'POST',
-    //                 data: {id: lastID},
-    //                 beforeSend: function() {
-    //                     $('.load-more').show();
-    //                 },
-    //                 success: function(html) {
-    //                     $('.load-more').remove();
-    //                     $('#categoryList').append(html);
-    //                     isLoading = false;
-    //                 },
-    //                 error: function(error) {
-    //                     console.error(error);
-    //                     $('.load-more').hide();
-    //                     isLoading = false;
-    //                 }
-    //             })
-    //         }
-    //     });
-    // });
-
-
-    // document.addEventListener('DOMContentLoaded', function () {
-
-    //     const addToCartButtons = document.querySelectorAll('.btn-add-to-cart');
-    //     addToCartButtons.forEach(button => {
-    //         button.addEventListener('click', function (event) {
-    //             event.preventDefault();
-    //             const productId = this.dataset.bookId;
-    //             const quantity = 1;
-    //             alert(productId);
-                
-    //             $.ajax({
-    //                 url: 'add_to_cart.php',
-    //                 method: 'POST',
-    //                 data: {book_id: productId, quantity: quantity},
-    //                 success: function (response) {
-    //                     // const cartCount = JSON.parse(response).count;
-    //                     // document.querySelector('.badge').textContent = cartCount;
-    //                     // alert(JSON.parse(response).message);
-    //                     $('.display-cart').remove();
-    //                     $('.display-count-cart').remove();
-    //                     alert(response);
-    //                     $('#show_cart').append(response);
-    //                 },
-    //                 error: function (error) {
-    //                     console.error(error);
-    //                 }
-    //             });
-    //         });
-    //     });
-    // });
 
     if($(window).height() >= $(document).height()){
         const lastID = $('.load-more').attr('lastID');
         $.ajax({
-                url: '../../service/book/getData.php',
+                url: '/book/getInfinity',
                 type: 'POST',
                 data: {id: lastID},
                 beforeSend: function() {
@@ -374,7 +284,7 @@
             const quantity = 1;
 
             $.ajax({
-                url: '../../service/cart/add_to_cart.php',
+                url: '/cart/addtocart',
                 method: 'POST',
                 data: {book_id: productId, quantity: quantity},
                 success: function (response) {
@@ -398,7 +308,7 @@
         if (((distance - $(window).scrollTop()) < 1) && lastID != 0) {
             isLoading = true;
             $.ajax({
-                url: '../../service/book/getData.php',
+                url: '/book/getInfinity',
                 type: 'POST',
                 data: {id: lastID},
                 beforeSend: function() {

@@ -1,6 +1,5 @@
 <?php
     session_start();
-    require_once('../../../database.php');
 
     if(isset($_GET['lang']) && !empty($_GET['lang'])){
         $_SESSION['lang'] = $_GET['lang'];
@@ -9,16 +8,11 @@
         }
     }
     if(isset($_SESSION['lang'])){
-            include "../../../public/language/".$_SESSION['lang'].".php";
+            include "public/language/".$_SESSION['lang'].".php";
     }else{
-            include "../../../public/language/en.php";
+            include "public/language/en.php";
     }
-
-    $db = DBConfig::getDB();
-    $stmt = $db->prepare('SELECT * FROM categories');
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $categories = $result->fetch_all(MYSQLI_ASSOC);
+    
 ?>
 
 <DOCTYPE html>
@@ -34,7 +28,7 @@
   </head>
 <body>
     <div class="app">
-        <?php include('../partials/admin_header.php') ?>
+        <?php include('views/management/partials/admin_header.php') ?>
         <div class="container">
         <section layout:fragment="content">
 	<div class="col-md-12 grid-margin stretch-card">
@@ -61,7 +55,7 @@
                         unset($_SESSION['message']);
                     }
 			?>
-				<form action="" method="POST" class="forms-sample" enctype="multipart/form-data">
+				<form action="/product/addProduct" method="POST" class="forms-sample" enctype="multipart/form-data">
                     <div class="text-center">
                         <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3cD47c9xUZyKlO3j3z9vdBHV0P2BIwfkeWg&s" class="avatar img-circle img-thumbnail" alt="avatar" height="300" width="300">
                         <h6><?=_UPLOADGALLERY?></h6>
@@ -145,137 +139,3 @@
     }
 </script>
 
-<?php
-    if(isset($_POST['submit']) && $_SERVER['REQUEST_METHOD'] == 'POST')
-    {
-        $isValid = true;
-        $image = $_POST['image'];
-        $name = $_POST['name'];
-        $quantity = $_POST['quantity'];
-        $price = $_POST['price'];
-        $hotItem = $_POST['hotItem'];
-        $categoryId = $_POST['category'];
-        $authors = $_POST['authors'];
-        $description = $_POST['description'];
-
-        if(checkExistenceBook($name, $db)){
-            $_SESSION['message'] = "PRODUCT'S NAME : ".$name." EXISTED";
-            $isValid = false;
-        } else if($quantity && $quantity < 0){
-            $_SESSION['message'] .= "</br>QUANTITY CANNOT BE NEGATIVE";
-            $isValid = false;
-        } else if($price && $price < 1000){
-            $_SESSION['message'] .= "</br>PRICE CANNOT BE NEGATIVE";
-            $isValid = false;
-        }
-
-        if($isValid){
-            if(isset($_FILES["book-image"]["name"])){
-                $target_dir = "public/assets/img/";
-                $target_file = $target_dir . basename($_FILES["book-image"]["name"]);
-        
-                echo $target_file;
-                $uploadOk = 1;
-                $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
-        
-                // Kiểm tra file có phải là hình ảnh thật hay không
-                $check = getimagesize($_FILES["book-image"]["tmp_name"]);
-                if($check !== false) {
-                    $uploadOk = 1;
-                } else {
-                    $_SESSION['message'] = "File is not an image.";
-                    $uploadOk = 0;
-                }
-        
-                // Kiểm tra nếu file đã tồn tại
-                if (file_exists($target_file)) {
-                    // echo "Sorry, file already exists.";
-                    // $uploadOk = 0;
-                } else {
-                    move_uploaded_file($_FILES["book-image"]["tmp_name"], $target_dir);
-                }
-        
-                // Giới hạn kích thước file
-                if ($_FILES["image"]["size"] > 500000) {
-                    $_SESSION['message'] = "Sorry, your file is too large.";
-                    $uploadOk = 0;
-                }
-        
-                // Giới hạn loại file
-                if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif" ) {
-                    $_SESSION['message'] = "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
-                    $uploadOk = 0;
-                }
-        
-                // Kiểm tra nếu $uploadOk là 0 do có lỗi
-                if ($uploadOk == 0) {
-                    $_SESSION['message'] .= "<br>Add Product failed, please try again.";
-                    header("Location: add_product.php");
-                    exit();
-                // Nếu mọi thứ đều ổn, thử upload file
-                } else {
-                        echo "The file ". basename( $_FILES["book-image"]["name"]). " has been uploaded.";
-                
-                        $book_id = addBook($image, $name, $quantity, $price, $hotItem, $categoryId, $authors, $description,$db);
-        
-                        $stmt = $db->prepare("INSERT INTO gallery_image(address,book_id,isShow) values(?,?,1)");
-                        $stmt->bind_param("si", $target_file, $book_id);
-                        $stmt->execute();
-                        if($stmt->affected_rows > 0)
-                        {
-                            $_SESSION['message'] = 'Thêm mới sản phẩm thành công';
-                        }
-                        else
-                        {
-                            $_SESSION['message'] = 'Thêm mới sản phẩm thất bại';
-                        }
-                        
-                }
-            } else {
-                $book_id = addBook($image, $name, $quantity, $price, $hotItem, $categoryId, $authors, $description,$db);
-                if($book_id){
-                    $_SESSION['message'] = 'Thêm mới sản phẩm thành công';
-                } else {
-                    $_SESSION['message'] = 'Thêm mới sản phẩm thất bại';
-                }
-            }
-            
-        } else {
-            header('Location: add_product.php');
-            exit();
-        }
-
-
-
-
-    }
-
-
-    function checkExistenceBook($name, $db){
-        $stmt = $db->prepare("SELECT * FROM books WHERE title =?");
-        $stmt->bind_param("s", $name);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        return $result->fetch_assoc() > 0;
-    }
-
-    function addBook($image, $name, $quantity, $price, $hotItem, $categoryId, $authors, $description,$db){
-        $stmt = $db->prepare('INSERT INTO books (image, title, stock, price, hotItem, category_id, authors, description, created_at) values (?,?,?,?,?,?,?,?,NOW())');
-        $stmt->bind_param('ssidiiss', $image, $name, $quantity, $price, $hotItem, $categoryId, $authors, $description);
-        $stmt->execute();
-
-        $book_id = $stmt->insert_id;
-
-        $stmt = $db->prepare('SELECT * FROM branch');
-        $stmt->execute();
-        $branches = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-        foreach($branches as $branch){
-            $stmt = $db->prepare('INSERT INTO branchstockitem (book_id, branch_id, status,branch_select) values (?,?,1,0)');
-            $stmt->bind_param('ii', $book_id, $branch['branch_id']);
-            $stmt->execute();
-        }
-        return $book_id;
-    }
-    
-
-?>

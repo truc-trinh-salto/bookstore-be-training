@@ -1,39 +1,6 @@
 <?php
         session_start();
-        require_once('../../database.php');
-        $db = DBConfig::getDB();
-        $books;
         $date = $_GET['date_select'];
-        if($date != null){
-            $timestamp = strtotime($date);
-        } else {
-            $timestamp = strtotime(date('Y-m-d'));
-        }
-        $dateFrom = date('Y-m-01 00:00:00', $timestamp);
-        $dateTo  = date('Y-m-t 23:59:59', $timestamp);
-
-
-
-        $limit = 6;
-        if(isset($_GET['search_keyword']) && $_GET['search_keyword'] != null){
-            $search_keyword = $_GET['search_keyword'];
-            $search = "%$search_keyword%";
-            $stmt = $db->prepare('SELECT b.title,b.image, b.book_id, b.description, b.category_id, b.price, 
-                                        b.created_at, b.updated_at, b.sale, b.hotItem, b.stock, b.authors, c.name_category
-                                        FROM books as b 
-                                        LEFT JOIN categories as c 
-                                        ON b.category_id = c.category_id
-                                        WHERE b.title LIKE ? OR b.authors LIKE ? OR b.description LIKE ? OR c.name_category LIKE ?
-                                        ORDER BY b.book_id DESC');
-            $stmt->bind_param("ssss",$search, $search, $search, $search);
-        } else {
-            $stmt = $db->prepare('SELECT * FROM books');
-        }
-        $stmt->execute();
-
-        $number_result  = $stmt->get_result()->num_rows;
-
-        $number_page = ceil($number_result/ $limit);
         
         if(!isset($_GET['page'])){
             $page = 1;
@@ -42,90 +9,6 @@
         }
 
         $page_first = ($page - 1) * $limit;
-
-        $stmt = $db->prepare('SELECT MIN(id) as min_id FROM import 
-                                    where YEAR(import) = YEAR(?) and MONTH(import) = MONTH(?) 
-                                    ');
-        $stmt->bind_param('ss',$dateTo,$dateTo);
-        $stmt->execute();
-        $import_min = $stmt->get_result()->fetch_assoc();
-
-
-
-        if(isset($_GET['search_keyword']) && $_GET['search_keyword'] != null) {
-            $search_keyword = $_GET['search_keyword'];
-            $search = "%$search_keyword%";
-
-            
-
-            $stmt = $db->prepare('SELECT b.title,b.image, b.book_id, b.description, b.category_id, b.price, 
-                                        b.created_at, b.updated_at, b.sale, b.hotItem, b.stock, b.authors, c.name_category, 
-                                        tt.total, s.after_stock
-                                        FROM books as b 
-                                        LEFT JOIN categories as c 
-                                        ON b.category_id = c.category_id
-                                        LEFT JOIN (SELECT SUM(od.quantity)as total, od.book_id
-                                                    FROM order_detail as od 
-                                                    LEFT JOIN order_item as oi
-                                                    ON od.order_id = oi.id
-                                                    LEFT JOIN transactions as t
-                                                    on t.order_id = oi.id 
-                                                    WHERE t.createdAt >= ? and t.createdAt <= ?
-                                                    GROUP BY od.book_id) as tt
-                                        ON tt.book_id = b.book_id
-
-                                        LEFT JOIN (SELECT ii.book_id, ii.stock + si.sum_quantity as after_stock
-                                                    FROM import_item as ii
-                                                    LEFT JOIN (SELECT ii2.book_id, SUM(ii2.quantity) as sum_quantity
-                                                                FROM import_item as ii2
-                                                                LEFT JOIN import as i2
-                                                                ON i2.id = ii2.import_id
-                                                                WHERE YEAR(i2.import) = YEAR(?) and MONTH(i2.import) = MONTH(?)
-                                                                GROUP BY ii2.book_id) as si
-                                                    on si.book_id = ii.book_id
-                                                    WHERE ii.import_id = ?
-                                                    ) as s
-                                        ON s.book_id = b.book_id
-
-                                        WHERE b.title LIKE ? OR b.authors LIKE ? OR b.description LIKE ? OR c.name_category LIKE ? 
-                                        ORDER BY total DESC LIMIT ?,?');
-            $stmt->bind_param("ssssissssii",$dateFrom,$dateTo,$dateFrom,$dateFrom,$import_min['min_id'],$search, $search, $search, $search, $page_first,$limit);
-            
-        } else {
-            $stmt = $db->prepare('SELECT b.title,b.image, b.book_id, b.description, b.category_id, b.price, 
-                                        b.created_at, b.updated_at, b.sale, b.hotItem, b.stock, b.authors, c.name_category, 
-                                        tt.total, s.after_stock
-                                        FROM books as b 
-                                        LEFT JOIN categories as c 
-                                        ON b.category_id = c.category_id
-                                        LEFT JOIN (SELECT SUM(od.quantity)as total, od.book_id
-                                                    FROM order_detail as od 
-                                                    LEFT JOIN order_item as oi
-                                                    ON od.order_id = oi.id
-                                                    LEFT JOIN transactions as t
-                                                    on t.order_id = oi.id 
-                                                    WHERE t.createdAt >= ? and t.createdAt <= ?
-                                                    GROUP BY od.book_id) as tt
-                                        ON tt.book_id = b.book_id
-
-                                        LEFT JOIN (SELECT ii.book_id, ii.stock + si.sum_quantity as after_stock
-                                                    FROM import_item as ii
-                                                    LEFT JOIN (SELECT ii2.book_id, SUM(ii2.quantity) as sum_quantity
-                                                                FROM import_item as ii2
-                                                                LEFT JOIN import as i2
-                                                                ON i2.id = ii2.import_id
-                                                                WHERE YEAR(i2.import) = YEAR(?) and MONTH(i2.import) = MONTH(?)
-                                                                GROUP BY ii2.book_id) as si
-                                                    on si.book_id = ii.book_id
-                                                    WHERE ii.import_id = ?
-                                                    ) as s
-                                        ON s.book_id = b.book_id
-                                        ORDER BY total DESC LIMIT ?,?');
-            $stmt->bind_param('ssssiii',$dateFrom,$dateTo,$dateFrom,$dateFrom,$import_min['min_id'],$page_first,$limit);
-        }
-        $stmt->execute();
-        $books = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
 
         $index = $page * $limit - $limit + 1;
         $total = 0;
@@ -144,7 +27,7 @@
     </head>
     <body>
         <div class="app">
-            <?php include('partials/admin_header.php') ?>
+            <?php include('views/management/partials/admin_header.php') ?>
             <div class="container">
                 <div class="mt-4">
                 <?php 
@@ -160,10 +43,10 @@
 
             <div class="row">
                 <div class="col-md-6 justify-content-start">
-                            <a href="product.php" class="btn btn-success"><?=_BACK?></a>
+                            <a href="product" class="btn btn-success"><?=_BACK?></a>
                 </div>
                 <div class="col-md-6 d-flex justify-content-end">
-                        <form class="form-inline nav-item col-md-6 justify-content-center" method="GET" action="../../service/management/export.php">
+                        <form class="form-inline nav-item col-md-6 justify-content-center" method="GET" action="/product/exportListHotItems">
                             <input class="form-control mr-sm-2" type="hidden" name="date_select" value="<?php echo $date?>">
                             <button class="btn btn-info my-2 my-sm-0" type="submit"><?=_EXPORT?></button>
                         </form>
@@ -173,15 +56,15 @@
                             <nav aria-label="Page navigation example">
                                     <ul class="pagination">
                                         <?php if($page - 1 == 0):?>
-                                            <li class="page-item disabled"><a class="page-link" href="hot_item.php?search_keyword=<?php echo $search_keyword ?>&date_select=<?php echo $date ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
+                                            <li class="page-item disabled"><a class="page-link" href="hotItem?search_keyword=<?php echo $search_keyword ?>&date_select=<?php echo $date ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                         <?php else:?>
-                                            <li class="page-item"><a class="page-link" href="hot_item.php?search_keyword=<?php echo $search_keyword ?>&date_select=<?php echo $date ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
+                                            <li class="page-item"><a class="page-link" href="hotItem?search_keyword=<?php echo $search_keyword ?>&date_select=<?php echo $date ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                         <?php endif;?>
-                                        <li class="page-item active"><a class="page-link" href="hot_item.php?search_keyword=<?php echo $search_keyword ?>&date_select=<?php echo $date ?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
+                                        <li class="page-item active"><a class="page-link" href="hotItem?search_keyword=<?php echo $search_keyword ?>&date_select=<?php echo $date ?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
                                         <?php if($page +1 > $number_page):?>
-                                            <li class="page-item disabled"><a class="page-link" href="hot_item.php?search_keyword=<?php echo $search_keyword ?>&date_select=<?php echo $date ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
+                                            <li class="page-item disabled"><a class="page-link" href="hotItem?search_keyword=<?php echo $search_keyword ?>&date_select=<?php echo $date ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                         <?php else:?>
-                                            <li class="page-item"><a class="page-link" href="hot_item.php?search_keyword=<?php echo $search_keyword ?>&date_select=<?php echo $date ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
+                                            <li class="page-item"><a class="page-link" href="hotItem?search_keyword=<?php echo $search_keyword ?>&date_select=<?php echo $date ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                         <?php endif;?>
                                     </ul>
                                 </nav>
@@ -217,8 +100,8 @@
                                         <td>
                                             <img width="100" height="100" src="
                                             <?php 
-                                            if($book['image']){
-                                                echo $book['image'];
+                                            if($book['address']){
+                                                echo '../'.$book['address'];
                                             }else {
                                                 echo 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3cD47c9xUZyKlO3j3z9vdBHV0P2BIwfkeWg&s';
                                             }?>
@@ -253,7 +136,7 @@
                                         <td class="text-info font-weight-bold"><?php echo $book['after_stock']?></td>
                                         <td class="text-success font-weight-bold"><?php echo $book['stock']?></td>
                                         <td>
-                                            <a href="edit_product.php?book_id=<?php echo $book['book_id']?>" class="btn btn-primary btn-sm"><?=_EDIT?></a>
+                                            <a href="pageEditProduct?book_id=<?php echo $book['book_id']?>" class="btn btn-primary btn-sm"><?=_EDIT?></a>
                                         </td>
                                         
                                     <?php $index ++?>

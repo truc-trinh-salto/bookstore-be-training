@@ -1,16 +1,7 @@
 <?php
     session_start();
-    require_once('../../database.php');
-    $db = DBConfig::getDB();
-    $categories;
 
     $limit = 6;
-
-    $stmt = $db->prepare('SELECT * FROM categories');
-    $stmt->execute();
-
-    $number_result = $stmt->get_result()->num_rows;
-    $number_page = ceil($number_result / $limit);
 
     if(!isset($_GET['page'])){
         $page = 1;
@@ -18,15 +9,6 @@
         $page = $_GET['page'];
     }
 
-    $page_first = ($page - 1) * $limit;
-
-
-
-
-    $stmt = $db->prepare('SELECT * FROM categories LIMIT ?,?');
-    $stmt->bind_param("ii", $page_first, $limit);
-    $stmt->execute();
-    $categories = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $index = 1;
 ?>
 
@@ -43,7 +25,7 @@
   </head>
 <body>
     <div class="app">
-        <?php include('partials/admin_header.php') ?>
+        <?php include('views/management/partials/admin_header.php') ?>
         <div class="container">
             <div class="mt-4">
             <?php 
@@ -58,7 +40,7 @@
 			?>
                     <div class="row mt-2">
                         <div class="col-md-6 d-flex justify-content-start">
-                            <a href="product.php" class="btn btn-success"><?=_BACK?></a>
+                            <a href="product" class="btn btn-success"><?=_BACK?></a>
                         </div>
 
                         <div class="col-md-6 d-flex justify-content-end">
@@ -69,15 +51,15 @@
                         <nav aria-label="Page navigation example">
                                 <ul class="pagination">
                                     <?php if($page - 1 == 0):?>
-                                        <li class="page-item disabled"><a class="page-link" href="category.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="category?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="category.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
+                                        <li class="page-item"><a class="page-link" href="category?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php endif;?>
-                                    <li class="page-item active"><a class="page-link" href="category.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
+                                    <li class="page-item active"><a class="page-link" href="category?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
                                     <?php if($page +1 > $number_page):?>
-                                        <li class="page-item disabled"><a class="page-link" href="category.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="category?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="category.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
+                                        <li class="page-item"><a class="page-link" href="category?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php endif;?>
                                 </ul>
                             </nav>
@@ -90,7 +72,7 @@
                             </form>
                         </div>
                         <div class="col-md-6 d-flex justify-content-end">
-                                <form action="../../service/category/add_update_multi_category.php" method="POST" enctype="multipart/form-data">
+                                <form action="/category/addCategoryByFile" method="POST" enctype="multipart/form-data">
                                     <input type="file" class="text-center center-block file-upload" name="fileimport">
                                     <button class="btn btn-outline-success" type="submit" name="submit-import"><?=_MAKEIMPORT?></button>
                                 </form>
@@ -108,20 +90,12 @@
                                 <tr>
                                     <th scope="row"><?= $index ?></th>
                                     <td><?= $category['name_category']?></td>
-                                    <td><?php 
-                                            $stmt = $db->prepare('SELECT COUNT(*) as total FROM books WHERE category_id = ?');
-                                            $stmt->bind_param("i", $category['category_id']);
-                                            $stmt->execute();
-                                            
-                                            $total = $stmt->get_result()->fetch_assoc();
-                                            
-                                            echo $total['total'];
-                                            ?></td>
+                                    <td><?= $category['total']?></td>
                                     
                                     <td>
-                                        <a href="edit/edit_category.php?category_id=<?php echo $category['category_id']?>" class="btn btn-primary btn-sm"><?=_EDIT?></a>
-                                        <a href="../../delete_category.php?category_id=<?php echo $category['category_id']?>" class="btn btn-danger btn-sm"><?=_DELETE?></a>
-                                        <a href="detail/product_category.php?category_id=<?php echo $category['category_id']?>" class="btn btn-info btn-sm"><?=_DETAIL?></a>
+                                        <a href="pageEditCategory?category_id=<?php echo $category['category_id']?>" class="btn btn-primary btn-sm"><?=_EDIT?></a>
+                                        <a href="/category/deleteCategory?category_id=<?php echo $category['category_id']?>" class="btn btn-danger btn-sm"><?=_DELETE?></a>
+                                        <a href="detailCategory?category_id=<?php echo $category['category_id']?>" class="btn btn-info btn-sm"><?=_DETAIL?></a>
                                     </td>
                     
 

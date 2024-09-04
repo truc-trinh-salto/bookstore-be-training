@@ -1,20 +1,5 @@
 <?php
     session_start();
-    require_once('../../database.php');
-    $db = DBConfig::getDB();
-    $branchs;
-    if(isset($_GET['search_keyword'])) {
-        $search_keyword = $_GET['search_keyword'];
-        $search = "%$search_keyword%";
-        $stmt = $db->prepare('SELECT * FROM branch WHERE title LIKE ? OR address LIKE ?');
-        $stmt->bind_param("ss",$search, $search);
-        
-    } else {
-        $stmt = $db->prepare('SELECT * FROM branch');
-    }
-    $stmt->execute();
-    $branchs = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
 
     $index = 1;
     $total = 0;
@@ -33,7 +18,7 @@
   </head>
 <body>
     <div class="app">
-        <?php include('partials/admin_header.php') ?>
+        <?php include('views/management/partials/admin_header.php') ?>
         <div class="container">
             <div class="mt-4">
             <?php 
@@ -63,7 +48,7 @@
                                 <th scope="col"><?=_DETAIL?></th>
                             </tr>
                         </thead>
-                            <?php foreach($branchs as $branch):?> 
+                            <?php foreach($branches as $branch):?> 
                                 <tr>
                                     <th scope="row"><?= $index ?></th>
                                     <td>
@@ -80,11 +65,11 @@
                                     <td><?= $branch['address'] ?></td>
                                     <td><?= $branch['hotline'] ?></td>
                                     <td>
-                                        <a href="edit/edit_store.php?branch_id=<?php echo $branch['branch_id']?>" class="btn btn-primary btn-sm"><?=_EDIT?></a>
-                                        <a href="../../service/branch/delete_store.php?branch_id=<?php echo $branch['branch_id']?>" class="btn btn-danger btn-sm"><?=_DELETE?></a>
+                                        <a href="pageEditBranch?branch_id=<?php echo $branch['branch_id']?>" class="btn btn-primary btn-sm"><?=_EDIT?></a>
+                                        <a href="/branch/deleteBranch?branch_id=<?php echo $branch['branch_id']?>" class="btn btn-danger btn-sm"><?=_DELETE?></a>
                                     </td>
                                     <td>
-                                        <a href="detail/branch_stock.php?branch_id=<?php echo $branch['branch_id']?>" class="btn btn-info btn-sm"><?=_DETAIL?></a>
+                                        <a href="detailBranch?branch_id=<?php echo $branch['branch_id']?>" class="btn btn-info btn-sm"><?=_DETAIL?></a>
                                     </td>
                                     
 

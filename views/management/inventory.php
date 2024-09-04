@@ -1,47 +1,14 @@
 <?php
     session_start();
-    require_once('../../database.php');
-    $db = DBConfig::getDB();
-    $imports;
 
     $limit = 6;
     
-    if(isset($_GET['search_keyword']) && $_GET['search_keyword'] != null){
-        $search_keyword = $_GET['search_keyword'];
-        $search = "%$search_keyword%";
-        $stmt = $db->prepare('SELECT * from import WHERE title LIKE ? ORDER BY id ASC');
-        $stmt->bind_param("s",$search);
-    } else {
-        $stmt = $db->prepare("SELECT * FROM import ORDER BY id ASC");
-    }
-
-    $stmt->execute();
-
-    $number_result  = $stmt->get_result()->num_rows;
-
-    $number_page = ceil($number_result/ $limit);
     
     if(!isset($_GET['page'])){
         $page = 1;
     } else {
         $page = $_GET['page'];
     }
-
-    $page_first = ($page - 1) * $limit;
-
-
-    if(isset($_GET['search_keyword'])) {
-        $search_keyword = $_GET['search_keyword'];
-        $search = "%$search_keyword%";
-        $stmt = $db->prepare('SELECT * from import WHERE title LIKE ? ORDER BY id ASC LIMIT?,?');
-        $stmt->bind_param("sii",$search,$page_first,$limit);
-        
-    } else {
-        $stmt = $db->prepare("SELECT * FROM import ORDER BY id ASC LIMIT?,?");
-        $stmt->bind_param('ii',$page_first,$limit);
-    }
-    $stmt->execute();
-    $imports = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
 
     $index = $page * $limit - $limit + 1;
@@ -56,8 +23,6 @@
     $_SESSION['qty_array_import'] = array();
 
     
-
-
 ?>
 
 <DOCTYPE html>
@@ -73,7 +38,7 @@
   </head>
 <body>
     <div class="app">
-        <?php include('partials/admin_header.php') ?>
+        <?php include('views/management/partials/admin_header.php') ?>
         <div class="container">
             <div class="mt-4">
             <?php 
@@ -89,10 +54,10 @@
                 
             <div class="row">
                 <div class="col-md-6 d-flex justify-content-start">
-                            <a href="product.php" class="btn btn-success"><?=_BACK?></a>
+                            <a href="product" class="btn btn-success"><?=_BACK?></a>
                 </div>
                 <div class="col-md-6 d-flex justify-content-end">
-                    <a class="btn btn-info" href="../../service/management/import.php"><?=_ADDIMPORT?></a>
+                    <a class="btn btn-info" href="/import/addInventory"><?=_ADDIMPORT?></a>
                 </div>
             </div>
             
@@ -100,15 +65,15 @@
                         <nav aria-label="Page navigation example">
                                 <ul class="pagination">
                                     <?php if($page - 1 == 0):?>
-                                        <li class="page-item disabled"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="inventory?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
+                                        <li class="page-item"><a class="page-link" href="inventory?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php endif;?>
-                                    <li class="page-item active"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
+                                    <li class="page-item active"><a class="page-link" href="inventory?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
                                     <?php if($page +1 > $number_page):?>
-                                        <li class="page-item disabled"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="inventory?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="product.php?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
+                                        <li class="page-item"><a class="page-link" href="inventory?search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php endif;?>
                                 </ul>
                             </nav>
@@ -147,9 +112,9 @@
                                         ?>
                                     </td>
                                     <td>
-                                        <a href="detail/detail_import.php?import_id=<?php echo $import['id']?>" class="btn btn-info btn-sm"><?=_DETAIL?></a>
+                                        <a href="detailInventory?import_id=<?php echo $import['id']?>" class="btn btn-info btn-sm"><?=_DETAIL?></a>
                                         <?php if($import['status'] == 0): ?>
-                                            <a href="../../service/management/delete_import.php?import_id=<?php echo $import['id']?>" class="btn btn-danger btn-sm"><?=_DELETE?></a>
+                                            <a href="/import/deleteInventory?import_id=<?php echo $import['id']?>" class="btn btn-danger btn-sm"><?=_DELETE?></a>
                                         <?php endif; ?>
                                     </td>
                                 <?php $index ++?>

@@ -1,8 +1,6 @@
 <?php 
     session_start();
-    require_once('../../database.php');
-    $db = DBConfig::getDB();
-
+    
     if(isset($_GET['lang']) && !empty($_GET['lang'])){
         $_SESSION['lang'] = $_GET['lang'];
         if(isset($_SESSION['lang']) && $_SESSION['lang'] != $_GET['lang']){
@@ -10,23 +8,13 @@
         }
     }
     if(isset($_SESSION['lang'])){
-            include "../../public/language/".$_SESSION['lang'].".php";
+            include "public/language/".$_SESSION['lang'].".php";
     }else{
-            include "../../public/language/en.php";
+            include "public/language/en.php";
     }
 
     $user_id = $_SESSION['user_id'];
 
-    $stmt = $db->prepare('SELECT * FROM users where id =?');
-    $stmt->bind_param("i", $user_id);
-    $stmt->execute();
-
-    $user = $stmt->get_result()->fetch_assoc();
-
-    $stmt = $db->prepare('SELECT * FROM categories');
-    $stmt->execute();
-
-    $categories = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -66,6 +54,7 @@
 <body>
 <hr>
 <?php include 'partials/sub_header.php';?>
+
 <div class="container bootstrap snippet">
         <?php 
 			if(isset($_SESSION['message'])){
@@ -87,7 +76,7 @@
               
 
       <div class="text-center">
-      <img src="<?php echo '../../'.$user['image'] ?: 'http://ssl.gstatic.com/accounts/ui/avatar_2x.png'; ?>" class="avatar img-circle img-thumbnail" alt="avatar">
+      <img src="<?php echo $user['image'] ?: 'http://ssl.gstatic.com/accounts/ui/avatar_2x.png'; ?>" class="avatar img-circle img-thumbnail" alt="avatar">
       </div></hr><br>
 
                
@@ -111,7 +100,7 @@
           <div class="tab-content">
             <div class="tab-pane active" id="home">
                 <hr>
-                  <form class="form" action="../../service/user/edit_profile.php" method="POST" id="registrationForm">
+                  <form class="form" action="/user/editProfile" method="POST" id="registrationForm">
                       <div class="form-group">
                           <div class="col-xs-6">
                               <label for="fullname"><h4><?=_NAME?></h4></label>
@@ -165,7 +154,7 @@
                <h2></h2>
                
                <hr>
-               <form action="../../service/user/uploadImage.php" method="POST" enctype="multipart/form-data">
+               <form action="/user/uploadImage" method="POST" enctype="multipart/form-data">
                     <div class="text-center">
                             <img src="http://ssl.gstatic.com/accounts/ui/avatar_2x.png" class="avatar img-circle img-thumbnail" alt="avatar" height="300" width="300">
                             <h6><?=_UPLOADPHOTO?></h6>
@@ -182,7 +171,7 @@
              </div><!--/tab-pane-->
              <div class="tab-pane" id="settings">
                   <hr>
-                  <form method="POST" action="../../service/user/change_password.php">
+                  <form method="POST" action="/user/changePassword">
                     <div class="form-group">
                           <div class="col-xs-12">
                               <label for="old_password"><h4><?=_OLDPASSWORD?></h4></label>

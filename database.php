@@ -17,7 +17,7 @@
         private static function connectDB(){
             $db = self::getInstance();
             $config = parse_ini_file('config/dbconfig.env');
-            $db->dbConnect = new mysqli($config['host'], $config['username'], $config['password'], $config['dbname'],'3306');
+            $db->dbConnect = new \mysqli($config['host'], $config['username'], $config['password'], $config['dbname'],'3306');
             $db->dbConnect->set_charset('utf8');
             return $db->dbConnect;
         }
@@ -27,12 +27,10 @@
                 $db = self::connectDB();
                 // echo 'Successfully connected to the database';
                 return $db;
-            }catch(Exception $e){ 
+            }catch( \Exception $e){ 
                 var_dump($e);
                 echo "Error connecting to database.";
                 return null;
             }
         }
     }
-    // $db = DBConfig::getDB();
-?>

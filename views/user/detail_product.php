@@ -1,6 +1,5 @@
 <?php
-    require_once('../../database.php');
-    $db = DBConfig::getDB();
+
     session_start();
 
     if(isset($_GET['lang']) && !empty($_GET['lang'])){
@@ -10,98 +9,18 @@
         }
        }
        if(isset($_SESSION['lang'])){
-            include "../../public/language/".$_SESSION['lang'].".php";
+            include "public/language/".$_SESSION['lang'].".php";
        }else{
-            include "../../public/language/en.php";
+            include "public/language/en.php";
        }
-
-    $books_hot;
-    $comments;
-
-    $book_id = $_GET['book_id'];
-    $stmt = $db->prepare('SELECT b.title, b.book_id, b.description, b.category_id, b.price, 
-                                    b.created_at, b.updated_at, b.sale, b.hotItem, b.stock, b.authors, c.name_category
-                                    FROM books as b 
-                                    LEFT JOIN categories as c 
-                                    ON b.category_id = c.category_id
-                                    WHERE b.book_id = ?
-                                    ORDER BY b.book_id ASC');
-    $stmt->bind_param('i', $book_id);
-    $stmt->execute();
-
-    $book = $stmt->get_result()->fetch_assoc();
-
-    $stmt = $db->prepare('SELECT * FROM books
-                                    WHERE category_id = ? and book_id != ? 
-                                    ORDER BY RAND() LIMIT 5');
-    $stmt->bind_param('ii', $book['category_id'],$book_id);
-    $stmt->execute();
-
-    $books_same_type = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
-    $timestamp = strtotime(date('Y-m-d'));
-    $dateFrom = date('Y-m-01 00:00:00', $timestamp);
-    $dateTo  = date('Y-m-t 23:59:59', $timestamp);
-
-    $stmt = $db->prepare('SELECT b.title,b.image, b.book_id, b.description, b.category_id, b.price, 
-                                        b.created_at, b.updated_at, b.sale, b.hotItem, b.stock, b.authors, c.name_category, 
-                                        tt.total
-                                        FROM books as b 
-                                        LEFT JOIN categories as c 
-                                        ON b.category_id = c.category_id
-                                        LEFT JOIN (SELECT SUM(od.quantity)as total, od.book_id
-                                                    FROM order_detail as od 
-                                                    LEFT JOIN order_item as oi
-                                                    ON od.order_id = oi.id
-                                                    LEFT JOIN transactions as t
-                                                    on t.order_id = oi.id 
-                                                    WHERE t.createdAt >= ? and t.createdAt <= ?
-                                                    GROUP BY od.book_id) as tt
-                                        ON tt.book_id = b.book_id
-                                        WHERE b.book_id != ?
-                                        ORDER BY total DESC LIMIT 5');
-    $stmt->bind_param('ssi',$dateFrom, $dateTo, $book_id);
-    $stmt->execute();
-
-    $books_hot = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
 
     if(!isset($_SESSION['cart'])) {
         $_SESSION['cart'] = array();
         $_SESSION['qty_array'] = array();
     }
 
-    $stmt = $db->prepare('SELECT * FROM categories');
-    $stmt->execute();
-    $categories = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $book_id = $_GET['book_id'];
 
-    $stmt = $db->prepare('SELECT c.comment_id, c.text, c.user_id, c.book_id, c.createdAt, c.parent_id, u.fullname, u.image 
-                                    FROM comments as c 
-                                    LEFT JOIN users as u 
-                                    ON c.user_id = u.id
-                                    WHERE c.book_id =? and parent_id IS NULL 
-                                    ORDER BY createdAt DESC');
-    $stmt->bind_param('i', $book_id);
-    $stmt->execute();
-
-    $result_count_cmt = $stmt->get_result();
-    $count_cmt = $result_count_cmt->num_rows;
-    $comments= $result_count_cmt->fetch_all(MYSQLI_ASSOC);
-
-    $stmt = $db->prepare('SELECT * FROM rate WHERE book_id =?');
-    $stmt->bind_param('i', $book_id);
-    $stmt->execute();
-
-    $result_count_rate = $stmt->get_result();
-    $count_rate = $result_count_rate->num_rows;
-    $rating = $result_count_rate->fetch_all(MYSQLI_ASSOC);
-
-
-    $stmt = $db->prepare('SELECT * FROM rate WHERE book_id =? and user_id =?');
-    $stmt->bind_param('ii', $book_id, $_SESSION['user_id']);
-    $stmt->execute();
-
-    $rate_of_user = $stmt->get_result()->fetch_assoc();
     $avg_rate = 0;
 
     if($count_rate > 0){
@@ -110,17 +29,6 @@
         }
         $avg_rate = (float)$avg_rate / (float)$count_rate;
     }
-
-    $branchs;
-        
-    $stmt = $db->prepare('SELECT br.branch_id, br.title, br.address, br.hotline, br.image, brst.status FROM branch as br
-                            LEFT JOIN branchstockitem as brst
-                            ON br.branch_id = brst.branch_id
-                            WHERE brst.book_id = ?');
-    $stmt->bind_param('i', $book_id);
-    $stmt->execute();
-    $branchs = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
 
     $index = 1;
     $total = 0;
@@ -136,7 +44,7 @@
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <title>Demo PHP MVC</title>
     <link rel="stylesheet" href="/vendor/open-iconic-master/font/css/open-iconic-bootstrap.css">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/views/user/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">  
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
@@ -151,7 +59,7 @@
     <div class="app">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="home.php">Book Store</a>
+            <a class="navbar-brand" href="/">Book Store</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -162,7 +70,7 @@
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?=_CATEGORY?></a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <?php foreach($categories as $category):?>
-                                <a class="dropdown-item" href="category.php?category_id=<?php echo $category['category_id'];?>&name=<?php echo $category['name_category'];?>"><?php echo $category['name_category'];?></a>
+                                <a class="dropdown-item" href="category?category_id=<?php echo $category['category_id'];?>&name=<?php echo $category['name_category'];?>"><?php echo $category['name_category'];?></a>
                             <?php endforeach;?>    
                         </div>
                     </li>
@@ -178,39 +86,27 @@
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <?php if($_SESSION['user_id']): ?>
-                                <a class="dropdown-item" href="history.php"><?= _HISTORY?></a>
-                                <a class="dropdown-item" href="profile.php"><?= _PROFILE?></a>
-                                <a class="dropdown-item" href="codesale.php"><?= _CODESALE?></a>
-                                <a class="dropdown-item" href="store_system.php"><?= _SYSTEM?></a>
-                                <?php else:?>
-                                <a class="dropdown-item" href="../../index.php"><?=_LOGIN ?></a>
-                                <?php endif; ?>
-                                <a class="dropdown-item" href="../../logout.php"><?=_LOGOUT ?></a>
+                            <a class="dropdown-item" href="history"><?= _HISTORY?></a>
+                            <a class="dropdown-item" href="profile"><?= _PROFILE?></a>
+                            <a class="dropdown-item" href="codesale"><?= _CODESALE?></a>
+                            <a class="dropdown-item" href="store_system"><?= _SYSTEM?></a>
+                            <?php else:?>
+                            <a class="dropdown-item" href="login"><?=_LOGIN ?></a>
+                            <?php endif; ?>
+                            <a class="dropdown-item" href="logout"><?=_LOGOUT ?></a>
                         </div>
                     </li>
 
                     <li class="nav-item dropdown" id="show_cart">
-                        <a class="nav-link dropdown-toggle display-count-cart" href="view_cart.php" id="navbarDropdown" aria-haspopup="true" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle display-count-cart" href="view_cart" id="navbarDropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="badge"><?php echo count($_SESSION['cart']); ?></span> Cart <span class="glyphicon glyphicon-shopping-cart"></span> 
                         </a>
                         <?php if(count($_SESSION['cart']) >0 ): ?>
                         <div class="dropdown-menu display-cart"aria-labelledby="navbarDropdown">
-                            <?php
-                                $stmt = $db->prepare("SELECT * FROM books WHERE book_id IN (".implode(',',$_SESSION['cart']).")");
-                                $stmt->execute();
-                                $book_cart = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-                            ?>
                             <?php foreach($book_cart as $cart):?>
                                 <div class="row mt-4">
                                     <div class="col-6">
-                                        <?php 
-                                            $stmt = $db->prepare('SELECT * FROM gallery_image WHERE book_id =? and isShow = 1');
-                                            $stmt->bind_param('i', $cart['book_id']);
-                                            $stmt->execute();
-
-                                            $image_cart = $stmt->get_result()->fetch_assoc();
-                                        ?>
-                                        <img width="70" height="70" src="<?php echo '../../'.$image_cart['address'];?>">
+                                        <img width="70" height="70" src="<?php echo $cart['address'];?>">
                                     </div>
                                     <div class="col-6">
                                         <a href=""><?php echo $cart['title'] ?></a>
@@ -268,23 +164,16 @@
                         <ul class="side_prd_list list-group" style="list-style: none;">
                             <?php foreach($books_hot as $book_hoot):?>
                                     <li class="col-xs-12 item">
-                                        <?php 
-                                            $stmt = $db->prepare('SELECT * FROM gallery_image WHERE book_id =? and isShow = 1');
-                                            $stmt->bind_param('i', $book_hoot['book_id']);
-                                            $stmt->execute();
-
-                                            $image_hot = $stmt->get_result()->fetch_assoc();
-                                        ?>
-                                        <a href="detail_product.php?book_id=<?php echo $book_hot['book_id'] ?>">
+                                        <a href="detail_product?book_id=<?php echo $book_hot['book_id'] ?>">
                                             <img width="70" height="70" src="<?php 
-                                            if($image_hot['address']){
-                                                echo '../../'.$image_hot['address'];
+                                            if($book_hoot['address']){
+                                                echo $book_hoot['address'];
                                             }else {
                                                 echo 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3cD47c9xUZyKlO3j3z9vdBHV0P2BIwfkeWg&s';
                                             }?>
                                             " alt="<?php $book_hoot['book_id']?>">
                                         </a>
-                                        <a href="detail_product.php?book_id=<?echo $book_hoot['book_id'] ?>">
+                                        <a href="detail_product?book_id=<?echo $book_hoot['book_id'] ?>">
                                             <?php echo $book_hoot['title']?>
                                         </a>
                                         <span></span>
@@ -303,35 +192,22 @@
                     <div class="column_right col-md-9 col-xs-12 row">
                         <div class="row col-md-7">
                             <ul class="side_prd_list d-flex flex-wrap justify-content-center col-md-12" style="list-style: none;">
-                                <?php 
-                                    $stmt = $db->prepare("SELECT * FROM gallery_image WHERE book_id=?");
-                                    $stmt->bind_param("i", $book_id);
-                                    $stmt->execute();
-                                    $images = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-                                ?>
                                 <?php foreach($images as $image):?>
                                     <li class="col-md-3 col-6">
                                         <a href="" class="select-image">
-                                            <img width="50" height="50" src="<?php echo '../../'.$image['address']?>" alt="<?php echo $image['image_id']?>">
+                                            <img width="50" height="50" src="<?php echo $image['address']?>" alt="<?php echo $image['image_id']?>">
                                         </a>
                                     </li>
                                 <?php endforeach;?>
                             </ul>
                             <a href="" class="col-md-12">
-                                        <?php 
-                                            $stmt = $db->prepare('SELECT * FROM gallery_image WHERE book_id =? and isShow = 1');
-                                            $stmt->bind_param('i', $book['book_id']);
-                                            $stmt->execute();
-
-                                            $image_current = $stmt->get_result()->fetch_assoc();
-                                        ?>
-                                <img class="card-img-top" id="display-image" width="500" height="500" src="<?php echo $image_current['address']?'../../'.$image_current['address']:'https://tse4.mm.bing.net/th?id=OIP.ZiwfBrifIO4lV_Q-gIC7VQHaKx&pid=Api&P=0&h=180'?>" alt="">
+                                <img class="card-img-top" id="display-image" width="500" height="500" src="<?php echo $image_current['address']?$image_current['address']:'https://tse4.mm.bing.net/th?id=OIP.ZiwfBrifIO4lV_Q-gIC7VQHaKx&pid=Api&P=0&h=180'?>" alt="">
                             </a>
                         </div>
 
                         <div class="card-course-item col-md-5" >
                                 <div class="card-body">
-
+                                    <?php ?>
                                     <a href="">
                                         <h5 class="card-title text-center"><?= $book['title']?> - <?php echo $book['authors'] ?></h5>
                                     </a>
@@ -370,9 +246,11 @@
                                             <a class="nav-link" data-toggle="tab" href="#tabs-4" role="tab"><?=_STATUS ?></a>
                                         </li>
                                     </ul><!-- Tab panes -->
+
                                     <div class="tab-content">
                                         <div class="tab-pane active" id="tabs-1" role="tabpanel">
-                                            <form action="" method="POST">
+                                            <form action="/comment/addComment" method="POST">
+                                                <input type="hidden" name="book_id" value="<?php echo $book_id?>">
                                                 <div class="card-footer py-3 border-0">
                                                     <div class="d-flex flex-start w-100">
                                                         <img class="rounded-circle shadow-1-strong me-3" src="<?php echo '../../'.$_SESSION['image'] ?: 'http://ssl.gstatic.com/accounts/ui/avatar_2x.png'; ?>" alt="avatar" width="40" height="40">
@@ -391,7 +269,7 @@
 
                                                     <div class="d-flex flex-start comment-widgets mt-4">
                                                         <img class="rounded-circle shadow-1-strong me-3"
-                                                            src="<?php echo $comment['image'] ?'../../'.$comment['image']: 'http://ssl.gstatic.com/accounts/ui/avatar_2x.png'; ?>" alt="avatar" width="50"
+                                                            src="<?php echo $comment['image'] ?$comment['image']: 'http://ssl.gstatic.com/accounts/ui/avatar_2x.png'; ?>" alt="avatar" width="50"
                                                             height="50" />
                                                         <div class="flex-grow-1 flex-shrink-1">
                                                             <div>
@@ -414,11 +292,11 @@
                                                             <div class="flex-start mt-4" id="replyComment-<?php echo $comment['comment_id'] ?>" style="display: none;">
                                                                     <a class="me-3" href="#">
                                                                         <img class="rounded-circle shadow-1-strong"
-                                                                        src="<?php $comment['image'] ?'../../'.$comment['image']: 'http://ssl.gstatic.com/accounts/ui/avatar_2x.png'; ?>" alt="avatar"
+                                                                        src="<?php $comment['image'] ?$comment['image']: 'http://ssl.gstatic.com/accounts/ui/avatar_2x.png'; ?>" alt="avatar"
                                                                         width="50" height="50" />
                                                                     </a>
                                                                     <div class="flex-grow-1 flex-shrink-1">
-                                                                        <form action="../../service/user/reply_comment.php" method="POST">
+                                                                        <form action="/comment/replyComment" method="POST">
                                                                             <div class="card-footer py-3 border-0">
                                                                                 <div class="d-flex flex-start w-100">
                                                                                     <input type="hidden" name="comment_id" value="<?= $comment['comment_id']?>">
@@ -437,22 +315,20 @@
                                                             </div>
                                                                 
 
-                                                        <?php
-                                                            $stmt = $db->prepare('SELECT c.comment_id, c.text, c.user_id, c.book_id, c.createdAt, c.parent_id, u.fullname, u.image 
-                                                                FROM comments as c 
-                                                                LEFT JOIN users as u 
-                                                                ON c.user_id = u.id
-                                                                WHERE c.book_id =? and parent_id = ? 
-                                                                ORDER BY createdAt DESC');
-                                                            $stmt->bind_param('ii', $book_id, $comment['comment_id'],);
-                                                            $stmt->execute();
-                                                            $replies = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-                                                        ?>
-                                                        <?php foreach($replies as $reply):?>
+                                                            <?php
+                                                                $replies_of_comment = [];
+                                                                foreach($replies as $reply){
+                                                                    if($reply['parent_id'] == $comment['comment_id']){
+                                                                        $replies_of_comment[] = $reply;
+                                                                    }
+                                                                }
+                                                                // var_dump($replies);
+                                                            ?>
+                                                        <?php foreach($replies_of_comment as $reply):?>
                                                         <div class="d-flex flex-start mt-4">
                                                             <a class="me-3" href="#">
                                                             <img class="rounded-circle shadow-1-strong"
-                                                                src="<?php echo $reply['image'] ?'../../'.$reply['image']: 'http://ssl.gstatic.com/accounts/ui/avatar_2x.png'; ?>" alt="avatar"
+                                                                src="<?php echo $reply['image'] ? $reply['image']: 'http://ssl.gstatic.com/accounts/ui/avatar_2x.png'; ?>" alt="avatar"
                                                                 width="50" height="50" />
                                                             </a>
                                                             <div class="flex-grow-1 flex-shrink-1">
@@ -469,10 +345,8 @@
                                                             </div>
                                                         </div>
                                                         <?php endforeach;?>
-
-
-                                                        </div>
-                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <?php endforeach;?>
                                         </div>
@@ -487,7 +361,7 @@
                                                     <div class="ratings">
                                                         <span class="product-rating"><?php echo $avg_rate ?></span><span>/5</span>
                                                         <div class="container">
-                                                            <form action="../../service/user/rating.php" method="POST">
+                                                            <form action="/rating/addRating" method="POST">
                                                                 <div class="starrating risingstar d-flex justify-content-center flex-row-reverse">
                                                                     <input type="hidden" name="book_id_rate" value="<?= $_GET['book_id']?>">
                                                                     <?php for ($i = 5; $i >= 1; $i--): ?>
@@ -519,19 +393,13 @@
 
                                                     <div class="col-md-2 col-lg-2">
                                                         <div class="card card-course-item">
-                                                                    <?php 
-                                                                        $stmt = $db->prepare('SELECT * FROM gallery_image WHERE book_id =? and isShow = 1');
-                                                                        $stmt->bind_param('i', $book_same_type['book_id']);
-                                                                        $stmt->execute();
-
-                                                                        $image_same = $stmt->get_result()->fetch_assoc();
-                                                                    ?>
+    
                                                                 <a href="">
-                                                                    <img class="card-img-top" width="50" height="100" src="<?php echo $image_same['address']?'../../'.$image_same['address']:'https://tse4.mm.bing.net/th?id=OIP.ZiwfBrifIO4lV_Q-gIC7VQHaKx&pid=Api&P=0&h=180' ?>" alt="">
+                                                                    <img class="card-img-top" width="50" height="100" src="<?php echo $book_same_type['address']?$book_same_type['address']:'https://tse4.mm.bing.net/th?id=OIP.ZiwfBrifIO4lV_Q-gIC7VQHaKx&pid=Api&P=0&h=180' ?>" alt="">
                                                                 </a>
                                                                 
                                                                 <div class="card-body">
-                                                                    <a href="detail_product.php?book_id=<?php echo $book_same_type['book_id'] ?>">
+                                                                    <a href="detail_product?book_id=<?php echo $book_same_type['book_id'] ?>">
                                                                         <span class="card-title"><?= $book_same_type['title']?></span>
                                                                     </a>
                                                                     <p class="card-text" style="font-size:10px;" ><?=_AUTHORS ?>: <?= $book_same_type['authors']?></p>
@@ -617,7 +485,7 @@
                 const quantity = document.querySelector(`input[name="quantity"]`).value;
                 
                 $.ajax({
-                    url: '../../service/cart/add_to_cart.php',
+                    url: '/cart/addtocart',
                     method: 'POST',
                     data: {book_id: productId, quantity: quantity},
                     success: function (response) {
@@ -674,26 +542,4 @@
         });
     });
     </script>
-<?php
-    if(!$_SESSION['user_id'] && isset($_POST['comment'])){
-            header('Location: ../../index.php');
-            exit();
-    } else if(isset($_POST['comment']) && isset($_POST['text_comment']) &&!empty($_POST['text_comment'])){
-        $book_id = $_GET['book_id'];
-        $user_id = $_SESSION['user_id'];
-        $text_comment = $_POST['text_comment'];
 
-        $stmt = $db->prepare('INSERT INTO comments (book_id, user_id, text, createdAt) VALUES (?,?,?,NOW())');
-        $stmt->bind_param('iis', $book_id, $user_id, $text_comment);
-        $stmt->execute();
-
-        if($stmt->affected_rows > 0)
-        {
-            header('Location: detail_product.php?book_id='. $book_id);
-            $_SESSION['message'] = 'Comment added successfully';
-        } else {
-            echo 'Error adding comment';
-            $_SESSION['message'] = 'Comment added unsuccessfully';
-        }
-    }
-?>

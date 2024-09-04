@@ -1,6 +1,6 @@
 <?php
     session_start();
-    require_once('../../../database.php');
+
     if(isset($_GET['lang']) && !empty($_GET['lang'])){
         $_SESSION['lang'] = $_GET['lang'];
         if(isset($_SESSION['lang']) && $_SESSION['lang'] != $_GET['lang']){
@@ -8,87 +8,22 @@
         }
       }
   
-      if(isset($_SESSION['lang'])){
-          include "../../../public/language/".$_SESSION['lang'].".php";
-      }else{
-              include "../../../public/language/en.php";
-      }
-    $db = DBConfig::getDB();
-    $books;
+    if(isset($_SESSION['lang'])){
+        include "public/language/".$_SESSION['lang'].".php";
+    }else{
+            include "public/language/en.php";
+    }
+
     $import_id = $_GET['import_id'];
-
-    $stmt = $db->prepare("SELECT * FROM import WHERE id =?");
-    $stmt->bind_param("i", $import_id);
-    $stmt->execute();
-
-    $import = $stmt->get_result()->fetch_assoc();
     
     $limit = 6;
     
-    if(isset($_GET['search_keyword']) && $_GET['search_keyword'] != null){
-        $search_keyword = $_GET['search_keyword'];
-        $search = "%$search_keyword%";
-        $stmt = $db->prepare('SELECT b.title,b.image, b.book_id, b.description, b.category_id, b.price, 
-                                    b.created_at, b.updated_at, b.sale, b.hotItem, b.stock, b.authors, c.name_category, i.quantity, i.stock as before_import
-                                    FROM books as b 
-                                    LEFT JOIN categories as c 
-                                    ON b.category_id = c.category_id
-                                    LEFT JOIN import_item as i
-                                    ON b.book_id = i.book_id
-                                    WHERE (b.title LIKE ? OR b.authors LIKE ? OR b.description LIKE ? OR c.name_category LIKE ?) AND i.import_id =?
-                                    ORDER BY b.book_id ASC');
-        $stmt->bind_param("ssssi",$search, $search, $search, $search, $import_id);
-    } else {
-        $stmt = $db->prepare("SELECT * FROM books as b
-                                LEFT JOIN import_item as i
-                                on b.book_id = i.book_id
-                                WHERE i.import_id =?");
-        $stmt->bind_param("i", $import_id);
-    }
-
-    $stmt->execute();
-
-    $number_result  = $stmt->get_result()->num_rows;
-
-    $number_page = ceil($number_result/ $limit);
     
     if(!isset($_GET['page'])){
         $page = 1;
     } else {
         $page = $_GET['page'];
     }
-
-    $page_first = ($page - 1) * $limit;
-
-
-    if(isset($_GET['search_keyword'])) {
-        $search_keyword = $_GET['search_keyword'];
-        $search = "%$search_keyword%";
-        $stmt = $db->prepare('SELECT b.title,b.image, b.book_id, b.description, b.category_id, b.price, 
-                                    b.created_at, b.updated_at, b.sale, b.hotItem, b.stock, b.authors, c.name_category, i.quantity, i.stock as before_import, i.after_stock
-                                    FROM books as b 
-                                    LEFT JOIN categories as c 
-                                    ON b.category_id = c.category_id
-                                    LEFT JOIN import_item as i
-                                    ON b.book_id = i.book_id
-                                    WHERE (b.title LIKE ? OR b.authors LIKE ? OR b.description LIKE ? OR c.name_category LIKE ?) AND i.import_id =?
-                                    ORDER BY b.book_id ASC LIMIT ?,?');
-        $stmt->bind_param("ssssiii",$search, $search, $search, $search,$import_id,$page_first,$limit);
-        
-    } else {
-        $stmt = $db->prepare('SELECT b.title,b.image, b.book_id, b.description, b.category_id, b.price, 
-                                    b.created_at, b.updated_at, b.sale, b.hotItem, b.stock, b.authors, c.name_category, i.quantity, i.stock as before_import, i.after_stock
-                                    FROM books as b 
-                                    LEFT JOIN categories as c 
-                                    ON b.category_id = c.category_id
-                                    LEFT JOIN import_item as i
-                                    ON b.book_id = i.book_id
-                                    WHERE i.import_id =? 
-                                    ORDER BY b.book_id ASC LIMIT ?,?');
-        $stmt->bind_param('iii',$import_id,$page_first,$limit);
-    }
-    $stmt->execute();
-    $books = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
 
     $index = $page * $limit - $limit + 1;
@@ -108,7 +43,7 @@
   </head>
 <body>
     <div class="app">
-        <?php include('../partials/admin_header.php') ?>
+        <?php include('views/management/partials/admin_header.php') ?>
         <div class="container">
             <div class="mt-4">
             <?php 
@@ -130,14 +65,14 @@
                     </form>
                 </div>
                 <div class="col-md-3 justify-content-right">
-                    <form class="form-inline nav-item" method="POST" action="<?php echo $import['status'] == 0? 'make_import.php':'' ?>">
+                    <form class="form-inline nav-item" method="POST" action="<?php echo $import['status'] == 0? '/import/confirmImport':'' ?>">
                         <input type="hidden" name="import_id" value="<?php echo $import_id?>">
                         <button class="btn btn-success my-2 my-sm-0 font-weight-bold" type="submit" <?php echo $import['status'] == 0? '':'disabled=disabled' ?>><?php echo $import['status'] == 0? _SAVE: _ACCEPT?></button>
                     </form>
                 </div>
 
                 <div class="col-md-3 d-flex justify-content-end">
-                        <form class="form-inline nav-item col-md-6 justify-content-center" method="POST" action="../../../service/management/export_inventory.php">
+                        <form class="form-inline nav-item col-md-6 justify-content-center" method="POST" action="/import/exportFile">
                             <input class="form-control mr-sm-2" type="hidden" name="date_select" value="<?php echo $date?>">
                             <input type="hidden" name="import_id" value="<?php echo $import_id ?>">
                             <button class="btn btn-info my-2 my-sm-0" type="submit"><?=_EXPORT?></button>
@@ -155,22 +90,22 @@
                         <nav aria-label="Page navigation example">
                                 <ul class="pagination">
                                     <?php if($page - 1 == 0):?>
-                                        <li class="page-item disabled"><a class="page-link" href="detail_import.php?import_id=<?php echo $import_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="detailInventory?import_id=<?php echo $import_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="detail_import.php?import_id=<?php echo $import_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
+                                        <li class="page-item"><a class="page-link" href="detailInventory?import_id=<?php echo $import_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php endif;?>
-                                    <li class="page-item active"><a class="page-link" href="detail_import.php?import_id=<?php echo $import_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
+                                    <li class="page-item active"><a class="page-link" href="detailInventory?import_id=<?php echo $import_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
                                     <?php if($page +1 > $number_page):?>
-                                        <li class="page-item disabled"><a class="page-link" href="detail_import.php?import_id=<?php echo $import_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="detailInventory?import_id=<?php echo $import_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="detail_import.php?import_id=<?php echo $import_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
+                                        <li class="page-item"><a class="page-link" href="detailInventory?import_id=<?php echo $import_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php endif;?>
                                 </ul>
                             </nav>
                     </div>
                 <div class="row">
                     <div class="col-md-12 d-flex justify-content-end">
-                            <form action="../../../service/management/import_excel.php" method="POST" enctype="multipart/form-data">
+                            <form action="/import/importFile" method="POST" enctype="multipart/form-data">
                                 <input type="hidden" name="import_id" value="<?php echo $import_id?>">
                                 <input type="file" class="text-center center-block file-upload" name="fileimport">
                                 <button class="btn btn-outline-success" type="submit" name="submit-import"><?=_MAKEIMPORT?></button>
@@ -197,8 +132,8 @@
                                     <td>
                                         <img width="100" height="100" src="
                                         <?php 
-                                        if($book['image']){
-                                            echo $book['image'];
+                                        if($book['address']){
+                                            echo '../'.$book['address'];
                                         }else {
                                             echo 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3cD47c9xUZyKlO3j3z9vdBHV0P2BIwfkeWg&s';
                                         }?>
@@ -298,7 +233,7 @@
                 
 
                 $.ajax({
-                    url: '../../../service/management/edit_quantity_import.php',
+                    url: '/import/updateQuantity',
                     method: 'POST',
                     data: {book_id: bookId, quantity: quantity, import_id: import_id},
                     success: function (response) {

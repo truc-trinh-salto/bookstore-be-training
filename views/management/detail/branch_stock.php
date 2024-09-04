@@ -1,6 +1,6 @@
 <?php
     session_start();
-    require_once('../../../database.php');
+
     if(isset($_GET['lang']) && !empty($_GET['lang'])){
         $_SESSION['lang'] = $_GET['lang'];
         if(isset($_SESSION['lang']) && $_SESSION['lang'] != $_GET['lang']){
@@ -9,47 +9,14 @@
     }
 
     if(isset($_SESSION['lang'])){
-        include "../../../public/language/".$_SESSION['lang'].".php";
+        include "public/language/".$_SESSION['lang'].".php";
     }else{
-            include "../../../public/language/en.php";
+            include "public/language/en.php";
     }
-    $db = DBConfig::getDB();
+
     $branch_id = $_GET['branch_id'];
-    $books;
 
     $limit = 6;
-
-    if(isset($_GET['search_keyword']) && $_GET['search_keyword']!= null) {
-        $search_keyword = $_GET['search_keyword'];
-        $search = "%$search_keyword%";
-        $stmt = $db->prepare('SELECT b.book_id, b.title,b.image, b.book_id, b.description, b.category_id, b.price, 
-                                    b.created_at, b.updated_at, b.sale, b.hotItem, b.stock, b.authors, c.name_category, br.status, br.branch_id, br.branch_select
-                                    FROM books as b 
-                                    LEFT JOIN branchstockitem as br ON b.book_id = br.book_id 
-                                    LEFT JOIN categories as c ON b.category_id = c.category_id
-                                    WHERE (b.title LIKE ? OR b.authors LIKE ? OR b.description LIKE ? OR c.name_category LIKE ?)
-                                    AND br.branch_id = ?
-                                    ORDER BY b.book_id ASC');
-        $stmt->bind_param("ssssi",$search, $search, $search, $search, $branch_id);
-        
-    } else {
-        $stmt = $db->prepare("SELECT b.title,b.image, b.book_id, b.description, b.category_id, b.price, 
-        b.created_at, b.updated_at, b.sale, b.hotItem, b.stock, b.authors, c.name_category, br.status, br.branch_id, br.branch_select
-        FROM books as b 
-        LEFT JOIN branchstockitem as br ON b.book_id = br.book_id 
-        LEFT JOIN categories as c ON b.category_id = c.category_id
-        WHERE br.branch_id =?
-        ORDER BY b.book_id ASC");
-        $stmt->bind_param('i',$branch_id);
-    }
-
-
-
-    $stmt->execute();
-
-    $number_result  = $stmt->get_result()->num_rows;
-
-    $number_page = ceil($number_result/ $limit);
     
     if(!isset($_GET['page'])){
         $page = 1;
@@ -58,33 +25,6 @@
     }
 
     $page_first = ($page - 1) * $limit;
-
-
-    if(isset($_GET['search_keyword']) && $_GET['search_keyword']!= null) {
-        $search_keyword = $_GET['search_keyword'];
-        $search = "%$search_keyword%";
-        $stmt = $db->prepare('SELECT b.book_id, b.title,b.image, b.book_id, b.description, b.category_id, b.price, 
-                                    b.created_at, b.updated_at, b.sale, b.hotItem, b.stock, b.authors, c.name_category, br.status, br.branch_id, br.branch_select
-                                    FROM books as b 
-                                    LEFT JOIN branchstockitem as br ON b.book_id = br.book_id 
-                                    LEFT JOIN categories as c ON b.category_id = c.category_id
-                                    WHERE (b.title LIKE ? OR b.authors LIKE ? OR b.description LIKE ? OR c.name_category LIKE ?)
-                                    AND br.branch_id = ?
-                                    ORDER BY b.book_id ASC LIMIT ?,?');
-        $stmt->bind_param("ssssiii",$search, $search, $search, $search, $branch_id,$page_first, $limit);
-        
-    } else {
-        $stmt = $db->prepare('SELECT b.book_id,b.title,b.image, b.book_id, b.description, b.category_id, b.price, 
-                                    b.created_at, b.updated_at, b.sale, b.hotItem, b.stock, b.authors, c.name_category, br.status, br.branch_id, br.branch_select
-                                    FROM books as b 
-                                    LEFT JOIN branchstockitem as br ON b.book_id = br.book_id 
-                                    LEFT JOIN categories as c ON b.category_id = c.category_id
-                                    WHERE br.branch_id =?
-                                    ORDER BY b.book_id ASC LIMIT ?,?');
-        $stmt->bind_param('iii', $branch_id,$page_first, $limit);
-    }
-    $stmt->execute();
-    $books = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
 
     $index = 1;
@@ -104,7 +44,7 @@
   </head>
 <body>
     <div class="app">
-        <?php include('../partials/admin_header.php') ?>
+        <?php include('views/management/partials/admin_header.php') ?>
         <div class="container">
             <div class="mt-4">
             <?php 
@@ -126,17 +66,17 @@
                         <nav aria-label="Page navigation example">
                                 <ul class="pagination">
                                     <?php if($page - 1 == 0):?>
-                                        <li class="page-item disabled"><a class="page-link" href="branch_stock.php?branch_id=<?php echo $branch_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="detailBranch?branch_id=<?php echo $branch_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="branch_stock.php?branch_id=<?php echo $branch_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
-                                        <li class="page-item"><a class="page-link" href="branch_stock.php?branch_id=<?php echo $branch_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?php echo $page-1 ?></a></li>
+                                        <li class="page-item"><a class="page-link" href="detailBranch?branch_id=<?php echo $branch_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?=_PREVIOUS?></a></li>
+                                        <li class="page-item"><a class="page-link" href="detailBranch?branch_id=<?php echo $branch_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page -1?>"><?php echo $page-1 ?></a></li>
                                     <?php endif;?>
-                                    <li class="page-item active"><a class="page-link" href="branch_stock.php?branch_id=<?php echo $branch_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
+                                    <li class="page-item active"><a class="page-link" href="detailBranch?branch_id=<?php echo $branch_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page?>"><?php echo $page ?></a></li>
                                     <?php if($page +1 > $number_page):?>
-                                        <li class="page-item disabled"><a class="page-link" href="branch_stock.php?branch_id=<?php echo $branch_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="detailBranch?branch_id=<?php echo $branch_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php else:?>
-                                        <li class="page-item"><a class="page-link" href="branch_stock.php?branch_id=<?php echo $branch_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?php echo $page + 1 ?></a></li>
-                                        <li class="page-item"><a class="page-link" href="branch_stock.php?branch_id=<?php echo $branch_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
+                                        <li class="page-item"><a class="page-link" href="detailBranch?branch_id=<?php echo $branch_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?php echo $page + 1 ?></a></li>
+                                        <li class="page-item"><a class="page-link" href="detailBranch?branch_id=<?php echo $branch_id ?>&search_keyword=<?php echo $search_keyword ?>&page=<?php echo $page +1?>"><?=_NEXT?></a></li>
                                     <?php endif;?>
                                 </ul>
                             </nav>
@@ -163,8 +103,8 @@
                                     <td>
                                         <img width="100" height="100" src="
                                         <?php 
-                                        if($book['image']){
-                                            echo $book['image'];
+                                        if($book['address']){
+                                            echo '../'.$book['address'];
                                         }else {
                                             echo 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3cD47c9xUZyKlO3j3z9vdBHV0P2BIwfkeWg&s';
                                         }?>
@@ -198,9 +138,9 @@
                                     </td>
                                     <td>
                                         <?php if($book['status'] == 1): ?>
-                                            <a href="../../../service/branch/action_stock.php?book_id=<?php echo $book['book_id']?>&branch_id=<?php echo $book['branch_id']?>&action=out" class="btn btn-success btn-sm"><?=_INSTOCK?></a>
+                                            <a href="/branch/actionStock?book_id=<?php echo $book['book_id']?>&branch_id=<?php echo $book['branch_id']?>&action=out" class="btn btn-success btn-sm"><?=_INSTOCK?></a>
                                         <?php else: ?>
-                                            <a href="../../../service/branch/action_stock.php?book_id=<?php echo $book['book_id']?>&branch_id=<?php echo $book['branch_id']?>&action=in" class="btn btn-danger btn-sm"><?=_OUTSTOCK?></a>
+                                            <a href="/branch/actionStock?book_id=<?php echo $book['book_id']?>&branch_id=<?php echo $book['branch_id']?>&action=in" class="btn btn-danger btn-sm"><?=_OUTSTOCK?></a>
                                         <?php endif; ?>
 
                                         <?php if($book['branch_select'] == 1): ?>

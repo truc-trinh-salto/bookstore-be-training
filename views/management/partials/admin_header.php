@@ -6,15 +6,15 @@
         }
     }
     if(isset($_SESSION['lang'])){
-            include "../../public/language/".$_SESSION['lang'].".php";
+            include "public/language/".$_SESSION['lang'].".php";
     }else{
-            include "../../public/language/en.php";
+            include "public/language/en.php";
     }
  ?>
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="http://localhost:8080/views/management/product.php">Book Store</a>
+            <a class="navbar-brand" href="product">Book Store</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -22,28 +22,27 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="http://localhost:8080/views/management/product.php"><?=_PRODUCT?></a>
+                        <a class="nav-link" href="product"><?=_PRODUCT?></a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="http://localhost:8080/views/management/users.php"><?=_USER?></a>
+                        <a class="nav-link" href="user"><?=_USER?></a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="http://localhost:8080/views/management/store_system.php"><?=_BRANCH?></a>
+                        <a class="nav-link" href="storeSystem"><?=_BRANCH?></a>
                     </li>
 
 
                     <li class="nav-item">
-                        <a class="nav-link" href="http://localhost:8080/views/management/revenue.php"><?=_REVENUE?></a>
+                        <a class="nav-link" href="revenue"><?=_REVENUE?></a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="http://localhost:8080/views/management/codesale.php"><?=_CODESALE?></a>
+                        <a class="nav-link" href="codesale"><?=_CODESALE?></a>
                     </li>
 
                     
-
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <?php 
@@ -51,9 +50,10 @@
                             ?>
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="http://localhost:8080/views/management/add/add_store.php"><?=_ADDBRANCH?></a>
-                        <a class="dropdown-item" href="http://localhost:8080/views/management/add/add_codesale.php"><?=_ADDCODESALE?></a>
-                        <a class="dropdown-item" href="http://localhost:8080/logout.php"><?=_LOGOUT?>
+                        <a class="dropdown-item" href="pageAddBranch"><?=_ADDBRANCH?></a>
+                        <a class="dropdown-item" href="pageAddCodesale"><?=_ADDCODESALE?></a>
+                        <a class="dropdown-item" href="transport"><?=_TRANSPORT?></a>
+                        <a class="dropdown-item" href="/logout"><?=_LOGOUT?>
                         </a>
                         </div>
                     </li>
@@ -65,6 +65,8 @@
 						}
 					</script>
 						<form method='get' action='' id='form_lang'>
+                            <input type="hidden" name="dateFrom" value=<?=$from?>>
+                            <input type="hidden" name="dateTo" value=<?=$to?>>
                             <input type='hidden' name='code_id' value=<?=$code_id?>>
                             <input type='hidden' name='branch_id' value=<?=$branch_id?>>
                             <input type='hidden' name='order_id' value=<?=$order_id?>>
