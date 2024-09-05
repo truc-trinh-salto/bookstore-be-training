@@ -1,14 +1,14 @@
 This is a website demo for bookstore with simple features
 
-Homepage: views/user/home.php
+Homepage: /
 
-Managementpage: views/management/product.php
+Managementpage: /management/product
 
-Transportpage: views/management/transport/home.php
+Transportpage: /management/transport
 
 
 Account:
   - Username:trinhtruc
-  - Password:123456
+  - Password:12345678
 
 Database: mysql(name:book_store) (in folder config)
